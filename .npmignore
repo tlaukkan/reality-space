@@ -1,4 +1,11 @@
 .idea
+.gitignore
+aframe-dataspace.iml
+karma.config.js
+Procfile
+Readme.md
+tsconfig.json
+webpack.config.js
 lib/test
 node_modules
 src

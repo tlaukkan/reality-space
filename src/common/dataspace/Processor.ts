@@ -56,7 +56,7 @@ export class Processor {
     add(connection: Connection) {
         this.connections.set(connection.id, connection);
 
-        connection.receive = async (message: String) => {
+        connection.receive = (message: String) => {
             try {
                 const parts = message.split(Encode.SEPARATOR);
                 const type = parts[0];

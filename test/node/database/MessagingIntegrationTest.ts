@@ -5,23 +5,17 @@ import {Server} from "../../../src/common/dataspace/Server";
 import {Grid} from "../../../src/common/dataspace/Grid";
 import {Processor} from "../../../src/common/dataspace/Processor";
 import {Client} from "../../../src/common/dataspace/Client";
-import {waitOnCondition} from "./util";
-import uuid = require("uuid");
 
-describe('Test Messaging', () => {
-    let server: Server;
+describe('Integration Test Messaging', () => {
     let client: Client;
 
     before(async () => {
-        server = new Server('127.0.0.1', 8889, new Processor(new Grid(0, 0, 0, 1000, 100, 200)));
-        server.listen();
-        client = new Client("ws://127.0.0.1:8889/");
+        client = new Client("wws://aframe-dataspace-0-0-0.herokuapp.com/");
         await client.connect();
     });
 
     after(function() {
         client.close();
-        server.close();
     });
 
     it('Should send add and receive messages.', function (done) {
@@ -48,45 +42,4 @@ describe('Test Messaging', () => {
         }
     });
 
-    it('Should send add and receive messages for multiple clientss.', async () => {
-        const n = 3;
-        const clients: Array<Client> = [];
-        const entityIds: Array<string> = [];
-        let c = 0;
-        let a = 0;
-
-        const startMillis = new Date().getTime();
-        for (let i = 0; i < n; i++) {
-            clients.push(new Client("ws://127.0.0.1:8889/"));
-            entityIds.push(uuid.v4());
-            await clients[i].connect();
-            clients[i].onReceive = async function (message) {
-                c++;
-            };
-        }
-
-        clients[2].onReceive = async function (message) {
-            c++;
-            if (message.split(Encode.SEPARATOR)[0]===Encode.ADDED) {
-                a++;
-                console.log(a + ") " + message);
-            }
-        };
-
-        for (let i = 0; i < n; i++) {
-            await clients[i].add(entityIds[i], 1, 2, 3, 4, 5, 6, 7, "d");
-        }
-
-        await waitOnCondition(() => { return a >= n});
-
-        for (let i = 0; i < n; i++) {
-            clients[i].close();
-        }
-
-        const endMillis = new Date().getTime();
-        const timeMillis = endMillis - startMillis;
-
-        console.log("time spent: " + timeMillis + " ms.")
-        console.log("receive throughput: " + (c / (timeMillis / 1000)) + " messages/s.")
-    });
 });

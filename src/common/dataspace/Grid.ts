@@ -167,14 +167,14 @@ export class Grid {
         this.releaseIndex(entity.index);
     }
 
-    queue(sourceEntityId: string, messageType: string, encodedMessage: string) {
-        const entity = this.entities.get(sourceEntityId);
+    queue(entityId: string, messageType: string, encodedMessage: string) {
+        const entity = this.entities.get(entityId);
         if (entity === undefined) {
-            throw Error("Entity does not exist in grid: " + sourceEntityId);
+            throw Error("Entity does not exist in grid: " + entityId);
         }
         const cell = this.getCell(entity.x, entity.y, entity.z);
         if (cell === undefined) {
-            throw Error("Entity old coordinates outside grid: " + sourceEntityId);
+            throw Error("Entity old coordinates outside grid: " + entityId);
         }
         for (let cellInRange of cell.cellsInRange) {
             for (let entityInRange of cellInRange.entities) {
@@ -202,7 +202,7 @@ export class Grid {
                     continue;
                 }
                 const encoded = Encode.added(entityInRange.index, entityInRange.id, entityInRange.x, entityInRange.y, entityInRange.z, entityInRange.rx, entityInRange.ry, entityInRange.rz, entityInRange.rw, entityInRange.description);
-                this.queue(entityId, Encode.ADDED, encoded);
+                entity.connection.outQueue.enqueue([Encode.ADDED, encoded]);
             }
         }
     }

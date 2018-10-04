@@ -54,7 +54,7 @@ export class Server {
             ws.send(message);
         };
         ws.on('message', async (message: websocket.IMessage) => {
-            console.log('dataspace server - client message from ' + request.socket.remoteAddress + ':' + request.socket.remotePort + ':' + message.utf8Data!!);
+            //console.log('dataspace server - client message from ' + request.socket.remoteAddress + ':' + request.socket.remotePort + ':' + message.utf8Data!!);
             await connection.receive(message.utf8Data!!);
         });
         ws.on('close', () => {

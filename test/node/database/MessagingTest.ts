@@ -48,7 +48,7 @@ describe('Test Messaging', () => {
         }
     });
 
-    it('Should send add and receive messages for multiple clientss.', async () => {
+    it('Should send add and receive messages for multiple clients.', async () => {
         const n = 3;
         const clients: Array<Client> = [];
         const entityIds: Array<string> = [];

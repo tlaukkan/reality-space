@@ -25,59 +25,69 @@ describe('Integration Test Client', () => {
     });
 
     it('Should connect multiple clients to aframe-dataspace-0-0-0.herokuapp.com.', async () => {
-        const n = 3;
+        const n = 20;
         const clients: Array<Client> = [];
         const entityIds: Array<string> = [];
-        let c = 0;
-        let a = 0;
 
-        const startMillis = new Date().getTime();
         for (let i = 0; i < n; i++) {
             clients.push(new Client("wws://aframe-dataspace-0-0-0.herokuapp.com/"));
             entityIds.push(uuid.v4());
             await clients[i].connect();
+        }
+
+        let a = 0;
+        let c = 0;
+
+        for (let i = 0; i < n; i++) {
             clients[i].onReceive = async function (message) {
-                c++;
+                if (message.split(Encode.SEPARATOR)[0]===Encode.UPDATED) {
+                    c++;
+                }
             };
         }
 
-        clients[0].onReceive = async function (message) {
-            c++;
+        clients[n-1].onReceive = async function (message) {
             if (message.split(Encode.SEPARATOR)[0]===Encode.ADDED) {
                 a++;
-                console.log(a + ") " + message);
+            }
+            if (message.split(Encode.SEPARATOR)[0]===Encode.UPDATED) {
+                c++;
             }
         };
+
+        const startMillis = new Date().getTime();
 
         for (let i = 0; i < n; i++) {
             await clients[i].add(entityIds[i], 1, 2, 3, 4, 5, 6, 7, "d");
         }
 
+        await waitOnCondition(() => {
+            console.log(a);
+            return a >= n;
+        });
 
-        console.log("about to create promise");
-
-        /*const wait = (condition: (() => boolean)): Promise<void> =>  {
-            return new Promise((resolve, reject) => {
-                const timer = setInterval(() => {
-                    if (condition()) {
-                        clearInterval(timer);
-                        resolve();
-                    }
-                }, 100);
-            });
-        };*/
-
-        await waitOnCondition(() => { return a > 20});
-
-        for (let i = 0; i < n; i++) {
-            clients[i].close();
+        const repeats = 2;
+        for (let j = 0; j < 2; j++) {
+            for (let i = 0; i < n; i++) {
+                await clients[i].update(entityIds[i], 1, 2, 3, 4, 5, 6, 7);
+            }
         }
+
+        await waitOnCondition(() => {
+            console.log(c);
+            return c >= n * n * repeats;
+        });
 
         const endMillis = new Date().getTime();
         const timeMillis = endMillis - startMillis;
 
         console.log("time spent: " + timeMillis + " ms.")
         console.log("receive throughput: " + (c / (timeMillis / 1000)) + " messages/s.")
-    });
+
+        for (let i = 0; i < n; i++) {
+            clients[i].close();
+        }
+
+    }).timeout(10000);
 
 });

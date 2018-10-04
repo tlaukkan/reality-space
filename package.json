@@ -11,7 +11,8 @@
     "test:node": "mocha --exit ./test/node/*.ts ./test/common/*.ts",
     "test:browser": "karma start karma.config.js --browsers Chrome",
     "test": "npm run test:node && npm run test:browser",
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly" : "npm run build"
   },
   "repository": {
     "type": "git",

@@ -84,7 +84,7 @@ export class Processor {
                     }
 
                     connection.entityIds.add(entityId);
-                    const entity = this.grid.entities.get(entityId);
+                    const entity = this.grid.entities.get(entityId)!!;
                     const encoded = Encode.added(entity.index, entityId, x, y, z, rx, ry, rz, rw, description);
                     this.grid.queue(entityId, Encode.ADDED, encoded);
 
@@ -107,7 +107,7 @@ export class Processor {
                     }
 
                     this.grid.update(entityId, x, y, z, rx, ry, rz, rw);
-                    const entity = this.grid.entities.get(entityId);
+                    const entity = this.grid.entities.get(entityId)!!;
                     const encoded = Encode.updated(entity.index, x, y, z, rx, ry, rz, rw);
                     this.grid.queue(entityId, Encode.UPDATED, encoded);
                     return;
@@ -120,7 +120,7 @@ export class Processor {
                         throw new Error("Connection does not own: " + entityId);
                     }
 
-                    const entity = this.grid.entities.get(entityId);
+                    const entity = this.grid.entities.get(entityId)!!;
                     const encoded = Encode.removed(entity.index, entityId);
                     this.grid.queue(entityId, Encode.REMOVED, encoded);
                     connection.entityIds.delete(entityId);
@@ -138,7 +138,7 @@ export class Processor {
 
                     this.grid.describe(entityId, description);
 
-                    const entity = this.grid.entities.get(entityId);
+                    const entity = this.grid.entities.get(entityId)!!;
                     const encoded = Encode.described(entity.index, description);
                     this.grid.queue(entityId, Encode.DESCRIBED, encoded);
                     return;
@@ -152,7 +152,7 @@ export class Processor {
                         throw new Error("Connection does not own: " + entityId);
                     }
 
-                    const entity = this.grid.entities.get(entityId);
+                    const entity = this.grid.entities.get(entityId)!!;
                     const encoded = Encode.acted(entity.index, action);
                     this.grid.queue(entityId, Encode.ACTED, encoded);
                     return;
@@ -169,7 +169,7 @@ export class Processor {
         this.connections.delete(connection.id);
 
         for (let entityId of connection.entityIds) {
-            const entity = this.grid.entities.get(entityId);
+            const entity = this.grid.entities.get(entityId)!!;
             const encoded = Encode.removed(entity.index, entityId);
             this.grid.queue(entityId, Encode.REMOVED, encoded);
             connection.entityIds.delete(entityId);

@@ -1,4 +1,5 @@
-export const waitOnCondition = (condition: (() => boolean)): Promise<void> =>  {
+export const
+    waitOnCondition = (condition: (() => boolean)): Promise<void> =>  {
     return new Promise((resolve, reject) => {
         const timer = setInterval(() => {
             if (condition()) {

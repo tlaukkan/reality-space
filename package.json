@@ -1,8 +1,9 @@
 {
-  "name": "aframe-dataspace",
+  "name": "@tlaukkan/aframe-dataspace",
   "version": "0.0.1",
   "description": "A-Frame Dataspace",
-  "main": "src/node/app.js",
+  "main": "lib/src/index.js",
+  "types": "lib/src/index.d.ts",
   "scripts": {
     "start": "ts-node src/node/app.ts",
     "start:dev:node": "ts-node-dev src/node/app.ts",
@@ -10,8 +11,7 @@
     "test:node": "mocha --exit ./test/node/*.ts ./test/common/*.ts",
     "test:browser": "karma start karma.config.js --browsers Chrome",
     "test": "npm run test:node && npm run test:browser",
-    "dist": "webpack",
-    "tsc": "tsc"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -57,7 +57,6 @@
   },
   "dependencies": {
     "@types/node": "^10.11.4",
-    "@types/es6-collections": "^0.5.31",
     "@types/es6-promise": "^3.3.0",
     "@types/uuid": "^3.4.4",
     "@types/websocket": "0.0.40",

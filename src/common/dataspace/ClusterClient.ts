@@ -4,6 +4,7 @@ import {Encode} from "./Encode";
 
 interface OnReceive { (type: string, message: string[]): void }
 interface OnClose { (): void }
+interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 
 export class ClusterClient {
 
@@ -36,6 +37,8 @@ export class ClusterClient {
         this.rw = rw;
         this.avatarDescription = avatarDescription;
     }
+
+    newWebSocket: WebSocketConstruct = (url:string, protocol:string) => { return new WebSocket(url, protocol)};
 
     async connect(): Promise<void> {
         // Close outdated clients.
@@ -90,6 +93,7 @@ export class ClusterClient {
         for (let server of newServers) {
             if (!this.clients.has(server.url)) {
                 let client = new Client(server.url);
+                client.newWebSocket = this.newWebSocket;
                 client.onClose = () => {
                     if (this.primaryServerUrl === client.url) {
                         this.onClose();

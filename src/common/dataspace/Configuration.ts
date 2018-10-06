@@ -1,5 +1,3 @@
-import * as fs from "fs";
-import {readFile} from "fs";
 import {GridConfiguration} from "./Grid";
 require('isomorphic-fetch');
 
@@ -23,11 +21,7 @@ export class ClusterConfiguration {
 }
 
 export async function getClusterConfiguration(url: string): Promise<ClusterConfiguration> {
-    if (url.startsWith("http")) {
-        return await fetchConfiguration(url);
-    } else {
-        return await loadConfiguration(url);
-    }
+    return await fetchConfiguration(url);
 }
 
 export async function fetchConfiguration(url: string): Promise<ClusterConfiguration> {
@@ -37,18 +31,6 @@ export async function fetchConfiguration(url: string): Promise<ClusterConfigurat
     }
     const responseText = await (response.text());
     return JSON.parse(responseText) as ClusterConfiguration;
-}
-
-export function loadConfiguration(path: string): Promise<ClusterConfiguration> {
-    return new Promise((resolve, reject) => {
-        fs.readFile(path, 'utf8', function (err, contents) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(JSON.parse(contents) as ClusterConfiguration)
-            }
-        });
-    });
 }
 
 export function findGridConfiguration(clusterConfiguration: ClusterConfiguration, serverUrl: String) : GridConfiguration {

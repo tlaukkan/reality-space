@@ -1,57 +1,29 @@
-module.exports = function (config) {
+const webpackConfig = require("./webpack.config");
+
+module.exports = (config) => {
     config.set({
-        frameworks: ['mocha', 'browserify', 'karma-typescript'],
+        frameworks: ['mocha','chai'],
         files: [
-            'src/common/**/*.js',
-            'src/browser/**/*.js',
-            'src/common/**/*.ts',
-            'src/browser/**/*.ts',
-            'test/common/**/*.js',
-            'test/browser/**/*.js',
-            'test/common/**/*.ts',
-            'test/browser/**/*.ts'
-        ],
-        exclude: [
-            'src/browser/index.js'
+            { pattern: 'test/browser/**/*.ts', watched: false },
+            { pattern: 'test/common/**/*.ts', watched: false }
         ],
         preprocessors: {
-            './src/**/*.js': ['browserify'],
-            './src/**/*.ts': ['karma-typescript'],
-            './test/**/*.js': ['browserify'],
-            './test/**/*.ts': ['karma-typescript']
+            'test/browser/**/*.ts': [ 'webpack' ],
+            'test/common/**/*.ts': [ 'webpack' ]
         },
-        browserify: {
-            debug: true,
-            paths: ['src', 'test'],
-            "transform": [
-                [
-                    "babelify",
-                    {
-                        presets: ["@babel/preset-env"],
-                    }
-                ]
-            ]
+        webpack: {
+            module: webpackConfig.module,
+            resolve: webpackConfig.resolve
         },
-        karmaTypescriptConfig: {
-            paths: ['src', 'test'],
-            compilerOptions: {
-                sourceMap: true,
-                target: 'es6'
-            },
-            bundlerOptions: {
-                addNodeGlobals: true,
-                sourceMap: true
-            },
-            tsconfig: './tsconfig.json'
+        webpackMiddleware: {
+            stats: 'errors-only'
         },
-        reporters: ['progress'],
         port: 9876,  // karma web server port
         colors: true,
         logLevel: config.LOG_INFO,
-        browsers: ['Chrome'],
+        browsers: ['ChromeHeadless', 'FirefoxHeadless'],
         autoWatch: false,
         singleRun: true,
-        concurrency: Infinity,
         customLaunchers: {
             FirefoxHeadless: {
                 base: 'Firefox',

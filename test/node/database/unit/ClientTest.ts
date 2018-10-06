@@ -4,6 +4,7 @@ import {Server} from "../../../../src/common/dataspace/Server";
 import {Grid} from "../../../../src/common/dataspace/Grid";
 import {Processor} from "../../../../src/common/dataspace/Processor";
 import {Client} from "../../../../src/common/dataspace/Client";
+import {w3cwebsocket} from "websocket";
 
 describe('Test Client', () => {
     let server: Server;
@@ -19,6 +20,7 @@ describe('Test Client', () => {
 
     it('Should connect and disconnect client.', async () => {
         const client = new Client("ws://127.0.0.1:8889/");
+        client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
         client.close();
     });

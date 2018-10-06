@@ -7,6 +7,7 @@ import {Processor} from "../../../../src/common/dataspace/Processor";
 import {Client} from "../../../../src/common/dataspace/Client";
 import {waitOnCondition} from "./../util";
 import uuid = require("uuid");
+import {w3cwebsocket} from "websocket";
 
 describe('Test Messaging', () => {
     let server: Server;
@@ -16,6 +17,7 @@ describe('Test Messaging', () => {
         server = new Server('127.0.0.1', 8889, new Processor(new Grid(0, 0, 0, 1000, 100, 200)));
         server.listen();
         client = new Client("ws://127.0.0.1:8889/");
+        client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
     });
 
@@ -57,7 +59,10 @@ describe('Test Messaging', () => {
 
         const startMillis = new Date().getTime();
         for (let i = 0; i < n; i++) {
-            clients.push(new Client("ws://127.0.0.1:8889/"));
+            const client = new Client("ws://127.0.0.1:8889/");
+            client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
+
+            clients.push(client);
             entityIds.push(uuid.v4());
             await clients[i].connect();
             clients[i].onReceive = async function (message) {

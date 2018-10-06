@@ -1,25 +1,24 @@
 import {Encode} from "./Encode";
-import {w3cwebsocket} from "websocket";
 
 interface OnReceive { (message: string): void }
-interface WebSocketConstruct { (url: string, protocol:string): w3cwebsocket }
+interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 interface OnClose { (): void }
 
 export class Client {
 
     url: string;
-    ws: w3cwebsocket = undefined as any as w3cwebsocket;
+    ws: WebSocket = undefined as any as WebSocket;
 
     constructor(url: string) {
         this.url = url;
     }
 
-    constructWebSocket: WebSocketConstruct = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol)};
+    newWebSocket: WebSocketConstruct = (url:string, protocol:string) => { return new WebSocket(url, protocol)};
 
     connect() : Promise<void>  {
         return new Promise((resolve, reject) => {
             try {
-                this.ws = this.constructWebSocket(this.url, 'ds-v1.0');
+                this.ws = this.newWebSocket(this.url, 'ds-v1.0');
                 this.ws.onerror = (error) => {
                     console.warn("Error in client ws connection", error);
                     reject(error);

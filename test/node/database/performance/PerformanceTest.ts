@@ -4,6 +4,7 @@ import {Client} from "../../../../src/common/dataspace/Client";
 import uuid = require("uuid");
 import {Encode} from "../../../../src/common/dataspace/Encode";
 import {waitOnCondition} from "../util";
+import {w3cwebsocket} from "websocket";
 
 describe('Performance Test Server', () => {
 
@@ -17,7 +18,9 @@ describe('Performance Test Server', () => {
         const entityIds: Array<string> = [];
 
         for (let i = 0; i < numberOfClients; i++) {
-            clients.push(new Client(url));
+            const client = new Client(url);
+            client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
+            clients.push(client);
             entityIds.push(uuid.v4());
             await clients[i].connect();
         }

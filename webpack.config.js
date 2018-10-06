@@ -1,6 +1,5 @@
 const webpack = require('webpack');
 const path = require('path');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: './src/browser/index.ts',
@@ -8,33 +7,21 @@ module.exports = {
         filename: 'index.js',
         path: path.resolve(__dirname, 'dist')
     },
+    resolve: {
+        extensions: [ '.ts', ".js", ".json"]
+    },
     module: {
-        rules: [    {
-            test: /\.js$/,
-            exclude: /(node_modules)/,
-            use: {
-                loader: 'babel-loader',
-                options: {
-                    presets: ["@babel/preset-env"]
-                }
-            }
-        }, {
-            test: /\.ts$/,
-            exclude: /(node_modules)/,
-            use: {
-                loader: 'babel-loader',
-                options: {
-                    presets: ["@babel/preset-typescript"]
-                }
-            }
-        }
+        rules: [
+            { test: /\.ts?$/, loader: "ts-loader" }
         ]
     },
+    externals: {
+        three: 'THREE'
+    },
     plugins: [
-        new CopyWebpackPlugin([
-            { from: 'static' }
-        ]),
-        new webpack.IgnorePlugin(/wrtc/, /console-stamp/, /websocket/, /signaling-server/)
+        new webpack.IgnorePlugin(/wrtc/),
+        new webpack.IgnorePlugin(/console-stamp/),
+        new webpack.IgnorePlugin(/websocket/)
     ],
     devServer: {
         compress: true,

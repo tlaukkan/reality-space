@@ -2,12 +2,14 @@ import 'mocha';
 import { expect } from 'chai';
 import {Encode} from "../../../../src/common/dataspace/Encode";
 import {Client} from "../../../../src/common/dataspace/Client";
+import {w3cwebsocket} from "websocket";
 
 describe('Integration Test Messaging', () => {
     let client: Client;
 
     before(async () => {
         client = new Client("wws://aframe-dataspace-0-0-0.herokuapp.com/");
+        client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
     });
 

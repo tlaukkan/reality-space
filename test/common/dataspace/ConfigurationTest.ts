@@ -1,11 +1,6 @@
-import 'mocha';
 import { expect } from 'chai';
-import {
-    ClusterConfiguration,
-    fetchConfiguration, findGridConfiguration, getClusterConfiguration,
-    loadConfiguration,
-    ServerInfo
-} from "../../../src/common/dataspace/Configuration";
+import { ClusterConfiguration, findGridConfiguration, getClusterConfiguration,
+    ServerInfo} from "../../../src/common/dataspace/Configuration";
 
 describe('Test Configuration', () => {
 
@@ -21,7 +16,7 @@ describe('Test Configuration', () => {
     });
 
     it('should get and deserialize default configuration from rawgit.', async() => {
-        const configuration = await getClusterConfiguration("https://rawgit.com/tlaukkan/aframe-dataspace/master/defaul-configuration.json");
+        const configuration = await getClusterConfiguration("https://cdn.rawgit.com/tlaukkan/aframe-dataspace/f197b55b/defaul-configuration.json");
         expect(configuration.servers.length).to.be.greaterThan(0);
 
         const serverConfiguration = findGridConfiguration(configuration, "wss://aframe-dataspace-0-0-100.herokuapp.com/");
@@ -29,10 +24,4 @@ describe('Test Configuration', () => {
         expect(serverConfiguration.cy).equals(0);
         expect(serverConfiguration.cz).equals(100);
     });
-
-    it('should get and deserialize default configuration from file.', async() => {
-        const configuration = await getClusterConfiguration('defaul-configuration.json');
-        expect(configuration.servers.length).to.be.greaterThan(0);
-    });
-
 });

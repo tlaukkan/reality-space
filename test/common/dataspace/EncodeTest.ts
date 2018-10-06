@@ -1,4 +1,3 @@
-import 'mocha';
 import { expect } from 'chai';
 import {Encode} from "../../../src/common/dataspace/Encode";
 import {Decode} from "../../../src/common/dataspace/Decode";

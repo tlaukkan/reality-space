@@ -48,6 +48,16 @@ This library implements client server library for a-frame networking.
     heroku logs -t
 ---
 
+ 
+To setup cluster configuration 
+---
+    heroku info -s
+    heroku config:set WEB_URL=<web_url>
+    heroku config:set CLUSTER_CONFIGURATION_URL=<cluster-configuration-url (for example: https://rawgit.com/tlaukkan/aframe-dataspace/master/defaul-configuration.json)
+
+---
+
+
 ### Healt check
 Storage server provides 200 OK healthcheck at URL path: /health-check.
 

@@ -29,8 +29,8 @@ async function start() {
 }
 
 async function getGridConfiguration(): Promise<GridConfiguration> {
-    if (process.env.WEB_URL && process.env.CLUSTER_CONFIGURATION_URL) {
-        const webUrl = process.env.WEB_URL;
+    if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL) {
+        const webUrl = process.env.WS_URL;
         const clusterConfiguration = await getConfiguration(process.env.CLUSTER_CONFIGURATION_URL);
         clusterConfiguration.servers.forEach(serverInfo => {
            if (serverInfo.url.trim().toLocaleLowerCase() === webUrl.trim().toLocaleLowerCase()) {

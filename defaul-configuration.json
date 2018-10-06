@@ -12,7 +12,7 @@
             "z": 0
         },
         {
-            "url": "wws://aframe-dataspace-0-0-100.herokuapp.com/",
+            "url": "wss://aframe-dataspace-0-0-100.herokuapp.com/",
             "x": 0,
             "y": 0,
             "z": 100

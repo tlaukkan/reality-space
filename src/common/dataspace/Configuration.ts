@@ -1,3 +1,7 @@
+import * as fs from "fs";
+import {readFile} from "fs";
+require('isomorphic-fetch');
+
 export class ServerInfo{
     url: string = "";
     x: number = 0;
@@ -18,10 +22,30 @@ export class ClusterConfiguration {
 }
 
 export async function getConfiguration(url: string): Promise<ClusterConfiguration> {
-    const response = await fetch('//offline-news-api.herokuapp.com/stories');
+    if (url.startsWith("http")) {
+        return await fetchConfiguration(url);
+    } else {
+        return await loadConfiguration(url);
+    }
+}
+
+export async function fetchConfiguration(url: string): Promise<ClusterConfiguration> {
+    const response = await fetch(url);
     if (response.status >= 400) {
         throw new Error("Bad response from server");
     }
     const responseText = await (response.text());
     return JSON.parse(responseText) as ClusterConfiguration;
+}
+
+export function loadConfiguration(path: string): Promise<ClusterConfiguration> {
+    return new Promise((resolve, reject) => {
+        fs.readFile(path, 'utf8', function (err, contents) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(JSON.parse(contents) as ClusterConfiguration)
+            }
+        });
+    });
 }

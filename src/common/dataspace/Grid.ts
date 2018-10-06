@@ -43,6 +43,24 @@ class Cell {
     }
 }
 
+export class GridConfiguration {
+    cx: number;
+    cy: number;
+    cz: number;
+    edge: number;
+    step: number;
+    range: number;
+
+    constructor(cx: number, cy: number, cz: number, edge: number, step: number, range: number) {
+        this.cx = cx;
+        this.cy = cy;
+        this.cz = cz;
+        this.edge = edge;
+        this.step = step;
+        this.range = range;
+    }
+}
+
 export class Grid {
     cx: number;
     cy: number;

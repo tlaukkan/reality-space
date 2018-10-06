@@ -1,8 +1,11 @@
 import 'mocha';
 import { expect } from 'chai';
-import {Encode} from "../../../src/common/dataspace/Encode";
-import {Decode} from "../../../src/common/dataspace/Decode";
-import {ClusterConfiguration, ServerInfo} from "../../../src/common/dataspace/Configuration";
+import {
+    ClusterConfiguration,
+    fetchConfiguration, getConfiguration,
+    loadConfiguration,
+    ServerInfo
+} from "../../../src/common/dataspace/Configuration";
 
 describe('Test Configuration', () => {
 
@@ -15,7 +18,16 @@ describe('Test Configuration', () => {
         expect(parsed.servers.length).to.equal(original.servers.length);
         let serialized2 = JSON.stringify(parsed, null, 2);
         expect(serialized2).to.equal(serialized);
-        console.log(serialized);
+    });
+
+    it('should get and deserialize default configuration from rawgit.', async() => {
+        const configuration = await getConfiguration("https://rawgit.com/tlaukkan/aframe-dataspace/master/defaul-configuration.json");
+        expect(configuration.servers.length).to.be.greaterThan(0);
+    });
+
+    it('should get and deserialize default configuration from file.', async() => {
+        const configuration = await getConfiguration('defaul-configuration.json');
+        expect(configuration.servers.length).to.be.greaterThan(0);
     });
 
 });

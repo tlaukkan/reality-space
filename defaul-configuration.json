@@ -1,7 +1,7 @@
 {
     "name": "default dataspace",
     "description": "This is the default dataspace.",
-    "edge": 140,
+    "edge": 240,
     "step": 10,
     "range": 20,
     "servers": [

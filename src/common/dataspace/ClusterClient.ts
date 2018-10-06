@@ -45,10 +45,13 @@ export class ClusterClient {
         this.clients.clear();
 
         this.clusterConfiguration = await getClusterConfiguration(this.clusterConfigurationUrl);
+        console.log("cluster client - connect: " + this.clusterConfigurationUrl);
+
         await this.refresh(this.x, this.y, this.z, this.rx, this.ry, this.rz, this.rw);
     }
 
     close() {
+        console.log("cluster client - closing.");
         this.clients.forEach(client => {
            client.close();
         });
@@ -65,6 +68,8 @@ export class ClusterClient {
         this.rw = rw;
 
         const newServers = this.getServers(x, y, z);
+
+        console.log("servers: " + newServers.length);
 
         if (newServers.length === 0) {
             this.primaryServerUrl = undefined;
@@ -84,14 +89,18 @@ export class ClusterClient {
                 client.onReceive = (message: string) => {
                     const parts = message.split(Encode.SEPARATOR);
                     this.onReceive(parts[0], parts);
-                }
+                };
+                console.log("cluster client - connecting to server: " + client.url);
                 await client.connect();
+                console.log("cluster client - connected to server: " + client.url);
                 // Add clients for servers which are in range and not connected yet.
                 if (client.url === this.primaryServerUrl) {
                     // Add avatar
+                    console.log("cluster client - connecting to primary server: " + client.url);
                     await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, this.avatarDescription);
                 } else {
                     // Add probe
+                    console.log("cluster client - connected to secondary server: " + client.url);
                     await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, "");
                 }
                 this.clients.set(server.url, client);
@@ -108,6 +117,7 @@ export class ClusterClient {
                     return;
                 }
             }
+            console.log("cluster client - closing client to server not in range: " + client.url);
             client.close();
             this.clients.delete(client.url);
         });

@@ -70,6 +70,7 @@ To setup cluster configuration
     heroku config:set CLUSTER_CONFIGURATION_URL=<cluster-configuration-url (for example: https://rawgit.com/tlaukkan/aframe-dataspace/master/defaul-configuration.json)
 ---
 
+
 ### Health check
 Storage server provides 200 OK healthcheck at URL path: /health-check.
 

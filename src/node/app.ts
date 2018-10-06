@@ -1,7 +1,7 @@
 import {Grid, GridConfiguration} from "../common/dataspace/Grid";
 import {Processor} from "../common/dataspace/Processor";
 import {Server} from "../common/dataspace/Server";
-import {getConfiguration} from "../common/dataspace/Configuration";
+import {ClusterConfiguration, findServerConfiguration, getConfiguration} from "../common/dataspace/Configuration";
 
 start()
     .then()
@@ -32,23 +32,7 @@ async function getGridConfiguration(): Promise<GridConfiguration> {
     if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL) {
         const wsUrl = process.env.WS_URL;
         const clusterConfiguration = await getConfiguration(process.env.CLUSTER_CONFIGURATION_URL);
-        clusterConfiguration.servers.forEach(serverInfo => {
-            console.log("'" + serverInfo.url.trim().toLowerCase() + "'");
-            console.log("'" + wsUrl.trim().toLowerCase() + "'");
-           if (serverInfo.url.trim().toLowerCase() == wsUrl.trim().toLowerCase()) {
-               const gridConfiguration = new GridConfiguration(
-                   serverInfo.x,
-                   serverInfo.y,
-                   serverInfo.z,
-                   clusterConfiguration.edge,
-                   clusterConfiguration.step,
-                   clusterConfiguration.range
-               );
-               console.log("cluster '" + clusterConfiguration.name + "' server: " + serverInfo.url + " configuration: \n" + JSON.stringify(gridConfiguration, null, 2));
-               return gridConfiguration;
-           }
-           throw new Error("No matching server " + wsUrl + " in loaded configuration " + JSON.stringify(clusterConfiguration));
-        });
+        return findServerConfiguration(clusterConfiguration, wsUrl.trim().toLowerCase());
     }
     return new GridConfiguration(
         process.env.GRID_CX as any || 0,

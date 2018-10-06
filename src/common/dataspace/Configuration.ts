@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import {readFile} from "fs";
+import {GridConfiguration} from "./Grid";
 require('isomorphic-fetch');
 
 export class ServerInfo{
@@ -48,4 +49,23 @@ export function loadConfiguration(path: string): Promise<ClusterConfiguration> {
             }
         });
     });
+}
+
+export function findServerConfiguration(clusterConfiguration: ClusterConfiguration, serverUrl: String) : GridConfiguration {
+    for (let serverInfo of clusterConfiguration.servers) {
+        const normalizedServerUrl = serverInfo.url.trim().toLowerCase();
+        if (normalizedServerUrl === serverUrl) {
+            const gridConfiguration = new GridConfiguration(
+                serverInfo.x,
+                serverInfo.y,
+                serverInfo.z,
+                clusterConfiguration.edge,
+                clusterConfiguration.step,
+                clusterConfiguration.range
+            );
+            console.log("cluster '" + clusterConfiguration.name + "' server: " + serverInfo.url + " configuration: \n" + JSON.stringify(gridConfiguration, null, 2));
+            return gridConfiguration;
+        }
+    };
+    throw new Error("No matching server " + serverUrl + " in loaded configuration " + JSON.stringify(clusterConfiguration));
 }

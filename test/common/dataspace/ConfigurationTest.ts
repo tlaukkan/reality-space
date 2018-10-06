@@ -2,7 +2,7 @@ import 'mocha';
 import { expect } from 'chai';
 import {
     ClusterConfiguration,
-    fetchConfiguration, getConfiguration,
+    fetchConfiguration, findServerConfiguration, getConfiguration,
     loadConfiguration,
     ServerInfo
 } from "../../../src/common/dataspace/Configuration";
@@ -23,6 +23,11 @@ describe('Test Configuration', () => {
     it('should get and deserialize default configuration from rawgit.', async() => {
         const configuration = await getConfiguration("https://rawgit.com/tlaukkan/aframe-dataspace/master/defaul-configuration.json");
         expect(configuration.servers.length).to.be.greaterThan(0);
+
+        const serverConfiguration = findServerConfiguration(configuration, "wss://aframe-dataspace-0-0-100.herokuapp.com/");
+        expect(serverConfiguration.cx).equals(0);
+        expect(serverConfiguration.cy).equals(0);
+        expect(serverConfiguration.cz).equals(100);
     });
 
     it('should get and deserialize default configuration from file.', async() => {

@@ -6,7 +6,7 @@
     "range": 20,
     "servers": [
         {
-            "url": "wws://aframe-dataspace-0-0-0.herokuapp.com/",
+            "url": "wss://aframe-dataspace-0-0-0.herokuapp.com/",
             "x": 0,
             "y": 0,
             "z": 0

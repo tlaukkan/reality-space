@@ -73,8 +73,17 @@ export class ClusterClient {
             this.primaryServerUrl = undefined;
         } else {
             if (this.primaryServerUrl!==newServers[0].url) {
+                if (this.primaryServerUrl && this.clients.has(this.primaryServerUrl)) {
+                    console.log("cluster client - switching primary server...");
+                    this.closeClient(this.clients.get(this.primaryServerUrl)!!)
+                    console.log("cluster client - disconnected old primary server: " + this.primaryServerUrl);
+                }
+                if (this.clients.has(newServers[0].url)) {
+                    this.closeClient(this.clients.get(newServers[0].url)!!)
+                    console.log("cluster client - disconnected secondary server as it is promoted to primary server: " + newServers[0].url);
+                }
                 this.primaryServerUrl = newServers[0].url;
-                console.log("cluster client - primary server set to: " + newServers[0].url);
+                console.log("cluster client - new primary server set to: " + newServers[0].url);
             }
         }
 
@@ -91,13 +100,11 @@ export class ClusterClient {
                     const parts = message.split(Encode.SEPARATOR);
                     this.onReceive(parts[0], parts);
                 };
-                console.log("cluster client - connecting to server: " + client.url);
                 await client.connect();
-                console.log("cluster client - connected to server: " + client.url);
                 // Add clients for servers which are in range and not connected yet.
                 if (client.url === this.primaryServerUrl) {
                     // Add avatar
-                    console.log("cluster client - connecting to primary server: " + client.url);
+                    console.log("cluster client - connected to primary server: " + client.url);
                     await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, this.avatarDescription);
                 } else {
                     // Add probe
@@ -119,10 +126,14 @@ export class ClusterClient {
                 }
             }
             console.log("cluster client - closing client to server not in range: " + client.url);
-            this.clients.delete(client.url);
-            client.close();
+            this.closeClient(client);
         });
 
+    }
+
+    private closeClient(client: Client) {
+        this.clients.delete(client.url);
+        client.close();
     }
 
     getClient() : Client | undefined {

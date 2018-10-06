@@ -58,7 +58,7 @@ To setup cluster configuration
     heroku config:set WS_URL=<the websocket URL for the server (wss://xxx.herokuapp.com)
     heroku config:set CLUSTER_CONFIGURATION_URL=<cluster-configuration-url (for example: https://rawgit.com/tlaukkan/aframe-dataspace/master/defaul-configuration.json)
 
-    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.rawgit.com/tlaukkan/aframe-dataspace/ed1002ed/defaul-configuration.json
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.rawgit.com/tlaukkan/aframe-dataspace/f197b55b/defaul-configuration.json
 ---
 
 

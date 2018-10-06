@@ -69,12 +69,13 @@ export class ClusterClient {
 
         const newServers = this.getServers(x, y, z);
 
-        console.log("servers: " + newServers.length);
-
         if (newServers.length === 0) {
             this.primaryServerUrl = undefined;
         } else {
-            this.primaryServerUrl = newServers[0].url;
+            if (this.primaryServerUrl!==newServers[0].url) {
+                this.primaryServerUrl = newServers[0].url;
+                console.log("cluster client - primary server set to: " + newServers[0].url);
+            }
         }
 
         for (let server of newServers) {
@@ -118,8 +119,8 @@ export class ClusterClient {
                 }
             }
             console.log("cluster client - closing client to server not in range: " + client.url);
-            client.close();
             this.clients.delete(client.url);
+            client.close();
         });
 
     }

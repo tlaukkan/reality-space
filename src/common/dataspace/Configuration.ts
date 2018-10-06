@@ -22,7 +22,7 @@ export class ClusterConfiguration {
 
 }
 
-export async function getConfiguration(url: string): Promise<ClusterConfiguration> {
+export async function getClusterConfiguration(url: string): Promise<ClusterConfiguration> {
     if (url.startsWith("http")) {
         return await fetchConfiguration(url);
     } else {
@@ -51,7 +51,7 @@ export function loadConfiguration(path: string): Promise<ClusterConfiguration> {
     });
 }
 
-export function findServerConfiguration(clusterConfiguration: ClusterConfiguration, serverUrl: String) : GridConfiguration {
+export function findGridConfiguration(clusterConfiguration: ClusterConfiguration, serverUrl: String) : GridConfiguration {
     for (let serverInfo of clusterConfiguration.servers) {
         const normalizedServerUrl = serverInfo.url.trim().toLowerCase();
         if (normalizedServerUrl === serverUrl) {

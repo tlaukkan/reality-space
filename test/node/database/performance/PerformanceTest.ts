@@ -1,9 +1,9 @@
 import 'mocha';
 
-import {Client} from "../../../src/common/dataspace/Client";
+import {Client} from "../../../../src/common/dataspace/Client";
 import uuid = require("uuid");
-import {Encode} from "../../../src/common/dataspace/Encode";
-import {waitOnCondition} from "./util";
+import {Encode} from "../../../../src/common/dataspace/Encode";
+import {waitOnCondition} from "../util";
 
 describe('Performance Test Server', () => {
 

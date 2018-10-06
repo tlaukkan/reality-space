@@ -219,6 +219,9 @@ export class Grid {
                 if (entityInRange.id === entityId) {
                     continue;
                 }
+                if (!entity.visible) { // Do not broadcast entities which are not visible (probes).
+                    continue;
+                }
                 const encoded = Encode.added(entityInRange.index, entityInRange.id, entityInRange.x, entityInRange.y, entityInRange.z, entityInRange.rx, entityInRange.ry, entityInRange.rz, entityInRange.rw, entityInRange.description);
                 entity.connection.outQueue.enqueue([Encode.ADDED, encoded]);
             }

@@ -1,9 +1,9 @@
 import 'mocha';
 
-import {Server} from "../../../src/common/dataspace/Server";
-import {Grid} from "../../../src/common/dataspace/Grid";
-import {Processor} from "../../../src/common/dataspace/Processor";
-import {Client} from "../../../src/common/dataspace/Client";
+import {Server} from "../../../../src/common/dataspace/Server";
+import {Grid} from "../../../../src/common/dataspace/Grid";
+import {Processor} from "../../../../src/common/dataspace/Processor";
+import {Client} from "../../../../src/common/dataspace/Client";
 
 describe('Test Client', () => {
     let server: Server;

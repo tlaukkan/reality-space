@@ -1,6 +1,6 @@
 import 'mocha';
 
-import {Client} from "../../../src/common/dataspace/Client";
+import {Client} from "../../../../src/common/dataspace/Client";
 
 describe('Integration Test Client', () => {
 

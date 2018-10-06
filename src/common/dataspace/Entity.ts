@@ -12,6 +12,7 @@ export class Entity {
     rz: number;
     rw: number;
     description: string;
+    visible: boolean = false;
 
     constructor(connection: Connection, index: number, id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string) {
         this.connection = connection;

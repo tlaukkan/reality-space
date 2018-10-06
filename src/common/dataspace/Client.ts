@@ -16,7 +16,7 @@ export class Client {
 
     constructWebSocket: WebSocketConstruct = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol)};
 
-    connect() : Promise<w3cwebsocket>  {
+    connect() : Promise<void>  {
         return new Promise((resolve, reject) => {
             try {
                 this.ws = this.constructWebSocket(this.url, 'ds-v1.0');

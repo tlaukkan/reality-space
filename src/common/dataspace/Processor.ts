@@ -85,8 +85,12 @@ export class Processor {
 
                     connection.entityIds.add(entityId);
                     const entity = this.grid.entities.get(entityId)!!;
+                    entity.visible = entity.description.length > 0; // Mark entities which arrive without description as hidden i.e. probes.
                     const encoded = Encode.added(entity.index, entityId, x, y, z, rx, ry, rz, rw, description);
-                    this.grid.queue(entityId, Encode.ADDED, encoded);
+
+                    if (entity.visible) { // Do not broadcast entities which are not visible (probes).
+                        this.grid.queue(entityId, Encode.ADDED, encoded);
+                    }
 
                     this.grid.addEntitiesInRange(entityId);
                     return;
@@ -109,7 +113,11 @@ export class Processor {
                     this.grid.update(entityId, x, y, z, rx, ry, rz, rw);
                     const entity = this.grid.entities.get(entityId)!!;
                     const encoded = Encode.updated(entity.index, x, y, z, rx, ry, rz, rw);
-                    this.grid.queue(entityId, Encode.UPDATED, encoded);
+
+                    if (entity.visible) { // Do not broadcast entities which are not visible (probes).
+                        this.grid.queue(entityId, Encode.UPDATED, encoded);
+                    }
+
                     return;
                 }
                 if (type === Encode.REMOVE) {
@@ -124,7 +132,11 @@ export class Processor {
                     const encoded = Encode.removed(entity.index, entityId);
                     this.grid.queue(entityId, Encode.REMOVED, encoded);
                     connection.entityIds.delete(entityId);
-                    this.grid.remove(entityId);
+
+                    if (entity.visible) { // Do not broadcast entities which are not visible (probes).
+                        this.grid.remove(entityId);
+                    }
+
                     return;
                 }
                 if (type === Encode.DESCRIBE) {
@@ -140,7 +152,9 @@ export class Processor {
 
                     const entity = this.grid.entities.get(entityId)!!;
                     const encoded = Encode.described(entity.index, description);
-                    this.grid.queue(entityId, Encode.DESCRIBED, encoded);
+                    if (entity.visible) { // Do not broadcast entities which are not visible (probes).
+                        this.grid.queue(entityId, Encode.DESCRIBED, encoded);
+                    }
                     return;
                 }
                 if (type === Encode.ACT) {
@@ -154,7 +168,9 @@ export class Processor {
 
                     const entity = this.grid.entities.get(entityId)!!;
                     const encoded = Encode.acted(entity.index, action);
-                    this.grid.queue(entityId, Encode.ACTED, encoded);
+                    if (entity.visible) { // Do not broadcast entities which are not visible (probes).
+                        this.grid.queue(entityId, Encode.ACTED, encoded);
+                    }
                     return;
                 }
             } catch (error) {

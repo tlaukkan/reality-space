@@ -1,7 +1,7 @@
 import {Grid, GridConfiguration} from "../common/dataspace/Grid";
 import {Processor} from "../common/dataspace/Processor";
 import {Server} from "../common/dataspace/Server";
-import {ClusterConfiguration, findServerConfiguration, getConfiguration} from "../common/dataspace/Configuration";
+import {ClusterConfiguration, findGridConfiguration, getClusterConfiguration} from "../common/dataspace/Configuration";
 
 start()
     .then()
@@ -31,8 +31,8 @@ async function start() {
 async function getGridConfiguration(): Promise<GridConfiguration> {
     if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL) {
         const wsUrl = process.env.WS_URL;
-        const clusterConfiguration = await getConfiguration(process.env.CLUSTER_CONFIGURATION_URL);
-        return findServerConfiguration(clusterConfiguration, wsUrl.trim().toLowerCase());
+        const clusterConfiguration = await getClusterConfiguration(process.env.CLUSTER_CONFIGURATION_URL);
+        return findGridConfiguration(clusterConfiguration, wsUrl.trim().toLowerCase());
     }
     return new GridConfiguration(
         process.env.GRID_CX as any || 0,

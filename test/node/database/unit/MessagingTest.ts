@@ -1,11 +1,11 @@
 import 'mocha';
 import { expect } from 'chai';
-import {Encode} from "../../../src/common/dataspace/Encode";
-import {Server} from "../../../src/common/dataspace/Server";
-import {Grid} from "../../../src/common/dataspace/Grid";
-import {Processor} from "../../../src/common/dataspace/Processor";
-import {Client} from "../../../src/common/dataspace/Client";
-import {waitOnCondition} from "./util";
+import {Encode} from "../../../../src/common/dataspace/Encode";
+import {Server} from "../../../../src/common/dataspace/Server";
+import {Grid} from "../../../../src/common/dataspace/Grid";
+import {Processor} from "../../../../src/common/dataspace/Processor";
+import {Client} from "../../../../src/common/dataspace/Client";
+import {waitOnCondition} from "./../util";
 import uuid = require("uuid");
 
 describe('Test Messaging', () => {

@@ -1,0 +1,21 @@
+{
+    "name": "default dataspace",
+    "description": "This is the default dataspace.",
+    "edge": 100,
+    "step": 10,
+    "range": 20,
+    "servers": [
+        {
+            "url": "wws://aframe-dataspace-0-0-0.herokuapp.com/",
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        {
+            "url": "wws://aframe-dataspace-0-0-100.herokuapp.com/",
+            "x": 0,
+            "y": 0,
+            "z": 100
+        }
+    ]
+}

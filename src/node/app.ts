@@ -30,10 +30,12 @@ async function start() {
 
 async function getGridConfiguration(): Promise<GridConfiguration> {
     if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL) {
-        const webUrl = process.env.WS_URL;
+        const wsUrl = process.env.WS_URL;
         const clusterConfiguration = await getConfiguration(process.env.CLUSTER_CONFIGURATION_URL);
         clusterConfiguration.servers.forEach(serverInfo => {
-           if (serverInfo.url.trim().toLocaleLowerCase() === webUrl.trim().toLocaleLowerCase()) {
+            console.log("'" + serverInfo.url.trim().toLowerCase() + "'");
+            console.log("'" + wsUrl.trim().toLowerCase() + "'");
+           if (serverInfo.url.trim().toLowerCase() == wsUrl.trim().toLowerCase()) {
                const gridConfiguration = new GridConfiguration(
                    serverInfo.x,
                    serverInfo.y,
@@ -45,7 +47,7 @@ async function getGridConfiguration(): Promise<GridConfiguration> {
                console.log("cluster '" + clusterConfiguration.name + "' server: " + serverInfo.url + " configuration: \n" + JSON.stringify(gridConfiguration, null, 2));
                return gridConfiguration;
            }
-           throw new Error("No matching server " + webUrl + " in loaded configuration " + JSON.stringify(clusterConfiguration));
+           throw new Error("No matching server " + wsUrl + " in loaded configuration " + JSON.stringify(clusterConfiguration));
         });
     }
     return new GridConfiguration(

@@ -33,20 +33,9 @@ This library implements client server library for a-frame networking.
     cd aframe-dataspace
     heroku create <your-heroku-account>-aframe-dataspace
 
-    
-    # Center coordinate of the managed data space.
-    heroku config:set GRID_CX=0
-    heroku config:set GRID_CY=0
-    heroku config:set GRID_CZ=0
-    # Width, height and depth of the managed data space.
-    heroku config:set GRID_EDGE=1000
-    # Grid step for optimizing visibility searches.
-    heroku config:set GRID_STEP=100
-    # Visibility range.
-    heroku config:set GRID_RANGE=200 
-
     git push heroku master
     heroku logs -t
+    heroku logs -t --dyno=web
 ---
 
 To setup standalone configuration 
@@ -68,6 +57,8 @@ To setup cluster configuration
     heroku info -s
     heroku config:set WS_URL=<the websocket URL for the server (wss://xxx.herokuapp.com)
     heroku config:set CLUSTER_CONFIGURATION_URL=<cluster-configuration-url (for example: https://rawgit.com/tlaukkan/aframe-dataspace/master/defaul-configuration.json)
+
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.rawgit.com/tlaukkan/aframe-dataspace/ed1002ed/defaul-configuration.json
 ---
 
 

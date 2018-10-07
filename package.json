@@ -1,6 +1,6 @@
 {
   "name": "@tlaukkan/aframe-dataspace",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A-Frame Dataspace",
   "main": "lib/src/index.js",
   "types": "lib/src/index.d.ts",

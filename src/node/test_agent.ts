@@ -12,11 +12,16 @@ async function start() {
     client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
     await client.connect();
 
-    const timer = setInterval(async () => {
-        let time = new Date().getTime();
-        let y = time % 10;
-        await client.refresh(0, y, 0, 0, 0, 0, 1);
-    }, 0.3);
+    let periodMillis = 10000;
+    let radius = 5;
+
+    const timer = setInterval(() => {
+        let time = (new Date().getTime()) % periodMillis;
+        let angle = 2 * Math.PI * time / periodMillis;
+        let x = Math.cos(angle) * radius;
+        let z = Math.sin(angle) * radius;
+        client.refresh(x, 0, z, 0, 0, 0, 1).catch(error => { console.warn('Error refreshing.', error); });
+    }, 300);
 
     process.on('exit', function () {
         client.close();

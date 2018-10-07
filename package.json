@@ -6,6 +6,7 @@
   "types": "lib/src/index.d.ts",
   "scripts": {
     "start": "ts-node src/node/app.ts",
+    "start:agent:test": "ts-node src/node/test_agent.ts",
     "start:dev:node": "ts-node-dev src/node/app.ts",
     "start:dev:browser": "webpack-dev-server --open",
     "test:node": "mocha --require ts-node/register --exit ./test/node/**/*.ts ./test/common/**/*.ts",

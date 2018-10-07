@@ -104,7 +104,12 @@ export class ClusterClient {
                     const parts = message.split(Encode.SEPARATOR);
                     this.onReceive(parts[0], parts);
                 };
-                await client.connect();
+                try {
+                    await client.connect();
+                } catch (error) {
+                    console.log("cluster client - error connecting to server.");
+                    continue;
+                }
                 // Add clients for servers which are in range and not connected yet.
                 if (client.url === this.primaryServerUrl) {
                     // Add avatar

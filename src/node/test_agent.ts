@@ -1,5 +1,7 @@
 import {ClusterClient} from "..";
 import {w3cwebsocket} from "websocket";
+import {quat} from "@tlaukkan/tsm";
+import {vec3} from "@tlaukkan/tsm";
 import uuid = require("uuid");
 
 start()
@@ -20,7 +22,9 @@ async function start() {
         let angle = 2 * Math.PI * time / periodMillis;
         let x = Math.cos(angle) * radius;
         let z = Math.sin(angle) * radius;
-        client.refresh(x, 0, z, 0, 0, 0, 1).catch(error => { console.warn('Error refreshing.', error); });
+        var rAxis = new vec3([0, 1, 0]);
+        var q1 = quat.fromAxisAngle(rAxis, angle).normalize();
+        client.refresh(x, 0, z, q1.x, q1.y, q1.z, q1.w).catch(error => { console.warn('Error refreshing.', error); });
     }, 300);
 
     process.on('exit', function () {

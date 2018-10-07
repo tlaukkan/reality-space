@@ -2,8 +2,9 @@ import {ClusterConfiguration, getClusterConfiguration, ServerInfo} from "./Confi
 import {Client} from "./Client";
 import {Encode} from "./Encode";
 
-interface OnReceive { (type: string, message: string[]): void }
-interface OnClose { (): void }
+interface OnReceive { (serverUrl: string, type: string, message: string[]): void }
+interface OnConnect { (serverUrl: string): void }
+interface OnDisconnect { (serverUrl: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 
 export class ClusterClient {
@@ -56,7 +57,7 @@ export class ClusterClient {
     close() {
         console.log("cluster client - closing.");
         this.clients.forEach(client => {
-           client.close();
+           this.closeClient(client);
         });
         this.clients.clear();
     }
@@ -96,16 +97,17 @@ export class ClusterClient {
                 client.newWebSocket = this.newWebSocket;
                 client.onClose = () => {
                     if (this.primaryServerUrl === client.url) {
-                        this.onClose();
+                        this.onDisconnect(client.url);
                     }
                     this.clients.delete(server.url);
                 };
                 client.onReceive = (message: string) => {
                     const parts = message.split(Encode.SEPARATOR);
-                    this.onReceive(parts[0], parts);
+                    this.onReceive(client.url, parts[0], parts);
                 };
                 try {
                     await client.connect();
+                    this.onConnect(client.url);
                 } catch (error) {
                     console.log("cluster client - error connecting to server.");
                     continue;
@@ -143,6 +145,7 @@ export class ClusterClient {
     private closeClient(client: Client) {
         this.clients.delete(client.url);
         client.close();
+        this.onDisconnect(client.url);
     }
 
     getClient() : Client | undefined {
@@ -156,9 +159,11 @@ export class ClusterClient {
         return !!this.primaryServerUrl;
     }
 
-    onClose: OnClose = () => {};
+    onConnect: OnConnect = (serverUrl: string) => {};
 
-    onReceive: OnReceive = (type: string, message: string[]) => {};
+    onDisconnect: OnDisconnect = (serverUrl: string) => {};
+
+    onReceive: OnReceive = (serverUrl: string, type: string, message: string[]) => {};
 
     async add(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string) {
         if (this.isConnected()) {

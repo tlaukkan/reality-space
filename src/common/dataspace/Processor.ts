@@ -3,6 +3,7 @@ import {Grid} from "./Grid";
 import {Encode} from "./Encode";
 import {Decode} from "./Decode";
 import Timer = NodeJS.Timer;
+import {Sanitizer} from "./Sanitizer";
 
 export class Processor {
 
@@ -11,12 +12,14 @@ export class Processor {
     static readonly TICKS_PER_UPDATE_INTERVAL: number = Processor.UPDATE_INTERVAL_MILLIS / Processor.TICK_INTERVAL_MILLIS;
 
     grid: Grid;
+    sanitizer: Sanitizer;
     connections: Map<string, Connection> = new Map();
     intervalHandle: Timer | undefined = undefined;
     lastProcessTime: number = new Date().getTime();
 
-    constructor(grid: Grid) {
+    constructor(grid: Grid, sanitizer: Sanitizer) {
         this.grid = grid;
+        this.sanitizer = sanitizer;
     }
 
     start() {
@@ -70,7 +73,7 @@ export class Processor {
                     const ry: number = decoded[5];
                     const rz: number = decoded[6];
                     const rw: number = decoded[7];
-                    const description = decoded[8];
+                    const description = this.sanitizer.sanitize(decoded[8]);
 
                     if (connection.entityIds.has(entityId)) {
                         throw new Error("Connection already owns: " + entityId);
@@ -142,7 +145,7 @@ export class Processor {
                 if (type === Encode.DESCRIBE) {
                     const decoded = Decode.describe(parts);
                     const entityId = decoded[0];
-                    const description = decoded[1];
+                    const description = this.sanitizer.sanitize(decoded[1]);
 
                     if (!connection.entityIds.has(entityId)) {
                         throw new Error("Connection does not own: " + entityId);
@@ -174,7 +177,7 @@ export class Processor {
                     return;
                 }
             } catch (error) {
-                console.warn("Message processing failed: " + message, error);
+                console.warn("Message processing failed: " + message + " : " + error.message);
             }
 
         }

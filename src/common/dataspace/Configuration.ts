@@ -1,4 +1,3 @@
-import {GridConfiguration} from "./Grid";
 require('isomorphic-fetch');
 
 export class ServerConfig {
@@ -11,7 +10,7 @@ export class ServerConfig {
 export class SanitizerConfig {
     allowedElements: string = "";
     allowedAttributes: string = "";
-    attributeValueRegex: string = "";
+    allowedAttributeValueRegex: string = "";
 }
 
 export class ClusterConfiguration {
@@ -37,17 +36,45 @@ export async function fetchConfiguration(url: string): Promise<ClusterConfigurat
     return JSON.parse(responseText) as ClusterConfiguration;
 }
 
-export function findGridConfiguration(clusterConfiguration: ClusterConfiguration, serverUrl: String) : GridConfiguration {
+export class ServerConfiguration {
+    cx: number;
+    cy: number;
+    cz: number;
+    edge: number;
+    step: number;
+    range: number;
+    allowedElements: string;
+    allowedAttributes: string;
+    allowedAttributeValueRegex: string;
+
+
+    constructor(cx: number, cy: number, cz: number, edge: number, step: number, range: number, allowedElements: string, allowedAttributes: string, attributeValueRegex: string) {
+        this.cx = cx;
+        this.cy = cy;
+        this.cz = cz;
+        this.edge = edge;
+        this.step = step;
+        this.range = range;
+        this.allowedElements = allowedElements;
+        this.allowedAttributes = allowedAttributes;
+        this.allowedAttributeValueRegex = attributeValueRegex;
+    }
+}
+
+export function findGridConfiguration(clusterConfiguration: ClusterConfiguration, serverUrl: String) : ServerConfiguration {
     for (let serverInfo of clusterConfiguration.servers) {
         const normalizedServerUrl = serverInfo.url.trim().toLowerCase();
         if (normalizedServerUrl === serverUrl) {
-            const gridConfiguration = new GridConfiguration(
+            const gridConfiguration = new ServerConfiguration(
                 serverInfo.x,
                 serverInfo.y,
                 serverInfo.z,
                 clusterConfiguration.edge,
                 clusterConfiguration.step,
-                clusterConfiguration.range
+                clusterConfiguration.range,
+                clusterConfiguration.sanitizer.allowedElements,
+                clusterConfiguration.sanitizer.allowedAttributes,
+                clusterConfiguration.sanitizer.allowedAttributeValueRegex
             );
             console.log("cluster '" + clusterConfiguration.name + "' server: " + serverInfo.url + " configuration: \n" + JSON.stringify(gridConfiguration, null, 2));
             return gridConfiguration;

@@ -12,4 +12,13 @@ describe('Sanitizer test.', () => {
             "</a-box>").equals(sanitized);
     });
 
+    it('should test sanitizer with forbidden root element', () => {
+        const sanitizer = new Sanitizer('a-box', 'scale', '[^\\w\\s:;]');
+        const description = '<a-sphere/>';
+        const sanitized = sanitizer.sanitize(description);
+        expect("<a-box scale=\":;1 1 1\">\n" +
+            "    <a-box/>\n" +
+            "</a-box>").equals(sanitized);
+    });
+
 });

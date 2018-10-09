@@ -5,12 +5,13 @@ import {Grid} from "../../../../src/common/dataspace/Grid";
 import {Processor} from "../../../../src/common/dataspace/Processor";
 import {Client} from "../../../../src/common/dataspace/Client";
 import {w3cwebsocket} from "websocket";
+import {Sanitizer} from "../../../../src/common/dataspace/Sanitizer";
 
 describe('Test Client', () => {
     let server: Server;
 
     before(function() {
-        server = new Server('127.0.0.1', 8889, new Processor(new Grid(0, 0, 0, 1000, 100, 200)));
+        server = new Server('127.0.0.1', 8889, new Processor(new Grid(0, 0, 0, 1000, 100, 200), new Sanitizer("", "", "")));
         server.listen();
     });
 

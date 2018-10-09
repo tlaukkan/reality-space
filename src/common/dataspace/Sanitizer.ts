@@ -1,18 +1,25 @@
 import {js2xml, xml2js, Element, Attributes} from "xml-js";
+import * as ts from "typescript/lib/tsserverlibrary";
+import allFilesAreJsOrDts = ts.server.allFilesAreJsOrDts;
 
 export class Sanitizer {
 
+    private enabled: boolean;
     private allowedElements: Set<string>;
     private allowedAttributes: Set<string>;
     private attributeValueRegex: RegExp;
 
     constructor(allowedElements: string, allowedAttributes: string, attributeValueRegex: string) {
+        this.enabled = !(allowedElements.length === 0 && allowedAttributes.length === 0 && attributeValueRegex.length === 0);
         this.allowedElements = new Set([allowedElements]);
         this.allowedAttributes = new Set([allowedAttributes]);
         this.attributeValueRegex = new RegExp(attributeValueRegex, 'g');
     }
 
     sanitize(description: string) : string {
+        if (!this.enabled) {
+            return description;
+        }
         const element = xml2js(description);
         this.sanitizeElements(element.elements);
         return js2xml(element, {spaces: 4});

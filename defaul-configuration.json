@@ -1,26 +1,26 @@
 {
-    "name": "default dataspace",
-    "description": "This is the default dataspace.",
-    "edge": 140,
-    "step": 10,
-    "range": 20,
-    "sanitizer": {
-        "allowedElements": "a-box",
-        "allowedAttributes": "scale",
-        "attributeValueRegex": "[^\\w\\s:;]"
+  "name": "default dataspace",
+  "description": "This is the default dataspace.",
+  "edge": 140,
+  "step": 10,
+  "range": 20,
+  "sanitizer": {
+    "allowedElements": "a-box",
+    "allowedAttributes": "scale",
+    "attributeValueRegex": "[^\\w\\s:;]"
+  },
+  "servers": [
+    {
+      "url": "wss://aframe-dataspace-0-0-0.herokuapp.com/",
+      "x": 0,
+      "y": 0,
+      "z": 0
     },
-    "servers": [
-        {
-            "url": "wss://aframe-dataspace-0-0-0.herokuapp.com/",
-            "x": 0,
-            "y": 0,
-            "z": 0
-        },
-        {
-            "url": "wss://aframe-dataspace-0-0-100.herokuapp.com/",
-            "x": 0,
-            "y": 0,
-            "z": 100
-        }
-    ]
+    {
+      "url": "wss://aframe-dataspace-0-0-100.herokuapp.com/",
+      "x": 0,
+      "y": 0,
+      "z": 100
+    }
+  ]
 }

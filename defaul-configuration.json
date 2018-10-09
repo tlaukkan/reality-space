@@ -4,6 +4,11 @@
     "edge": 140,
     "step": 10,
     "range": 20,
+    "sanitizer": {
+        "allowedElements": "a-box",
+        "allowedAttributes": "scale",
+        "attributeValueRegex": "[^\\w\\s:;]"
+    },
     "servers": [
         {
             "url": "wss://aframe-dataspace-0-0-0.herokuapp.com/",

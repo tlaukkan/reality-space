@@ -1,4 +1,4 @@
-import {ClusterConfiguration, getClusterConfiguration, ServerInfo} from "./Configuration";
+import {ClusterConfiguration, getClusterConfiguration, ServerConfig} from "./Configuration";
 import {Client} from "./Client";
 import {Encode} from "./Encode";
 
@@ -202,9 +202,9 @@ export class ClusterClient {
      * @param z the connection avatar z coordinate
      * @return array of ServerInfo with closest server as first.
      */
-    getServers(x: number, y: number, z: number): Array<ServerInfo> {
+    getServers(x: number, y: number, z: number): Array<ServerConfig> {
         const edge = this.clusterConfiguration!!.edge;
-        const servers = Array<ServerInfo>();
+        const servers = Array<ServerConfig>();
         let lastD2 = edge * 2;
         for (let serverInfo of this.clusterConfiguration!!.servers) {
 

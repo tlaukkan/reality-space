@@ -1,23 +1,27 @@
 import {GridConfiguration} from "./Grid";
 require('isomorphic-fetch');
 
-export class ServerInfo{
+export class ServerConfig {
     url: string = "";
     x: number = 0;
     y: number = 0;
     z: number = 0;
 }
 
-export class ClusterConfiguration {
+export class SanitizerConfig {
+    allowedElements: string = "";
+    allowedAttributes: string = "";
+    attributeValueRegex: string = "";
+}
 
+export class ClusterConfiguration {
     name: string = "";
     description: string = "";
     edge: number = 1000;
     step: number = 100;
     range: number = 200;
-
-    servers: Array<ServerInfo> = new Array<ServerInfo>();
-
+    sanitizer: SanitizerConfig = new SanitizerConfig();
+    servers: Array<ServerConfig> = new Array<ServerConfig>();
 }
 
 export async function getClusterConfiguration(url: string): Promise<ClusterConfiguration> {

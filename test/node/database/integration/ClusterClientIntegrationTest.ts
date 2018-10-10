@@ -9,7 +9,7 @@ describe('Integration Test Cluster Client', () => {
 
     before(async () => {
         console.log("\ntesting 0 0 0 in range.\n");
-        client = new ClusterClient("https://cdn.rawgit.com/tlaukkan/aframe-dataspace/f197b55b/defaul-configuration.json", "1", 0, 0, 0, 0, 0, 0, 1, "d");
+        client = new ClusterClient("https://cdn.rawgit.com/tlaukkan/aframe-dataspace/f197b55b/defaul-configuration.json", "1", 0, 0, 0, 0, 0, 0, 1, "<a-box/>");
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
     });

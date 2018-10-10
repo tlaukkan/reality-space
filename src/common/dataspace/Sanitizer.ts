@@ -1,6 +1,4 @@
 import {js2xml, xml2js, Element, Attributes} from "xml-js";
-import * as ts from "typescript/lib/tsserverlibrary";
-import allFilesAreJsOrDts = ts.server.allFilesAreJsOrDts;
 
 export class Sanitizer {
 
@@ -11,8 +9,8 @@ export class Sanitizer {
 
     constructor(allowedElements: string, allowedAttributes: string, attributeValueRegex: string) {
         this.enabled = !(allowedElements.length === 0 && allowedAttributes.length === 0 && attributeValueRegex.length === 0);
-        this.allowedElements = new Set([allowedElements]);
-        this.allowedAttributes = new Set([allowedAttributes]);
+        this.allowedElements = new Set(allowedElements.split(','));
+        this.allowedAttributes = new Set(allowedAttributes.split(','));
         this.attributeValueRegex = new RegExp(attributeValueRegex, 'g');
     }
 

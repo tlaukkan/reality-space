@@ -15,7 +15,10 @@ describe('Test Messaging', () => {
     let client: Client;
 
     before(async () => {
-        server = new Server('127.0.0.1', 8889, new Processor(new Grid(0, 0, 0, 1000, 100, 200), new Sanitizer('a-box', 'scale', '[^\\w\\s:;]')));
+        server = new Server('127.0.0.1', 8889, new Processor(new Grid(0, 0, 0, 1000, 100, 200), new Sanitizer(
+            "a-box,a-circle,a-collada-model,a-cone,a-curvedimage,a-cylinder,a-dodecahedron,a-gltf-model,a-icosahedron,a-image,a-obj-model,a-octahedron,a-plane,a-ring,a-sound,a-sphere,a-tetrahedron,a-text,a-torus-knot,a-torus,a-triangle",
+            "scale,src,geometry,material,position,rotation,sound,text",
+            "[^\\w\\s\\.:;]")));
         server.listen();
         client = new Client("ws://127.0.0.1:8889/");
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
@@ -28,13 +31,13 @@ describe('Test Messaging', () => {
     });
 
     it('Should send add and receive messages.', function (done) {
-        client.add("1", 1, 2, 3, 4, 5, 6, 7, "<a-box/>");
+        client.add("1", 1, 2, 3, 4, 5, 6, 7, '<a-image src="dog.img"/>');
         client.onReceive = async function (message) {
-            expect(message).equals("a|0|1|1.00|2.00|3.00|4.00|5.00|6.00|7.00|<a-box/>|");
+            expect(message).equals('a|0|1|1.00|2.00|3.00|4.00|5.00|6.00|7.00|<a-image src="dog.img"/>|');
             client.update("1", 1, 2, 3, 4, 5, 6, 7);
             client.onReceive = async function (message) {
                 expect(message).equals("u|0|1.00|2.00|3.00|4.00|5.00|6.00|7.00|");
-                client.describe("1", "<a-sphere/>");
+                client.describe("1", "<a-dog/>");
                 client.onReceive = async function (message) {
                     expect(message).equals("d|0||");
                     client.act("1", "a");

@@ -133,13 +133,17 @@ export class Grid {
             oldCell!!.removeEntity(id);
 
             // Notify removal between this entity and entities dropping out of range
-            oldCell.cellsInRange.forEach((cell: Cell) => {
-                if (newCell.cellsInRange.indexOf(cell) == -1) {
-                    if (entity.visible) {
-                        this.queueToCellEntities(cell, Encode.REMOVED, Encode.removed(entity.index, entity.id));
-                    }
-                    cell.entities.forEach((entityInRange: Entity) => {
-                       this.queueToEntity(entity, Encode.REMOVED, Encode.removed(entityInRange.index, entityInRange.id));
+            oldCell.cellsInRange.forEach((cellInRange: Cell) => {
+                if (newCell.cellsInRange.indexOf(cellInRange) == -1) {
+                    cellInRange.entities.forEach((entityInRange: Entity) => {
+                        if (entityInRange.id != entity.id) {
+                            if (entity.visible) {
+                                this.queueToEntity(entityInRange, Encode.REMOVED, Encode.removed(entity.index, entity.id));
+                            }
+                            if (entityInRange.visible) {
+                                this.queueToEntity(entity, Encode.REMOVED, Encode.removed(entityInRange.index, entityInRange.id));
+                            }
+                        }
                     });
                 }
             });
@@ -157,14 +161,18 @@ export class Grid {
         if (oldCell !== newCell) {
             newCell!!.addEntity(entity);
 
-            // Notify addition to new cells in range
-            newCell.cellsInRange.forEach((cell: Cell) => {
-                if (oldCell.cellsInRange.indexOf(cell) == -1) {
-                    if (entity.visible) {
-                        this.queueToCellEntities(cell, Encode.ADDED, Encode.added(entity.index, entity.id, entity.x, entity.y, entity.z, entity.rx, entity.ry, entity.rz, entity.rw, entity.description));
-                    }
-                    cell.entities.forEach((entityInRange: Entity) => {
-                        this.queueToEntity(entity, Encode.ADDED, Encode.added(entityInRange.index, entityInRange.id, entityInRange.x, entityInRange.y, entityInRange.z, entityInRange.rx, entityInRange.ry, entityInRange.rz, entityInRange.rw, entityInRange.description));
+            // Notify addition between this entity and entities added to to range
+            newCell.cellsInRange.forEach((cellInRange: Cell) => {
+                if (oldCell.cellsInRange.indexOf(cellInRange) == -1) {
+                    cellInRange.entities.forEach((entityInRange: Entity) => {
+                        if (entityInRange.id != entity.id) {
+                            if (entity.visible) {
+                                this.queueToEntity(entityInRange, Encode.ADDED, Encode.added(entity.index, entity.id, entity.x, entity.y, entity.z, entity.rx, entity.ry, entity.rz, entity.rw, entity.description));
+                            }
+                            if (entityInRange.visible) {
+                                this.queueToEntity(entity, Encode.ADDED, Encode.added(entityInRange.index, entityInRange.id, entityInRange.x, entityInRange.y, entityInRange.z, entityInRange.rx, entityInRange.ry, entityInRange.rz, entityInRange.rw, entityInRange.description));
+                            }
+                        }
                     });
                 }
             });

@@ -6,6 +6,8 @@ import {Connection} from "../../../src/common/dataspace/Connection";
 import {Encode} from "../../../src/common/dataspace/Encode";
 
 const connection = new Connection("");
+const connection2 = new Connection("");
+const connection3 = new Connection("");
 
 describe('Test Grid', () => {
 
@@ -27,7 +29,20 @@ describe('Test Grid', () => {
         const grid = new Grid(1500, 1500, 1500, 1000, 100, 200);
 
         expect(grid.add(connection, "1", 1001, 1002, 1003, 1, 2, 3, 4, "d")).to.equal(true);
-        expect(grid.entities.size).to.equal(1);
+        expect(grid.add(connection2, "5", 1001, 1002, 1003, 1, 2, 3, 4, "d")).to.equal(true);
+        expect(grid.add(connection3, "10", 1999, 1999, 1999, 1, 2, 3, 4, "d")).to.equal(true);
+
+        const e1 = grid.getCell(1000, 1000, 1000)!!.entities[0];
+        const e5 = grid.getCell(1000, 1000, 1000)!!.entities[1];
+        const e10 = grid.getCell(1999, 1999, 1999)!!.entities[0];
+        e1.visible = true;
+        e5.visible = true;
+        e10.visible = true;
+
+        expect(grid.entities.size).to.equal(3);
+        expect(grid.getCell(1000, 1000, 1000)!!.entities.length).to.equal(2);
+        expect(grid.getCell(1999, 1999, 1999)!!.entities.length).to.equal(1);
+
         expect(grid.getCell(1000, 1000, 1000)!!.entities[0].connection).to.equal(connection);
         expect(grid.getCell(1000, 1000, 1000)!!.entities[0].id).to.equal("1");
         expect(grid.getCell(1000, 1000, 1000)!!.entities[0].index).to.equal(0);
@@ -39,7 +54,11 @@ describe('Test Grid', () => {
         expect(grid.getCell(1000, 1000, 1000)!!.entities[0].rz).to.equal(3);
         expect(grid.getCell(1000, 1000, 1000)!!.entities[0].rw).to.equal(4);
         expect(grid.getCell(1000, 1000, 1000)!!.entities[0].description).to.equal("d");
+
         expect(grid.update("1", 1004, 1005, 1006, 5, 6, 7, 8)).to.equal(true);
+        expect(grid.entities.size).to.equal(3);
+        expect(grid.getCell(1000, 1000, 1000)!!.entities.length).to.equal(2);
+        expect(grid.getCell(1999, 1999, 1999)!!.entities.length).to.equal(1);
 
         expect(grid.getCell(1000, 1000, 1000)!!.entities[0].id).to.equal("1");
         expect(grid.getCell(1000, 1000, 1000)!!.entities[0].x).to.equal(1004);
@@ -51,18 +70,30 @@ describe('Test Grid', () => {
         expect(grid.getCell(1000, 1000, 1000)!!.entities[0].rw).to.equal(8);
 
         expect(grid.update("1", 1999, 1999, 1999, 1, 2, 3, 4)).to.equal(true);
+        expect(grid.entities.size).to.equal(3);
+        expect(grid.getCell(1000, 1000, 1000)!!.entities.length).to.equal(1);
+        expect(grid.getCell(1999, 1999, 1999)!!.entities.length).to.equal(2);
 
-        expect(grid.getCell(1000, 1000, 1000)!!.entities.length).to.equal(0);
-        expect(grid.getCell(1999, 1999, 1999)!!.entities.length).to.equal(1);
-        expect(grid.getCell(1999, 1999, 1999)!!.entities[0].id).to.equal("1");
+        expect(e5.connection.outQueue.size()).equals(1);
+        expect(e5.connection.outQueue.dequeue()!![1]).equals("r|0|1|");
+        expect(e1.connection.outQueue.size()).equals(2);
+        expect(e1.connection.outQueue.dequeue()!![1]).equals("r|1|5|");
+        expect(e1.connection.outQueue.dequeue()!![1]).equals("a|2|10|1999.00|1999.00|1999.00|1.00|2.00|3.00|4.00|d|");
+        expect(e10.connection.outQueue.size()).equals(1);
+        expect(e10.connection.outQueue.dequeue()!![1]).equals("a|0|1|1999.00|1999.00|1999.00|1.00|2.00|3.00|4.00|d|");
+
+        expect(grid.getCell(1999, 1999, 1999)!!.entities[0].id).to.equal("10");
+        expect(grid.getCell(1999, 1999, 1999)!!.entities[1].id).to.equal("1");
 
         expect(grid.update("1", 0, 0, 0, 1, 2, 3, 4)).to.equal(false);
 
-        expect(grid.getCell(1000, 1000, 1000)!!.entities.length).to.equal(0);
-        expect(grid.getCell(1999, 1999, 1999)!!.entities.length).to.equal(1);
-        expect(grid.getCell(1999, 1999, 1999)!!.entities[0].id).to.equal("1");
+        expect(grid.getCell(1000, 1000, 1000)!!.entities.length).to.equal(1);
+        expect(grid.getCell(1999, 1999, 1999)!!.entities.length).to.equal(2);
+        expect(grid.getCell(1999, 1999, 1999)!!.entities[1].id).to.equal("1");
 
         grid.remove("1");
+        grid.remove("5");
+        grid.remove("10");
         expect(grid.getCell(1999, 1999, 1999)!!.entities.length).to.equal(0);
 
         expect(grid.entities.size).to.equal(0);

@@ -131,7 +131,13 @@ export class Grid {
 
         if (oldCell !== newCell) {
             oldCell!!.removeEntity(id);
-            newCell!!.addEntity(entity);
+
+            // Notify removal to cells dropping out of range
+            oldCell.cellsInRange.forEach((cell: Cell) => {
+                if (newCell.cellsInRange.indexOf(cell) == -1) {
+                    this.queueForCellEntities(cell, Encode.REMOVED, Encode.removed(entity.index, entity.id));
+                }
+            });
         }
 
         entity.x = x;
@@ -141,6 +147,17 @@ export class Grid {
         entity.ry = ry;
         entity.rz = rz;
         entity.rw = rw;
+
+        if (oldCell !== newCell) {
+            newCell!!.addEntity(entity);
+
+            // Notify addition to new cells in range
+            newCell.cellsInRange.forEach((cell: Cell) => {
+                if (oldCell.cellsInRange.indexOf(cell) == -1) {
+                    this.queueForCellEntities(cell, Encode.ADDED, Encode.added(entity.index, entity.id, entity.x, entity.y, entity.z, entity.rx, entity.ry, entity.rz, entity.rw, entity.description));
+                }
+            });
+        }
 
         return true;
     }
@@ -177,12 +194,16 @@ export class Grid {
             throw Error("Entity old coordinates outside grid: " + entityId);
         }
         for (let cellInRange of cell.cellsInRange) {
-            for (let entityInRange of cellInRange.entities) {
-                if (entityInRange.connection.outQueue.size() < 1000) {
-                    entityInRange.connection.outQueue.enqueue([messageType, encodedMessage]);
-                } else {
-                    console.warn("entity (" + entity.id + ") message queue full dropping message: " + messageType);
-                }
+            this.queueForCellEntities(cellInRange, messageType, encodedMessage);
+        }
+    }
+
+    private queueForCellEntities(cell: Cell, messageType: string, encodedMessage: string) {
+        for (let entityInRange of cell.entities) {
+            if (entityInRange.connection.outQueue.size() < 1000) {
+                entityInRange.connection.outQueue.enqueue([messageType, encodedMessage]);
+            } else {
+                console.warn("entity (" + entityInRange.id + ") message queue full dropping message: " + messageType);
             }
         }
     }

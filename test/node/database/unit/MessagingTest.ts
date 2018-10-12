@@ -83,7 +83,7 @@ describe('Test Messaging', () => {
         };
 
         for (let i = 0; i < n; i++) {
-            await clients[i].add(entityIds[i], 1, 2, 3, 4, 5, 6, 7, "d");
+            await clients[i].add(entityIds[i], 1, 2, 3, 4, 5, 6, 7, "<a-box/>");
         }
 
         await waitOnCondition(() => { return a >= n});

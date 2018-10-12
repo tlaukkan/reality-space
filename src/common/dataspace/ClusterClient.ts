@@ -97,10 +97,13 @@ export class ClusterClient {
                 this.clients.set(server.url, client);
                 client.newWebSocket = this.newWebSocket;
                 client.onClose = () => {
+                    console.log('cluster client - server disconnected: ' + client.url);
                     if (this.primaryServerUrl === client.url) {
                         this.onDisconnect(client.url);
                     }
-                    this.clients.delete(server.url);
+                    if (this.clients.get(server.url) === client) {
+                        this.clients.delete(server.url);
+                    }
                 };
                 client.onReceive = (message: string) => {
                     const parts = message.split(Encode.SEPARATOR);
@@ -125,7 +128,9 @@ export class ClusterClient {
                 }
             } else {
                 // Update avatars and probes for servers in range..
-                await this.clients.get(server.url)!!.update(this.avatarId, x, y, z, rx, ry, rz, rw);
+                if (this.clients.get(server.url)!!.isConnected()) {
+                    await this.clients.get(server.url)!!.update(this.avatarId, x, y, z, rx, ry, rz, rw);
+                }
             }
         }
 

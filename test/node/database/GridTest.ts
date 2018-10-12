@@ -131,9 +131,9 @@ describe('Test Grid', () => {
 
         const grid = new Grid(1500, 1500, 1500, 1000, 100, 200);
         expect(grid.add(c, "0", 1000, 1000, 1000, 1, 2, 3, 4, "d")).to.equal(true);
-        grid.queue("0", "a", "1");
+        grid.queueToEntitiesInRange("0", "a", "1");
         expect(c.outQueue.size()).equal(1);
-        grid.queue("0", "b", "2");
+        grid.queueToEntitiesInRange("0", "b", "2");
         expect(c.outQueue.size()).equal(2);
         expect(c.outQueue.peek()!![0]).equal("a");
         expect(c.outQueue.peek()!![1]).equal("1");

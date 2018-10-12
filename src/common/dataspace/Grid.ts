@@ -132,12 +132,18 @@ export class Grid {
         if (oldCell !== newCell) {
             oldCell!!.removeEntity(id);
 
-            // Notify removal to cells dropping out of range
+            // Notify removal between this entity and entities dropping out of range
             oldCell.cellsInRange.forEach((cell: Cell) => {
                 if (newCell.cellsInRange.indexOf(cell) == -1) {
-                    this.queueForCellEntities(cell, Encode.REMOVED, Encode.removed(entity.index, entity.id));
+                    if (entity.visible) {
+                        this.queueToCellEntities(cell, Encode.REMOVED, Encode.removed(entity.index, entity.id));
+                    }
+                    cell.entities.forEach((entityInRange: Entity) => {
+                       this.queueToEntity(entity, Encode.REMOVED, Encode.removed(entityInRange.index, entityInRange.id));
+                    });
                 }
             });
+
         }
 
         entity.x = x;
@@ -154,7 +160,12 @@ export class Grid {
             // Notify addition to new cells in range
             newCell.cellsInRange.forEach((cell: Cell) => {
                 if (oldCell.cellsInRange.indexOf(cell) == -1) {
-                    this.queueForCellEntities(cell, Encode.ADDED, Encode.added(entity.index, entity.id, entity.x, entity.y, entity.z, entity.rx, entity.ry, entity.rz, entity.rw, entity.description));
+                    if (entity.visible) {
+                        this.queueToCellEntities(cell, Encode.ADDED, Encode.added(entity.index, entity.id, entity.x, entity.y, entity.z, entity.rx, entity.ry, entity.rz, entity.rw, entity.description));
+                    }
+                    cell.entities.forEach((entityInRange: Entity) => {
+                        this.queueToEntity(entity, Encode.ADDED, Encode.added(entityInRange.index, entityInRange.id, entityInRange.x, entityInRange.y, entityInRange.z, entityInRange.rx, entityInRange.ry, entityInRange.rz, entityInRange.rw, entityInRange.description));
+                    });
                 }
             });
         }
@@ -184,7 +195,7 @@ export class Grid {
         this.releaseIndex(entity.index);
     }
 
-    queue(entityId: string, messageType: string, encodedMessage: string) {
+    queueToEntitiesInRange(entityId: string, messageType: string, encodedMessage: string) {
         const entity = this.entities.get(entityId);
         if (entity === undefined) {
             throw Error("Entity does not exist in grid: " + entityId);
@@ -194,17 +205,21 @@ export class Grid {
             throw Error("Entity old coordinates outside grid: " + entityId);
         }
         for (let cellInRange of cell.cellsInRange) {
-            this.queueForCellEntities(cellInRange, messageType, encodedMessage);
+            this.queueToCellEntities(cellInRange, messageType, encodedMessage);
         }
     }
 
-    private queueForCellEntities(cell: Cell, messageType: string, encodedMessage: string) {
-        for (let entityInRange of cell.entities) {
-            if (entityInRange.connection.outQueue.size() < 1000) {
-                entityInRange.connection.outQueue.enqueue([messageType, encodedMessage]);
-            } else {
-                console.warn("entity (" + entityInRange.id + ") message queue full dropping message: " + messageType);
-            }
+    private queueToCellEntities(cell: Cell, messageType: string, encodedMessage: string) {
+        for (let entity of cell.entities) {
+            this.queueToEntity(entity, messageType, encodedMessage);
+        }
+    }
+
+    private queueToEntity(entity: Entity, messageType: string, encodedMessage: string) {
+        if (entity.connection.outQueue.size() < 1000) {
+            entity.connection.outQueue.enqueue([messageType, encodedMessage]);
+        } else {
+            console.warn("entity (" + entity.id + ") message queue full dropping message: " + messageType);
         }
     }
 

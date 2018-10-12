@@ -92,7 +92,7 @@ export class Processor {
                     const encoded = Encode.added(entity.index, entityId, x, y, z, rx, ry, rz, rw, description);
 
                     if (entity.visible) { // Do not broadcast entities which are not visible (probes).
-                        this.grid.queue(entityId, Encode.ADDED, encoded);
+                        this.grid.queueToEntitiesInRange(entityId, Encode.ADDED, encoded);
                     }
 
                     this.grid.addEntitiesInRange(entityId);
@@ -118,7 +118,7 @@ export class Processor {
                     const encoded = Encode.updated(entity.index, x, y, z, rx, ry, rz, rw);
 
                     if (entity.visible) { // Do not broadcast entities which are not visible (probes).
-                        this.grid.queue(entityId, Encode.UPDATED, encoded);
+                        this.grid.queueToEntitiesInRange(entityId, Encode.UPDATED, encoded);
                     }
 
                     return;
@@ -133,7 +133,7 @@ export class Processor {
 
                     const entity = this.grid.entities.get(entityId)!!;
                     const encoded = Encode.removed(entity.index, entityId);
-                    this.grid.queue(entityId, Encode.REMOVED, encoded);
+                    this.grid.queueToEntitiesInRange(entityId, Encode.REMOVED, encoded);
                     connection.entityIds.delete(entityId);
 
                     if (entity.visible) { // Do not broadcast entities which are not visible (probes).
@@ -156,7 +156,7 @@ export class Processor {
                     const entity = this.grid.entities.get(entityId)!!;
                     const encoded = Encode.described(entity.index, description);
                     if (entity.visible) { // Do not broadcast entities which are not visible (probes).
-                        this.grid.queue(entityId, Encode.DESCRIBED, encoded);
+                        this.grid.queueToEntitiesInRange(entityId, Encode.DESCRIBED, encoded);
                     }
                     return;
                 }
@@ -172,7 +172,7 @@ export class Processor {
                     const entity = this.grid.entities.get(entityId)!!;
                     const encoded = Encode.acted(entity.index, action);
                     if (entity.visible) { // Do not broadcast entities which are not visible (probes).
-                        this.grid.queue(entityId, Encode.ACTED, encoded);
+                        this.grid.queueToEntitiesInRange(entityId, Encode.ACTED, encoded);
                     }
                     return;
                 }
@@ -190,7 +190,7 @@ export class Processor {
         for (let entityId of connection.entityIds) {
             const entity = this.grid.entities.get(entityId)!!;
             const encoded = Encode.removed(entity.index, entityId);
-            this.grid.queue(entityId, Encode.REMOVED, encoded);
+            this.grid.queueToEntitiesInRange(entityId, Encode.REMOVED, encoded);
             connection.entityIds.delete(entityId);
             this.grid.remove(entityId);
         }

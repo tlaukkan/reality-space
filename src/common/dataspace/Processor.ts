@@ -148,7 +148,7 @@ export class Processor {
                     return;
                 }
             } catch (error) {
-                console.warn("Message processing failed: " + message + " : " + error.message);
+                console.warn("Message processing failed: " + message, error);
             }
 
         }

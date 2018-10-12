@@ -94,6 +94,7 @@ export class ClusterClient {
         for (let server of newServers) {
             if (!this.clients.has(server.url)) {
                 let client = new Client(server.url);
+                this.clients.set(server.url, client);
                 client.newWebSocket = this.newWebSocket;
                 client.onClose = () => {
                     if (this.primaryServerUrl === client.url) {
@@ -122,7 +123,6 @@ export class ClusterClient {
                     console.log("cluster client - connected to secondary server: " + client.url);
                     await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, "");
                 }
-                this.clients.set(server.url, client);
             } else {
                 // Update avatars and probes for servers in range..
                 await this.clients.get(server.url)!!.update(this.avatarId, x, y, z, rx, ry, rz, rw);
@@ -156,7 +156,7 @@ export class ClusterClient {
     }
 
     isConnected() : boolean {
-        return !!this.primaryServerUrl;
+        return this.primaryServerUrl !== undefined && this.clients.has(this.primaryServerUrl) && this.clients.get(this.primaryServerUrl)!!.isConnected();
     }
 
     onConnect: OnConnect = (serverUrl: string) => {};

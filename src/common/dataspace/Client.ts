@@ -8,6 +8,7 @@ export class Client {
 
     url: string;
     ws: WebSocket = undefined as any as WebSocket;
+    connected: boolean = false;
 
     constructor(url: string) {
         this.url = url;
@@ -15,18 +16,29 @@ export class Client {
 
     newWebSocket: WebSocketConstruct = (url:string, protocol:string) => { return new WebSocket(url, protocol)};
 
+    isConnected() {
+        return this.connected;
+    }
+
     connect() : Promise<void>  {
+        if (this.connected) {
+            throw new Error("Error already connected.");
+        }
+        this.connected = false;
         return new Promise((resolve, reject) => {
             try {
                 this.ws = this.newWebSocket(this.url, 'ds-v1.0');
                 this.ws.onerror = (error) => {
+                    this.connected = false;
                     console.warn("Error in client ws connection", error);
                     reject(error);
                 };
                 this.ws.onclose = () => {
+                    this.connected = false;
                     this.onClose();
                 };
                 this.ws.onopen = () => {
+                    this.connected = true;
                     resolve();
                 };
                 this.ws.onmessage = (message) => {

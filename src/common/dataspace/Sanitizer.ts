@@ -18,6 +18,9 @@ export class Sanitizer {
         if (!this.enabled) {
             return description;
         }
+        if (description.length == 0) {
+            return description;
+        }
         const element = xml2js(description);
         this.sanitizeElements(element.elements);
         return js2xml(element, {spaces: 4});

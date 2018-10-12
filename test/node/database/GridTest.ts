@@ -74,13 +74,22 @@ describe('Test Grid', () => {
         expect(grid.getCell(1000, 1000, 1000)!!.entities.length).to.equal(1);
         expect(grid.getCell(1999, 1999, 1999)!!.entities.length).to.equal(2);
 
-        expect(e5.connection.outQueue.size()).equals(1);
+        expect(e5.connection.outQueue.size()).equals(4);
+        expect(e5.connection.outQueue.dequeue()!![1]).equals("a|1|5|1001.00|1002.00|1003.00|1.00|2.00|3.00|4.00|d|");
+        expect(e5.connection.outQueue.dequeue()!![1]).equals("a|0|1|1001.00|1002.00|1003.00|1.00|2.00|3.00|4.00|d|");
+        expect(e5.connection.outQueue.dequeue()!![1]).equals("u|0|1004.00|1005.00|1006.00|5.00|6.00|7.00|8.00|");
         expect(e5.connection.outQueue.dequeue()!![1]).equals("r|0|1|");
-        expect(e1.connection.outQueue.size()).equals(2);
+        expect(e1.connection.outQueue.size()).equals(6);
+        expect(e1.connection.outQueue.dequeue()!![1]).equals("a|0|1|1001.00|1002.00|1003.00|1.00|2.00|3.00|4.00|d|");
+        expect(e1.connection.outQueue.dequeue()!![1]).equals("a|1|5|1001.00|1002.00|1003.00|1.00|2.00|3.00|4.00|d|");
+        expect(e1.connection.outQueue.dequeue()!![1]).equals("u|0|1004.00|1005.00|1006.00|5.00|6.00|7.00|8.00|");
         expect(e1.connection.outQueue.dequeue()!![1]).equals("r|1|5|");
         expect(e1.connection.outQueue.dequeue()!![1]).equals("a|2|10|1999.00|1999.00|1999.00|1.00|2.00|3.00|4.00|d|");
-        expect(e10.connection.outQueue.size()).equals(1);
+        expect(e1.connection.outQueue.dequeue()!![1]).equals("u|0|1999.00|1999.00|1999.00|1.00|2.00|3.00|4.00|");
+        expect(e10.connection.outQueue.size()).equals(3);
+        expect(e10.connection.outQueue.dequeue()!![1]).equals("a|2|10|1999.00|1999.00|1999.00|1.00|2.00|3.00|4.00|d|");
         expect(e10.connection.outQueue.dequeue()!![1]).equals("a|0|1|1999.00|1999.00|1999.00|1.00|2.00|3.00|4.00|d|");
+        expect(e10.connection.outQueue.dequeue()!![1]).equals("u|0|1999.00|1999.00|1999.00|1.00|2.00|3.00|4.00|");
 
         expect(grid.getCell(1999, 1999, 1999)!!.entities[0].id).to.equal("10");
         expect(grid.getCell(1999, 1999, 1999)!!.entities[1].id).to.equal("1");
@@ -162,17 +171,13 @@ describe('Test Grid', () => {
 
         const grid = new Grid(1500, 1500, 1500, 1000, 100, 200);
         expect(grid.add(c, "0", 1000, 1000, 1000, 1, 2, 3, 4, "d")).to.equal(true);
-        grid.queueToEntitiesInRange("0", "a", "1");
-        expect(c.outQueue.size()).equal(1);
-        grid.queueToEntitiesInRange("0", "b", "2");
+        grid.queueToEntitiesInRange(grid.entities.get("0")!!, "a", "1");
         expect(c.outQueue.size()).equal(2);
-        expect(c.outQueue.peek()!![0]).equal("a");
-        expect(c.outQueue.peek()!![1]).equal("1");
-        expect(c.outQueue.dequeue()!![0]).equal("a");
-        expect(c.outQueue.size()).equal(1);
-        expect(c.outQueue.peek()!![0]).equal("b");
-        expect(c.outQueue.peek()!![1]).equal("2");
-        expect(c.outQueue.dequeue()!![0]).equal("b");
+        grid.queueToEntitiesInRange(grid.entities.get("0")!!, "b", "2");
+        expect(c.outQueue.size()).equal(3);
+        expect(c.outQueue.dequeue()!![1]).equal("a|0|0|1000.00|1000.00|1000.00|1.00|2.00|3.00|4.00|d|");
+        expect(c.outQueue.dequeue()!![1]).equal("1");
+        expect(c.outQueue.dequeue()!![1]).equal("2");
         expect(c.outQueue.size()).equal(0);
     });
 });

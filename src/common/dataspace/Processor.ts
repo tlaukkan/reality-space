@@ -87,15 +87,6 @@ export class Processor {
                     }
 
                     connection.entityIds.add(entityId);
-                    const entity = this.grid.entities.get(entityId)!!;
-                    entity.visible = entity.description.length > 0; // Mark entities which arrive without description as hidden i.e. probes.
-                    const encoded = Encode.added(entity.index, entityId, x, y, z, rx, ry, rz, rw, description);
-
-                    if (entity.visible) { // Do not broadcast entities which are not visible (probes).
-                        this.grid.queueToEntitiesInRange(entityId, Encode.ADDED, encoded);
-                    }
-
-                    this.grid.addEntitiesInRange(entityId);
                     return;
                 }
                 if (type === Encode.UPDATE) {
@@ -114,12 +105,6 @@ export class Processor {
                     }
 
                     this.grid.update(entityId, x, y, z, rx, ry, rz, rw);
-                    const entity = this.grid.entities.get(entityId)!!;
-                    const encoded = Encode.updated(entity.index, x, y, z, rx, ry, rz, rw);
-
-                    if (entity.visible) { // Do not broadcast entities which are not visible (probes).
-                        this.grid.queueToEntitiesInRange(entityId, Encode.UPDATED, encoded);
-                    }
 
                     return;
                 }
@@ -131,14 +116,9 @@ export class Processor {
                         throw new Error("Connection does not own: " + entityId);
                     }
 
-                    const entity = this.grid.entities.get(entityId)!!;
-                    const encoded = Encode.removed(entity.index, entityId);
-                    this.grid.queueToEntitiesInRange(entityId, Encode.REMOVED, encoded);
-                    connection.entityIds.delete(entityId);
+                    this.grid.remove(entityId);
 
-                    if (entity.visible) { // Do not broadcast entities which are not visible (probes).
-                        this.grid.remove(entityId);
-                    }
+                    connection.entityIds.delete(entityId);
 
                     return;
                 }
@@ -153,11 +133,6 @@ export class Processor {
 
                     this.grid.describe(entityId, description);
 
-                    const entity = this.grid.entities.get(entityId)!!;
-                    const encoded = Encode.described(entity.index, description);
-                    if (entity.visible) { // Do not broadcast entities which are not visible (probes).
-                        this.grid.queueToEntitiesInRange(entityId, Encode.DESCRIBED, encoded);
-                    }
                     return;
                 }
                 if (type === Encode.ACT) {
@@ -169,11 +144,7 @@ export class Processor {
                         throw new Error("Connection does not own: " + entityId);
                     }
 
-                    const entity = this.grid.entities.get(entityId)!!;
-                    const encoded = Encode.acted(entity.index, action);
-                    if (entity.visible) { // Do not broadcast entities which are not visible (probes).
-                        this.grid.queueToEntitiesInRange(entityId, Encode.ACTED, encoded);
-                    }
+                    this.grid.act(entityId, action);
                     return;
                 }
             } catch (error) {
@@ -188,9 +159,6 @@ export class Processor {
         this.connections.delete(connection.id);
 
         for (let entityId of connection.entityIds) {
-            const entity = this.grid.entities.get(entityId)!!;
-            const encoded = Encode.removed(entity.index, entityId);
-            this.grid.queueToEntitiesInRange(entityId, Encode.REMOVED, encoded);
             connection.entityIds.delete(entityId);
             this.grid.remove(entityId);
         }

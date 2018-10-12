@@ -108,10 +108,21 @@ export class Grid {
             const entity = new Entity(connection, this.reserveIndex(), id, x, y, z, rx, ry, rz, rw, description);
             this.entities.set(id, entity);
             cell.addEntity(entity);
+
+            entity.visible = entity.description.length > 0; // Mark entities which arrive without description as hidden i.e. probes.
+
+            if (entity.visible) { // Do not broadcast entities which are not visible (probes).
+                this.queueToEntitiesInRange(entity, Encode.ADDED, Encode.added(entity.index, entity.id, x, y, z, rx, ry, rz, rw, description));
+            }
+
+            this.addEntitiesInRange(entity.id);
+
             return true;
         } else {
             return false;
         }
+
+
     }
 
     update(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number) : boolean {
@@ -178,6 +189,10 @@ export class Grid {
             });
         }
 
+        if (entity.visible) { // Do not broadcast entities which are not visible (probes).
+            this.queueToEntitiesInRange(entity, Encode.UPDATED, Encode.updated(entity.index, x, y, z, rx, ry, rz, rw));
+        }
+
         return true;
     }
 
@@ -187,30 +202,49 @@ export class Grid {
             throw Error("Entity does not exist in grid: " + id);
         }
         entity.description = description;
+
+        if (entity.visible) { // Do not broadcast entities which are not visible (probes).
+            this.queueToEntitiesInRange(entity, Encode.DESCRIBED, Encode.described(entity.index, description));
+        }
     }
 
-    remove(id: string) : void {
+    act(id: string, action: string) : void {
         const entity = this.entities.get(id);
         if (entity === undefined) {
             throw Error("Entity does not exist in grid: " + id);
         }
+
+        if (entity.visible) { // Do not broadcast entities which are not visible (probes).
+            this.queueToEntitiesInRange(entity, Encode.ACTED, Encode.acted(entity.index, action));
+        }
+
+    }
+
+    remove(id: string) : void {
+        const entity = this.entities.get(id);
+
+        if (entity === undefined) {
+            throw Error("Entity does not exist in grid: " + id);
+        }
+
         const cell = this.getCell(entity.x, entity.y, entity.z);
         if (cell === undefined) {
             throw Error("Entity old coordinates outside grid: " + id);
         }
+
+        if (entity.visible) { // Do not broadcast entities which are not visible (probes).
+            this.queueToEntitiesInRange(entity, Encode.REMOVED, Encode.removed(entity.index, entity.id));
+        }
+
         cell.removeEntity(id);
         this.entities.delete(id);
         this.releaseIndex(entity.index);
     }
 
-    queueToEntitiesInRange(entityId: string, messageType: string, encodedMessage: string) {
-        const entity = this.entities.get(entityId);
-        if (entity === undefined) {
-            throw Error("Entity does not exist in grid: " + entityId);
-        }
+    queueToEntitiesInRange(entity: Entity, messageType: string, encodedMessage: string) {
         const cell = this.getCell(entity.x, entity.y, entity.z);
         if (cell === undefined) {
-            throw Error("Entity old coordinates outside grid: " + entityId);
+            throw Error("Entity old coordinates outside grid: " + entity.id);
         }
         for (let cellInRange of cell.cellsInRange) {
             this.queueToCellEntities(cellInRange, messageType, encodedMessage);

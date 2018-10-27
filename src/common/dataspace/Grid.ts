@@ -113,7 +113,7 @@ export class Grid {
                 this.queueToEntitiesInRange(entity, Encode.ADDED, Encode.added(entity.index, entity.id, x, y, z, rx, ry, rz, rw, description, type));
             }
 
-            this.addEntitiesInRange(entity.id);
+            this.addEntitiesInRange(entity);
 
             return true;
         } else {
@@ -239,7 +239,29 @@ export class Grid {
         this.releaseIndex(entity.index);
     }
 
-    queueToEntitiesInRange(entity: Entity, messageType: string, encodedMessage: string) {
+    private addEntitiesInRange(entity: Entity) {
+        if (!entity.observer) { return; }
+
+        const cell = this.getCell(entity.x, entity.y, entity.z)
+        if (cell === undefined) {
+            throw Error("Entity old coordinates outside grid: " + entity.id);
+        }
+        for (let cellInRange of cell.cellsInRange) {
+            for (let entityInRange of cellInRange.entities) {
+                if (entityInRange.id === entity.id) {
+                    continue;
+                }
+                if (!entityInRange.visible) { // Do not broadcast entities which are not visible (probes).
+                    continue;
+                }
+                const encoded = Encode.added(entityInRange.index, entityInRange.id, entityInRange.x, entityInRange.y, entityInRange.z, entityInRange.rx, entityInRange.ry, entityInRange.rz, entityInRange.rw, entityInRange.description, entityInRange.type);
+                this.queueToEntity(entity, Encode.ADDED, encoded);
+            }
+        }
+    }
+
+
+    public queueToEntitiesInRange(entity: Entity, messageType: string, encodedMessage: string) {
         const cell = this.getCell(entity.x, entity.y, entity.z);
         if (cell === undefined) {
             throw Error("Entity old coordinates outside grid: " + entity.id);
@@ -251,38 +273,18 @@ export class Grid {
 
     private queueToCellEntities(cell: Cell, messageType: string, encodedMessage: string) {
         for (let entity of cell.entities) {
+            if (!entity.observer) { continue; }
             this.queueToEntity(entity, messageType, encodedMessage);
         }
     }
 
     private queueToEntity(entity: Entity, messageType: string, encodedMessage: string) {
+        if (!entity.observer) { return; }
+
         if (entity.connection.outQueue.size() < 1000) {
             entity.connection.outQueue.enqueue([messageType, encodedMessage]);
         } else {
             console.warn("entity (" + entity.id + ") message queue full dropping message: " + messageType);
-        }
-    }
-
-    addEntitiesInRange(entityId: string) {
-        const entity = this.entities.get(entityId);
-        if (entity === undefined) {
-            throw Error("Entity does not exist in grid: " + entityId);
-        }
-        const cell = this.getCell(entity.x, entity.y, entity.z)
-        if (cell === undefined) {
-            throw Error("Entity old coordinates outside grid: " + entityId);
-        }
-        for (let cellInRange of cell.cellsInRange) {
-            for (let entityInRange of cellInRange.entities) {
-                if (entityInRange.id === entityId) {
-                    continue;
-                }
-                if (!entity.visible) { // Do not broadcast entities which are not visible (probes).
-                    continue;
-                }
-                const encoded = Encode.added(entityInRange.index, entityInRange.id, entityInRange.x, entityInRange.y, entityInRange.z, entityInRange.rx, entityInRange.ry, entityInRange.rz, entityInRange.rw, entityInRange.description, entity.type);
-                entity.connection.outQueue.enqueue([Encode.ADDED, encoded]);
-            }
         }
     }
 

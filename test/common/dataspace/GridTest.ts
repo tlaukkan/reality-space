@@ -177,4 +177,54 @@ describe('Test Grid', () => {
         expect(c.outQueue.dequeue()!![1]).equal("2");
         expect(c.outQueue.size()).equal(0);
     });
+
+    it('should add object and probe', () => {
+        const c = new Connection("");
+
+        const grid = new Grid(1500, 1500, 1500, 1000, 100, 200);
+        expect(grid.add(c, "0", 1000, 1000, 1000, 1, 2, 3, 4, "o", Encode.OBJECT)).to.equal(true);
+        expect(grid.add(c, "1", 1000, 1000, 1000, 1, 2, 3, 4, "p", Encode.PROBE)).to.equal(true);
+
+        const o = grid.getCell(1000, 1000, 1000)!!.entities[0];
+        expect(o.visible).equal(true);
+        expect(o.observer).equal(false);
+        const p = grid.getCell(1000, 1000, 1000)!!.entities[1];
+        expect(p.visible).equal(false);
+        expect(p.observer).equal(true);
+
+        expect(c.outQueue.size()).equal(1);
+        expect(c.outQueue.dequeue()!![1]).equal("a|0|0|1000.00|1000.00|1000.00|1.00|2.00|3.00|4.00|o|o|");
+        expect(c.outQueue.size()).equal(0);
+
+        expect(grid.update("0", 1001, 1000, 1000, 1, 2, 3, 4)).to.equal(true);
+        expect(grid.update("1", 1001, 1000, 1000, 1, 2, 3, 4)).to.equal(true);
+
+        expect(c.outQueue.size()).equal(1);
+        expect(c.outQueue.dequeue()!![1]).equal("u|0|1001.00|1000.00|1000.00|1.00|2.00|3.00|4.00|");
+        expect(c.outQueue.size()).equal(0);
+
+        grid.act("0", "a");
+        grid.act("1", "b");
+
+        expect(c.outQueue.size()).equal(1);
+        expect(c.outQueue.dequeue()!![1]).equal("c|0|a|");
+        expect(c.outQueue.size()).equal(0);
+
+        grid.describe("0", "A");
+        grid.describe("1", "B");
+
+        expect(c.outQueue.size()).equal(1);
+        expect(c.outQueue.dequeue()!![1]).equal("d|0|A|");
+        expect(c.outQueue.size()).equal(0);
+
+        grid.remove("0");
+        grid.remove("1");
+
+        expect(c.outQueue.size()).equal(1);
+        expect(c.outQueue.dequeue()!![1]).equal("r|0|0|");
+        expect(c.outQueue.size()).equal(0);
+
+    });
+
+
 });

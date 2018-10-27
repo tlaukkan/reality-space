@@ -17,7 +17,7 @@ describe('Integration Test Cluster Client', () => {
     });
 
 
-    it('Should connect client to localhost.', async () => {
+    it('Should connect client to cluster.', async () => {
         expect(client.clients.size).equals(1);
 
         console.log("\ntesting 0 0 0 and 0 0 100 in range.\n");

@@ -31,9 +31,9 @@ describe('Test Messaging', () => {
     });
 
     it('Should send add and receive messages.', function (done) {
-        client.add("1", 1, 2, 3, 4, 5, 6, 7, '<a-image src="dog.img"/>');
+        client.add("1", 1, 2, 3, 4, 5, 6, 7, '<a-image src="dog.img"/>', Encode.AVATAR);
         client.onReceive = async function (message) {
-            expect(message).equals('a|0|1|1.00|2.00|3.00|4.00|5.00|6.00|7.00|<a-image src="dog.img"/>|');
+            expect(message).equals('a|0|1|1.00|2.00|3.00|4.00|5.00|6.00|7.00|<a-image src="dog.img"/>|a|');
             client.update("1", 1, 2, 3, 4, 5, 6, 7);
             client.onReceive = async function (message) {
                 expect(message).equals("u|0|1.00|2.00|3.00|4.00|5.00|6.00|7.00|");
@@ -83,7 +83,7 @@ describe('Test Messaging', () => {
         };
 
         for (let i = 0; i < n; i++) {
-            await clients[i].add(entityIds[i], 1, 2, 3, 4, 5, 6, 7, "<a-box/>");
+            await clients[i].add(entityIds[i], 1, 2, 3, 4, 5, 6, 7, "<a-box/>", Encode.AVATAR);
         }
 
         await waitOnCondition(() => { return a >= n});

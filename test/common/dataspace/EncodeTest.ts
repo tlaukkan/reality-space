@@ -5,8 +5,8 @@ import {Decode} from "../../../src/common/dataspace/Decode";
 describe('Test Encode', () => {
 
     it('should encode and decode add', () => {
-        const encoded = Encode.add("0", 1.011, 2.011, 3.011, 4.011, 5.011, 6.011, 7.011, "d");
-        const decoded: [string, number, number, number, number, number, number, number, string] = Decode.add(encoded.split(Encode.SEPARATOR));
+        const encoded = Encode.add("0", 1.011, 2.011, 3.011, 4.011, 5.011, 6.011, 7.011, "d", "a");
+        const decoded: [string, number, number, number, number, number, number, number, string, string] = Decode.add(encoded.split(Encode.SEPARATOR));
         expect(decoded[0]).to.equal("0");
         expect(decoded[1]).to.equal(1.01);
         expect(decoded[2]).to.equal(2.01);
@@ -16,11 +16,12 @@ describe('Test Encode', () => {
         expect(decoded[6]).to.equal(6.01);
         expect(decoded[7]).to.equal(7.01);
         expect(decoded[8]).to.equal("d");
+        expect(decoded[9]).to.equal("a");
     });
 
     it('should encode and decode added', () => {
-        const encoded = Encode.added(0, "1", 1.011, 2.011, 3.011, 4.011, 5.011, 6.011, 7.011, "d");
-        const decoded: [number, string, number, number, number, number, number, number, number, string] = Decode.added(encoded.split(Encode.SEPARATOR));
+        const encoded = Encode.added(0, "1", 1.011, 2.011, 3.011, 4.011, 5.011, 6.011, 7.011, "d", "a");
+        const decoded: [number, string, number, number, number, number, number, number, number, string, string] = Decode.added(encoded.split(Encode.SEPARATOR));
         expect(decoded[0]).to.equal(0);
         expect(decoded[1]).to.equal("1");
         expect(decoded[2]).to.equal(1.01);
@@ -31,6 +32,7 @@ describe('Test Encode', () => {
         expect(decoded[7]).to.equal(6.01);
         expect(decoded[8]).to.equal(7.01);
         expect(decoded[9]).to.equal("d");
+        expect(decoded[10]).to.equal("a");
     });
 
     it('should encode and decode update', () => {

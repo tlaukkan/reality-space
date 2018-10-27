@@ -74,12 +74,13 @@ export class Processor {
                     const rz: number = decoded[6];
                     const rw: number = decoded[7];
                     const description = this.sanitizer.sanitize(decoded[8]);
+                    const type = decoded[9];
 
                     if (connection.entityIds.has(entityId)) {
                         throw new Error("Connection already owns: " + entityId);
                     }
 
-                    const success = this.grid.add(connection, entityId, x, y, z, rx, ry, rz, rw, description);
+                    const success = this.grid.add(connection, entityId, x, y, z, rx, ry, rz, rw, description, type);
 
                     if (!success) {
                         console.warn("Failed to add entity to grid due to entity being outside grid boundaries: ", message);

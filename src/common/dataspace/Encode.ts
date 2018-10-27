@@ -1,6 +1,7 @@
 export class Encode {
 
     static readonly SEPARATOR: string = '|';
+
     static readonly ADD: string = 'A';
     static readonly ADDED: string = 'a';
     static readonly UPDATE: string = 'U';
@@ -12,7 +13,11 @@ export class Encode {
     static readonly ACT: string = 'C';
     static readonly ACTED: string = 'c';
 
-    static add(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string) : string {
+    static readonly OBJECT: string = 'o'; // Visible
+    static readonly PROBE: string = 'p';  // Observing
+    static readonly AVATAR: string = 'a'; // Visible and observing
+
+    static add(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string, type: string) : string {
         return "" +
             s(this.ADD) +
             s(id) +
@@ -23,10 +28,11 @@ export class Encode {
             d2(ry) +
             d2(rz) +
             d2(rw) +
-            se(description);
+            se(description) +
+            s(type);
     }
 
-    static added(index: number, id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string) : string {
+    static added(index: number, id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string, type: string) : string {
         return "" +
             s(this.ADDED) +
             i(index) +
@@ -38,7 +44,8 @@ export class Encode {
             d2(ry) +
             d2(rz) +
             d2(rw) +
-            se(description);
+            se(description) +
+            s(type);
     }
 
     static update(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number) : string {

@@ -65,8 +65,8 @@ export class Client {
         this.ws.send(message);
     }
 
-    async add(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string) {
-        await this.send(Encode.add(id, x, y, z, rx, ry, rz, rw, description));
+    async add(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string, type: string) {
+        await this.send(Encode.add(id, x, y, z, rx, ry, rz, rw, description, type));
     }
 
     async update(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number) {

@@ -18,7 +18,7 @@ describe('Integration Test Messaging', () => {
     });
 
     it('Should send add and receive messages.', function (done) {
-        client.add("1", 1, 2, 3, 4, 5, 6, 7, "<a-box/>");
+        client.add("1", 1, 2, 3, 4, 5, 6, 7, "<a-box/>", Encode.AVATAR);
         client.onReceive = async function (message) {
             expect(message.split(Encode.SEPARATOR)[0]).equals(Encode.ADDED);
             client.update("1", 1, 2, 3, 4, 5, 6, 7);

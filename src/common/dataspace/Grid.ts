@@ -98,21 +98,19 @@ export class Grid {
         this.unusedIndexes.push(index);
     }
 
-    add(connection: Connection, id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string) : boolean {
+    add(connection: Connection, id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string, type: string) : boolean {
         if (this.entities.get(id) !== undefined) {
             console.log(this.entities.get(id));
             throw Error("Entity already exists in grid: " + id);
         }
         const cell = this.getCell(x, y, z);
         if (cell !== undefined) {
-            const entity = new Entity(connection, this.reserveIndex(), id, x, y, z, rx, ry, rz, rw, description);
+            const entity = new Entity(connection, this.reserveIndex(), id, x, y, z, rx, ry, rz, rw, description, type);
             this.entities.set(id, entity);
             cell.addEntity(entity);
 
-            entity.visible = entity.description.length > 0; // Mark entities which arrive without description as hidden i.e. probes.
-
             if (entity.visible) { // Do not broadcast entities which are not visible (probes).
-                this.queueToEntitiesInRange(entity, Encode.ADDED, Encode.added(entity.index, entity.id, x, y, z, rx, ry, rz, rw, description));
+                this.queueToEntitiesInRange(entity, Encode.ADDED, Encode.added(entity.index, entity.id, x, y, z, rx, ry, rz, rw, description, type));
             }
 
             this.addEntitiesInRange(entity.id);
@@ -178,10 +176,10 @@ export class Grid {
                     cellInRange.entities.forEach((entityInRange: Entity) => {
                         if (entityInRange.id != entity.id) {
                             if (entity.visible) {
-                                this.queueToEntity(entityInRange, Encode.ADDED, Encode.added(entity.index, entity.id, entity.x, entity.y, entity.z, entity.rx, entity.ry, entity.rz, entity.rw, entity.description));
+                                this.queueToEntity(entityInRange, Encode.ADDED, Encode.added(entity.index, entity.id, entity.x, entity.y, entity.z, entity.rx, entity.ry, entity.rz, entity.rw, entity.description, entity.type));
                             }
                             if (entityInRange.visible) {
-                                this.queueToEntity(entity, Encode.ADDED, Encode.added(entityInRange.index, entityInRange.id, entityInRange.x, entityInRange.y, entityInRange.z, entityInRange.rx, entityInRange.ry, entityInRange.rz, entityInRange.rw, entityInRange.description));
+                                this.queueToEntity(entity, Encode.ADDED, Encode.added(entityInRange.index, entityInRange.id, entityInRange.x, entityInRange.y, entityInRange.z, entityInRange.rx, entityInRange.ry, entityInRange.rz, entityInRange.rw, entityInRange.description, entity.type));
                             }
                         }
                     });
@@ -282,7 +280,7 @@ export class Grid {
                 if (!entity.visible) { // Do not broadcast entities which are not visible (probes).
                     continue;
                 }
-                const encoded = Encode.added(entityInRange.index, entityInRange.id, entityInRange.x, entityInRange.y, entityInRange.z, entityInRange.rx, entityInRange.ry, entityInRange.rz, entityInRange.rw, entityInRange.description);
+                const encoded = Encode.added(entityInRange.index, entityInRange.id, entityInRange.x, entityInRange.y, entityInRange.z, entityInRange.rx, entityInRange.ry, entityInRange.rz, entityInRange.rw, entityInRange.description, entity.type);
                 entity.connection.outQueue.enqueue([Encode.ADDED, encoded]);
             }
         }

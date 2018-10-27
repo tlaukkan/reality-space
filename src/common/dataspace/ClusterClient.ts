@@ -120,11 +120,11 @@ export class ClusterClient {
                 if (client.url === this.primaryServerUrl) {
                     // Add avatar
                     console.log("cluster client - connected to primary server: " + client.url);
-                    await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, this.avatarDescription);
+                    await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, this.avatarDescription, Encode.AVATAR);
                 } else {
                     // Add probe
                     console.log("cluster client - connected to secondary server: " + client.url);
-                    await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, "");
+                    await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, "", Encode.PROBE);
                 }
             } else {
                 // Update avatars and probes for servers in range..
@@ -172,7 +172,7 @@ export class ClusterClient {
 
     async add(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string) {
         if (this.isConnected()) {
-            await this.getClient()!!.add(id, x, y, z, rx, ry, rz, rw, description);
+            await this.getClient()!!.add(id, x, y, z, rx, ry, rz, rw, description, Encode.OBJECT);
         }
     }
 

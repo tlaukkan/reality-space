@@ -1,7 +1,7 @@
-import {ClusterClient} from "../../../lib/src";
 import {w3cwebsocket} from "websocket";
 import {quat, vec3} from "@tlaukkan/tsm";
 import uuid = require("uuid");
+import {ClusterClient} from "./ClusterClient";
 
 export class ServerAvatarClient {
 

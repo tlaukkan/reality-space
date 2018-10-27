@@ -63,6 +63,10 @@ export class ClusterClient {
     }
 
     async refresh(x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number) {
+        if (!this.clusterConfiguration) {
+            return;
+        }
+
         this.x = x;
         this.y = y;
         this.z = z;

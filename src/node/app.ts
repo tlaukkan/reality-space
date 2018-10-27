@@ -8,6 +8,7 @@ import {
     ServerConfiguration
 } from "../common/dataspace/Configuration";
 import {Sanitizer} from "../common/dataspace/Sanitizer";
+import {ServerAvatarClient} from "../common/dataspace/ServerAvatarClient";
 
 start()
     .then()
@@ -31,6 +32,11 @@ async function start() {
                 configuration.allowedAttributes,
                 configuration.allowedAttributeValueRegex)));
     server.listen();
+
+    if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL) {
+        const serverAvatarClient = new ServerAvatarClient(process.env.CLUSTER_CONFIGURATION_URL);
+        await serverAvatarClient.start();
+    }
 
     process.on('exit', function () {
         server.close();

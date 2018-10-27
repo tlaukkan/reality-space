@@ -53,7 +53,7 @@ describe('Performance Test Server', () => {
         let lastByteCount = 0;
 
         for (let i = 0; i < numberOfClients; i++) {
-            await clients[i].add(entityIds[i], 1, 2, 3, 4, 5, 6, 7, "d", Encode.AVATAR);
+            await clients[i].add(entityIds[i], 1, 2, 3, 4, 5, 6, 7, "<a-box></a-box>", Encode.AVATAR);
         }
 
         await waitOnCondition(() => {

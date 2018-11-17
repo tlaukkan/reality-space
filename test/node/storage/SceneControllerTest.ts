@@ -7,7 +7,7 @@ describe('Storage test.', () => {
 
     it('should test storage', () => {
         const sanitizer = new Sanitizer('a-scene-fragment,a-scene,a-box', 'text,sid,scale', '[^\\w\\s:;-]');
-        const storage = new SceneController('test-scene.html', sanitizer);
+        const storage = new SceneController(sanitizer);
 
         const addedFragment = storage.parseFragment(
             storage.saveSceneFragment('<a-scene-fragment><a-box text="a" invalid="2"></a-box></a-scene-fragment>'));
@@ -37,7 +37,7 @@ describe('Storage test.', () => {
 
         const scene = storage.serialize();
 
-        const storage2 = new SceneController('test-scene.html', sanitizer);
+        const storage2 = new SceneController(sanitizer);
         storage2.deserialize(scene);
 
         expect(storage.parseFragment(storage2.serialize()).entities.length).equal(1);

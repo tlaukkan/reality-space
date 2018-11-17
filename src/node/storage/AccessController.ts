@@ -7,12 +7,19 @@ import {UserPrivilege} from "./UserPrivilege";
 import {AccessSerializableModel} from "./AccessSerializableModel";
 import {SerializableUser} from "./SerializableUser";
 import {SerializableGroup} from "./SerializableGroup";
+import {AccessManagement} from "./AccessManagement";
 
-export class AccessController {
+export class AccessController implements AccessManagement {
 
     model: AccessModel = new AccessModel();
 
-    hasPrivilege(userId: string, sid: string, type: PrivilegeType) : boolean {
+    checkPrivilege(userId: string, sid: string, type: PrivilegeType): void {
+        if (!this.hasPrivilege(userId, sid, type)) {
+            throw new Error(userId + " " + type + " access denied to " + sid);
+        }
+    }
+
+    hasPrivilege(userId: string, sid: string, type: PrivilegeType): boolean {
 
         if (!this.model.users.has(userId)) {
             throw new Error("User doest not exist: " + userId);
@@ -44,7 +51,7 @@ export class AccessController {
         return found;
     }
 
-    getResourceGroupPrivileges(sid: string) : Array<[string, PrivilegeType]> {
+    getResourceGroupPrivileges(sid: string): Array<[string, PrivilegeType]> {
         const privileges: Array<[string, PrivilegeType]> = new Array<[string, PrivilegeType]>();
         if (this.model.groupPrivileges.has(sid)) {
             this.model.groupPrivileges.get(sid);
@@ -55,7 +62,7 @@ export class AccessController {
         return privileges;
     }
 
-    getResourceUserPrivileges(sid: string) : Array<[string, string, PrivilegeType]> {
+    getResourceUserPrivileges(sid: string): Array<[string, string, PrivilegeType]> {
         const privileges: Array<[string, string, PrivilegeType]> = new Array<[string, string, PrivilegeType]>();
         if (this.model.userPrivileges.has(sid)) {
             this.model.userPrivileges.get(sid)!!.forEach((userPrivilege) => {
@@ -66,7 +73,7 @@ export class AccessController {
         return privileges;
     }
 
-    getGroupPrivileges(groupName: string) : Array<[string, PrivilegeType]> {
+    getGroupPrivileges(groupName: string): Array<[string, PrivilegeType]> {
         if (!this.model.groups.has(groupName)) {
             throw new Error("Group doest not exist: " + groupName);
         }
@@ -80,7 +87,7 @@ export class AccessController {
         return privileges;
     }
 
-    getUserPrivileges(userId: string) : Array<[string, PrivilegeType]> {
+    getUserPrivileges(userId: string): Array<[string, PrivilegeType]> {
         if (!this.model.users.has(userId)) {
             throw new Error("User doest not exist: " + userId);
         }
@@ -95,7 +102,7 @@ export class AccessController {
         return privileges;
     }
 
-    getPrivilegeLevel(type:PrivilegeType) : number {
+    getPrivilegeLevel(type: PrivilegeType): number {
         if (type == PrivilegeType.ADMIN) {
             return 4;
         }
@@ -177,10 +184,10 @@ export class AccessController {
     removeUser(userId: string) {
         if (this.model.users.has(userId)) {
             this.model.users.get(userId)!!.groupNames.forEach((groupName) => {
-               this.removeGroupMember(groupName, userId);
+                this.removeGroupMember(groupName, userId);
             });
-            this.getUserPrivileges(userId).forEach( ([sid, type]) => {
-               this.removeUserPrivilege(userId, sid);
+            this.getUserPrivileges(userId).forEach(([sid, type]) => {
+                this.removeUserPrivilege(userId, sid);
             });
             this.model.users.delete(userId);
         } else {
@@ -192,7 +199,7 @@ export class AccessController {
         return this.model.users.has(id);
     }
 
-    getUser(id: string) : User {
+    getUser(id: string): User {
         if (this.model.users.has(id)) {
             return this.model.users.get(id)!!;
         } else {
@@ -236,7 +243,7 @@ export class AccessController {
                 this.removeGroupMember(groupName, userId);
             });
             this.getGroupPrivileges(groupName).forEach(([sid, privilegeType]) => {
-               this.removeGroupPrivilege(groupName, sid);
+                this.removeGroupPrivilege(groupName, sid);
             });
 
             this.model.groups.delete(groupName);
@@ -249,7 +256,7 @@ export class AccessController {
         return this.model.groups.has(name);
     }
 
-    getGroup(name: string) : Group {
+    getGroup(name: string): Group {
         if (this.model.groups.has(name)) {
             return this.model.groups.get(name)!!;
         } else {

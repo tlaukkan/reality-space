@@ -1,3 +1,5 @@
+import {Repository} from "./Repository";
+
 const fs = require('fs');
 
 export class FileSystemRepository implements Repository {

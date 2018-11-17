@@ -1,20 +1,18 @@
-import {js2xml, xml2js} from "xml-js";
-import {Element} from "xml-js";
+import {Element, js2xml, xml2js} from "xml-js";
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
-import uuid = require("uuid");
 import {Fragment} from "./Fragment";
+import uuid = require("uuid");
+import {SceneManagement} from "./SceneManagement";
 
-export class SceneController {
+export class SceneController implements SceneManagement {
 
     SCENE_FRAGMENT_ELEMENT = "a-scene-fragment";
 
-    fileName: string;
     sanitizer: Sanitizer;
     scene: Fragment;
     entityMap: Map<string, Element> = new Map<string, Element>();
 
-    constructor(fileName: string, sanitizer: Sanitizer) {
-        this.fileName = fileName;
+    constructor(sanitizer: Sanitizer) {
         this.sanitizer = sanitizer;
         this.scene = this.parseFragment('<a-scene></a-scene>');
     }
@@ -48,6 +46,10 @@ export class SceneController {
         }
 
         this.removeEntities(fragment.entities);
+    }
+
+    getScene(): string {
+        return js2xml(this.scene.container);
     }
 
     serialize(): string {

@@ -3,28 +3,32 @@ import * as http from "http";
 import {Processor} from "./Processor";
 import {Connection} from "./Connection";
 import uuid = require("uuid");
+import {StorageRestService} from "../../node/storage/StorageRestService";
 
 export class Server {
 
     host: string;
     port: number;
     processor: Processor;
+    storageRestService: StorageRestService;
     webSocketServer: websocket.server = undefined as any as websocket.server;
 
     httpServer: http.Server = undefined as any as http.Server;
 
-    constructor(host: string, port: number, processor: Processor) {
+    constructor(host: string, port: number, processor: Processor, storageRestService: StorageRestService) {
         this.host = host;
         this.port = port;
         this.processor = processor;
+        this.storageRestService = storageRestService;
     }
 
     listen() {
-        this.httpServer = http.createServer(function (request, response) {
-            if (request.url!!.endsWith('/health-check')) {
+        this.httpServer = http.createServer(async (request, response) => {
+            /*if (request.url!!.endsWith('/health-check')) {
                 response.writeHead(200, {'Content-Type': 'text/plain'});
                 response.end();
-            }
+            }*/
+            await this.storageRestService.process(request, response);
         });
 
         this.webSocketServer = new websocket.server({httpServer: this.httpServer});

@@ -4,33 +4,48 @@ import {Server} from "../common/dataspace/Server";
 import {
     ClusterConfiguration,
     findGridConfiguration,
-    getClusterConfiguration,
+    getClusterConfiguration, IdTokenIssuer,
     ServerConfiguration
 } from "../common/dataspace/Configuration";
 import {Sanitizer} from "../common/dataspace/Sanitizer";
 import {ServerAvatarClient} from "../common/dataspace/ServerAvatarClient";
+import {Storage} from "./storage/Storage";
+import {FileSystemRepository} from "./storage/repository/FileSystemRepository";
+import {StorageRestService} from "./storage/StorageRestService";
 
 start()
     .then()
     .catch(e => console.log('error starting storage server: ', e));
 
 async function start() {
-    const configuration = await getGridConfiguration();
+    const gridConfiguration = await getGridConfiguration();
+    const configuration = gridConfiguration[0];
+    const idTokenIssuers = gridConfiguration[1];
+    const sanitizer = new Sanitizer(configuration.allowedElements,
+        configuration.allowedAttributes,
+        configuration.allowedAttributeValueRegex);
+
+    const processor = new Processor(
+        new Grid(
+            configuration.cx,
+            configuration.cy,
+            configuration.cz,
+            configuration.edge,
+            configuration.step,
+            configuration.range
+        ),sanitizer
+    );
+
+    const repository = new FileSystemRepository();
+    const storageRestService = new StorageRestService(repository, sanitizer, idTokenIssuers);
+    await storageRestService.startup();
+
     const server = new Server(
         '0.0.0.0',
         process.env.PORT as any || 8889,
-        new Processor(
-            new Grid(
-                configuration.cx,
-                configuration.cy,
-                configuration.cz,
-                configuration.edge,
-                configuration.step,
-                configuration.range
-            ),
-            new Sanitizer(configuration.allowedElements,
-                configuration.allowedAttributes,
-                configuration.allowedAttributeValueRegex)));
+        processor,
+        storageRestService);
+
     server.listen();
 
     if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL) {
@@ -43,13 +58,14 @@ async function start() {
     });
 }
 
-async function getGridConfiguration(): Promise<ServerConfiguration> {
+async function getGridConfiguration(): Promise<[ServerConfiguration, Array<IdTokenIssuer>]> {
     if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL) {
         const wsUrl = process.env.WS_URL;
         const clusterConfiguration = await getClusterConfiguration(process.env.CLUSTER_CONFIGURATION_URL);
-        return findGridConfiguration(clusterConfiguration, wsUrl.trim().toLowerCase());
+        return [findGridConfiguration(clusterConfiguration, wsUrl.trim().toLowerCase()),
+            clusterConfiguration.idTokenIssuers];
     }
-    return new ServerConfiguration(
+    return [new ServerConfiguration(
         process.env.GRID_CX as any || 0,
         process.env.GRID_CY as any || 0,
         process.env.GRID_CZ as any || 0,
@@ -59,5 +75,5 @@ async function getGridConfiguration(): Promise<ServerConfiguration> {
         process.env.ALLOWED_ELEMENTS as any || 'a-box',
         process.env.ALLOWED_ATTRIBUTES  as any || 'scale',
         process.env.ALLOWED_ATTRIBUTE_VALUE_REGEX as any || '[^\\w\\s:;]',
-    );
+    ),[]];
 }

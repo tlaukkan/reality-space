@@ -16,6 +16,12 @@ export class SanitizerConfig {
 export class IdTokenIssuer {
     issuer: string = "";
     publicKey: string = "";
+
+
+    constructor(issuer: string, publicKey: string) {
+        this.issuer = issuer;
+        this.publicKey = publicKey;
+    }
 }
 
 export class ClusterConfiguration {

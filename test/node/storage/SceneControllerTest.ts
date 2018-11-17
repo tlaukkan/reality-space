@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import {SceneStorage} from "../../../src/node/storage/SceneStorage";
+import {SceneController} from "../../../src/node/storage/SceneController";
 import {Sanitizer} from "../../../src/common/dataspace/Sanitizer";
 import {js2xml} from "xml-js";
 
@@ -7,7 +7,7 @@ describe('Storage test.', () => {
 
     it('should test storage', () => {
         const sanitizer = new Sanitizer('a-scene-fragment,a-scene,a-box', 'text,sid,scale', '[^\\w\\s:;-]');
-        const storage = new SceneStorage('test-scene.html', sanitizer);
+        const storage = new SceneController('test-scene.html', sanitizer);
 
         const addedFragment = storage.parseFragment(
             storage.saveSceneFragment('<a-scene-fragment><a-box text="a" invalid="2"></a-box></a-scene-fragment>'));
@@ -37,7 +37,7 @@ describe('Storage test.', () => {
 
         const scene = storage.serialize();
 
-        const storage2 = new SceneStorage('test-scene.html', sanitizer);
+        const storage2 = new SceneController('test-scene.html', sanitizer);
         storage2.deserialize(scene);
 
         expect(storage.parseFragment(storage2.serialize()).entities.length).equal(1);

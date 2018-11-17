@@ -4,7 +4,7 @@ import {Sanitizer} from "../../common/dataspace/Sanitizer";
 import uuid = require("uuid");
 import {Fragment} from "./Fragment";
 
-export class SceneStorage {
+export class SceneController {
 
     SCENE_FRAGMENT_ELEMENT = "a-scene-fragment";
 

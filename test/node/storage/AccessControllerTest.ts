@@ -94,9 +94,8 @@ describe('Access controller test.', () => {
         expect(controller.getUser(user).groupNames.size).equals(0);
 
         // TEST ACCESS MODEL SERIALIZATION
-        const serializeModel = controller.serializeModel();
-        const accessModel = controller.deserializeModel(serializeModel);
-        controller.model = accessModel;
+        const serializeModel = controller.serialize();
+        controller.deserialize(serializeModel);
 
         expect(controller.hasPrivilege(administrator, sid, PrivilegeType.ADMIN)).true;
         expect(controller.hasPrivilege(administrator, sid, PrivilegeType.MODIFY)).true;

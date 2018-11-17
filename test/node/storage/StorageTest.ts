@@ -17,7 +17,7 @@ describe('Storage test.', () => {
         expect((addedFragment.entities[0].attributes as any).text).equal('a');
         expect((addedFragment.entities[0].attributes as any).sid.length).to.be.greaterThan(0);
 
-        expect(storage.parseFragment(storage.getScene()).entities.length).equal(1);
+        expect(storage.parseFragment(storage.serialize()).entities.length).equal(1);
 
         const addedFragment2 = storage.parseFragment(
             storage.saveSceneFragment('<a-scene-fragment><a-box text="b" invalid="2"></a-box></a-scene-fragment>'));
@@ -27,15 +27,21 @@ describe('Storage test.', () => {
         expect((addedFragment2.entities[0].attributes as any).text).equal('b');
         expect((addedFragment2.entities[0].attributes as any).sid.length).to.be.greaterThan(0);
 
-        expect(storage.parseFragment(storage.getScene()).entities.length).equal(2);
+        expect(storage.parseFragment(storage.serialize()).entities.length).equal(2);
 
         const addedFragment2Xml = js2xml(addedFragment2.container);
         console.log(addedFragment2Xml);
         storage.removeSceneFragment(addedFragment2Xml);
 
-        expect(storage.parseFragment(storage.getScene()).entities.length).equal(1);
+        expect(storage.parseFragment(storage.serialize()).entities.length).equal(1);
 
-        console.log(storage.getScene());
+        const scene = storage.serialize();
+
+        const storage2 = new SceneStorage('test-scene.html', sanitizer);
+        storage2.deserialize(scene);
+
+        expect(storage.parseFragment(storage2.serialize()).entities.length).equal(1);
+        expect(storage2.serialize()).equals(scene);
     });
 
 

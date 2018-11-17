@@ -257,7 +257,7 @@ export class AccessController {
         }
     }
 
-    serializeModel(): string{
+    serialize(): string{
         const serializableModel = new AccessSerializableModel();
         serializableModel.users = [...this.model.users.values()].map(user => {
                 return new SerializableUser(user.id, user.name, [...user.groupNames]);
@@ -279,7 +279,7 @@ export class AccessController {
         return JSON.stringify(serializableModel);
     }
 
-    deserializeModel(serializedAccessModel: string): AccessModel {
+    deserialize(serializedAccessModel: string) {
         const accessModel = new AccessModel();
         const serializableModel = JSON.parse(serializedAccessModel) as AccessSerializableModel;
 
@@ -313,7 +313,7 @@ export class AccessController {
             accessModel.groupPrivileges.get(privilege.sid)!!.set(privilege.name, privilege);
         });
 
-        return accessModel;
+        this.model = accessModel;
     }
 
 }

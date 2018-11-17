@@ -50,8 +50,16 @@ export class SceneStorage {
         this.removeEntities(fragment.entities);
     }
 
-    getScene(): string {
+    serialize(): string {
         return js2xml(this.scene.container);
+    }
+
+    deserialize(scene: string) {
+        this.scene = this.parseFragment(scene);
+        this.entityMap.clear();
+        this.scene.entities.forEach(entity => {
+            this.entityMap.set((entity.attributes as any).sid, entity);
+        })
     }
 
     private saveEntities(entities: Element[]) {

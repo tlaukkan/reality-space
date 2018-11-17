@@ -13,6 +13,11 @@ export class SanitizerConfig {
     allowedAttributeValueRegex: string = "";
 }
 
+export class IdTokenIssuer {
+    issuer: string = "";
+    publicKey: string = "";
+}
+
 export class ClusterConfiguration {
     name: string = "";
     description: string = "";
@@ -21,6 +26,7 @@ export class ClusterConfiguration {
     range: number = 200;
     sanitizer: SanitizerConfig = new SanitizerConfig();
     servers: Array<ServerConfig> = new Array<ServerConfig>();
+    idTokenIssuers: Array<IdTokenIssuer> = new Array<IdTokenIssuer>();
 }
 
 export async function getClusterConfiguration(url: string): Promise<ClusterConfiguration> {
@@ -81,4 +87,13 @@ export function findGridConfiguration(clusterConfiguration: ClusterConfiguration
         }
     };
     throw new Error("No matching server " + serverUrl + " in loaded configuration " + JSON.stringify(clusterConfiguration));
+}
+
+export function findItTokenIssuerConfiguration(clusterConfiguration: ClusterConfiguration, issuer: string) : IdTokenIssuer | null {
+    for (let idTokenIssuer of clusterConfiguration.idTokenIssuers) {
+        if (idTokenIssuer.issuer === issuer) {
+            return idTokenIssuer;
+        }
+    }
+    return null;
 }

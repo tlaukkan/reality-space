@@ -3,9 +3,9 @@ import {SceneController} from "../../../src/node/storage/SceneController";
 import {Sanitizer} from "../../../src/common/dataspace/Sanitizer";
 import {js2xml} from "xml-js";
 
-describe('Storage test.', () => {
+describe('Scene controller test.', () => {
 
-    it('should test storage', () => {
+    it('should test scene controller', () => {
         const sanitizer = new Sanitizer('a-scene-fragment,a-scene,a-box', 'text,sid,scale', '[^\\w\\s:;-]');
         const storage = new SceneController(sanitizer);
 

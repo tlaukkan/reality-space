@@ -18,6 +18,9 @@ export class FileSystemRepository implements Repository {
     async load(fileName: string) {
         return new Promise<string>((resolve, reject) => {
             fs.readFile(fileName, function (err: Error, fileContent: string) {
+                if(err && (err as any).code == 'ENOENT') {
+                    resolve('');
+                }
                 if (err) {
                     reject(err);
                 }

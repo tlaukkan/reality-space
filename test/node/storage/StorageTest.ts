@@ -12,10 +12,15 @@ describe('Storage test.', () => {
         const repository = new FileSystemRepository();
         const sanitizer = new Sanitizer('a-scene-fragment,a-scene,a-box', 'text,sid,scale', '[^\\w\\s:;-]');
 
-        const sceneController = new SceneController(sanitizer);
-        const storage = new Storage("data/scene.xml", "data/access.json", repository, sanitizer);
-        await storage.startup();
+        let sceneFileName = "data/test-scene.xml";
+        let accessFileName = "data/test-access.json";
 
+        await repository.delete(sceneFileName);
+        await repository.delete(accessFileName);
+
+        const sceneController = new SceneController(sanitizer);
+        const storage = new Storage(sceneFileName, accessFileName, repository, sanitizer);
+        await storage.startup();
 
         const context = new Context("1", "test-user-1");
 
@@ -48,6 +53,8 @@ describe('Storage test.', () => {
 
         expect(sceneController.parseFragment(storage.getScene(context)).entities.length).equal(1);
 
+        await repository.save(sceneFileName, '');
+        await repository.save(accessFileName, '');
     });
 
 

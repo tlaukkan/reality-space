@@ -29,4 +29,19 @@ export class FileSystemRepository implements Repository {
         });
     }
 
+    async delete(fileName: string) {
+        return new Promise<string>((resolve, reject) => {
+            fs.unlink('./server/upload/my.csv', function (err: Error) {
+                if (err && (err as any).code == 'ENOENT') {
+                    resolve();
+                }
+                if (err) {
+                    reject(err);
+                }
+                resolve();
+            });
+        });
+
+    }
+
 }

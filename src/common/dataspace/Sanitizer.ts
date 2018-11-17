@@ -26,7 +26,7 @@ export class Sanitizer {
         return js2xml(element, {spaces: 4});
     }
 
-    private sanitizeElements(elements: Array<Element>) {
+    sanitizeElements(elements: Array<Element>) {
         for (var i = elements.length - 1; i >= 0; --i) {
            const element = elements[i];
            if (element.type == "element" && this.allowedElements.has(element.name!!)) {

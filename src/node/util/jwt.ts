@@ -38,3 +38,14 @@ export function validateIdToken(idToken: string, publicKeyEncoded: string) : Map
     });
     return map;
 }
+
+export function decodeIdToken(idToken: string) : Map<String, String> {
+    var decoded = jwt.decode(idToken);
+    const map = new Map<String, String>();
+    Object.keys(decoded).forEach(key => {
+        map.set(key, decoded[key]);
+    });
+    return map;
+}
+
+

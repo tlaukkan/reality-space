@@ -37,14 +37,15 @@ async function start() {
     );
 
     const repository = new FileSystemRepository();
-    const storageRestService = new StorageRestService(repository, sanitizer, idTokenIssuers);
+    const storageRestService = new StorageRestService(repository, sanitizer);
     await storageRestService.startup();
 
     const server = new Server(
         '0.0.0.0',
         process.env.PORT as any || 8889,
         processor,
-        storageRestService);
+        storageRestService,
+        idTokenIssuers);
 
     server.listen();
 

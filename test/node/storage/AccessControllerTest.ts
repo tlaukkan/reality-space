@@ -93,12 +93,45 @@ describe('Access controller test.', () => {
         expect(controller.hasPrivilege(user, sid, PrivilegeType.VIEW)).false;
         expect(controller.getUser(user).groupNames.size).equals(0);
 
+        // TEST ACCESS MODEL SERIALIZATION
+        const serializeModel = controller.serializeModel();
+        const accessModel = controller.deserializeModel(serializeModel);
+        controller.model = accessModel;
+
+        expect(controller.hasPrivilege(administrator, sid, PrivilegeType.ADMIN)).true;
+        expect(controller.hasPrivilege(administrator, sid, PrivilegeType.MODIFY)).true;
+        expect(controller.hasPrivilege(administrator, sid, PrivilegeType.USE)).true;
+        expect(controller.hasPrivilege(administrator, sid, PrivilegeType.VIEW)).true;
+
+        expect(controller.hasPrivilege(modifier, sid, PrivilegeType.ADMIN)).false;
+        expect(controller.hasPrivilege(modifier, sid, PrivilegeType.MODIFY)).true;
+        expect(controller.hasPrivilege(modifier, sid, PrivilegeType.USE)).true;
+        expect(controller.hasPrivilege(modifier, sid, PrivilegeType.VIEW)).true;
+
+        expect(controller.hasPrivilege(user, sid, PrivilegeType.ADMIN)).false;
+        expect(controller.hasPrivilege(user, sid, PrivilegeType.MODIFY)).false;
+        expect(controller.hasPrivilege(user, sid, PrivilegeType.USE)).false;
+        expect(controller.hasPrivilege(user, sid, PrivilegeType.VIEW)).false;
+
+        expect(controller.hasPrivilege(user2, sid, PrivilegeType.ADMIN)).false;
+        expect(controller.hasPrivilege(user2, sid, PrivilegeType.MODIFY)).false;
+        expect(controller.hasPrivilege(user2, sid, PrivilegeType.USE)).true;
+        expect(controller.hasPrivilege(user2, sid, PrivilegeType.VIEW)).true;
+
+        expect(controller.hasPrivilege(viewer, sid, PrivilegeType.ADMIN)).false;
+        expect(controller.hasPrivilege(viewer, sid, PrivilegeType.MODIFY)).false;
+        expect(controller.hasPrivilege(viewer, sid, PrivilegeType.USE)).false;
+        expect(controller.hasPrivilege(viewer, sid, PrivilegeType.VIEW)).true;
+
+        expect(controller.hasPrivilege(noner, sid, PrivilegeType.ADMIN)).false;
+        expect(controller.hasPrivilege(noner, sid, PrivilegeType.MODIFY)).false;
+        expect(controller.hasPrivilege(noner, sid, PrivilegeType.USE)).false;
+        expect(controller.hasPrivilege(noner, sid, PrivilegeType.VIEW)).false;
+
         // TEST USER REMOVAL
         expect(controller.getGroup(modifiers).userIds.size).equals(1);
         controller.removeUser(modifier);
         expect(controller.getGroup(modifiers).userIds.size).equals(0);
-
-        console.log(controller.serializeModel());
     });
 
 

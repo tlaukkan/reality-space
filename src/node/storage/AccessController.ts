@@ -5,6 +5,8 @@ import {PrivilegeType} from "./PrivilegeType";
 import {GroupPrivilege} from "./GroupPrivilege";
 import {UserPrivilege} from "./UserPrivilege";
 import {AccessSerializableModel} from "./AccessSerializableModel";
+import {SerializableUser} from "./SerializableUser";
+import {SerializableGroup} from "./SerializableGroup";
 
 export class AccessController {
 
@@ -158,7 +160,7 @@ export class AccessController {
 
     addUser(userId: string, userName: string) {
         if (!this.model.users.has(userId)) {
-            this.model.users.set(userId, new User(userId, userName));
+            this.model.users.set(userId, new User(userId, userName, new Set<string>()));
         } else {
             throw new Error("User already exists: " + userId);
         }
@@ -200,7 +202,7 @@ export class AccessController {
 
     addGroup(groupName: string) {
         if (!this.model.groups.has(groupName)) {
-            this.model.groups.set(groupName, new Group(groupName));
+            this.model.groups.set(groupName, new Group(groupName, new Set<string>()));
         } else {
             throw new Error("Group already exists: " + groupName);
         }
@@ -257,8 +259,13 @@ export class AccessController {
 
     serializeModel(): string{
         const serializableModel = new AccessSerializableModel();
-        serializableModel.users = [...this.model.users.values()];
-        serializableModel.groups = [...this.model.groups.values()];
+        serializableModel.users = [...this.model.users.values()].map(user => {
+                return new SerializableUser(user.id, user.name, [...user.groupNames]);
+            }
+        );
+        serializableModel.groups = [...this.model.groups.values()].map(group => {
+            return new SerializableGroup(group.name, [...group.userIds]);
+        });
         this.model.userPrivileges.forEach(userPrivileges => {
             userPrivileges.forEach(userPrivilege => {
                 serializableModel.userPrivileges.push(userPrivilege);
@@ -270,7 +277,43 @@ export class AccessController {
             })
         });
         return JSON.stringify(serializableModel);
+    }
 
+    deserializeModel(serializedAccessModel: string): AccessModel {
+        const accessModel = new AccessModel();
+        const serializableModel = JSON.parse(serializedAccessModel) as AccessSerializableModel;
+
+        serializableModel.users.forEach(user => {
+           const groupNames: Set<string> = new Set<string>();
+           [...user.groupNames as any].forEach(groupName => {
+                groupNames.add(groupName);
+           });
+           accessModel.users.set(user.id, new User(user.id, user.name, groupNames));
+        });
+
+        serializableModel.groups.forEach(group => {
+            const userIds: Set<string> = new Set<string>();
+            [...group.userIds].forEach(userId => {
+               userIds.add(userId);
+            });
+            accessModel.groups.set(group.name, new Group(group.name, userIds));
+        });
+
+        serializableModel.userPrivileges.forEach(privilege => {
+           if (!accessModel.userPrivileges.has(privilege.sid)) {
+               accessModel.userPrivileges.set(privilege.sid, new Map<String, UserPrivilege>());
+           }
+           accessModel.userPrivileges.get(privilege.sid)!!.set(privilege.userId, privilege);
+        });
+
+        serializableModel.groupPrivileges.forEach(privilege => {
+            if (!accessModel.groupPrivileges.has(privilege.sid)) {
+                accessModel.groupPrivileges.set(privilege.sid, new Map<String, GroupPrivilege>());
+            }
+            accessModel.groupPrivileges.get(privilege.sid)!!.set(privilege.name, privilege);
+        });
+
+        return accessModel;
     }
 
 }

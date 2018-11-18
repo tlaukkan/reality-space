@@ -5,7 +5,7 @@ import {Repository} from "./repository/Repository";
 import {PrivilegeType} from "./PrivilegeType";
 import {User} from "./User";
 import {Group} from "./Group";
-import {Context} from "../../common/dataspace/Context";
+import {Principal} from "../../common/dataspace/Principal";
 
 export class Storage {
 
@@ -66,21 +66,21 @@ export class Storage {
         await this.repository.save(this.accessFileName, accessContent);
     }
 
-    getUsers(context: Context) : Array<User> {
+    getUsers(context: Principal) : Array<User> {
         return Array.from(this.accessController.model.users.values());
     }
 
-    addGroup(context: Context, groupName: string): void {
+    addGroup(context: Principal, groupName: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.addGroup(groupName);
     }
 
-    addGroupMember(context: Context, groupName: string, userId: string): void {
+    addGroupMember(context: Principal, groupName: string, userId: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.addGroupMember(groupName, userId);
     }
 
-    addUser(context: Context, userId: string, userName: string): void {
+    addUser(context: Principal, userId: string, userName: string): void {
         if (this.accessController.getGroup("administrators").userIds.size > 0) {
             // Omit admin check if no admins exist in admin group.
             this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
@@ -96,111 +96,111 @@ export class Storage {
         }
     }
 
-    getGroup(context: Context, name: string): Group {
+    getGroup(context: Principal, name: string): Group {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getGroup(name);
     }
 
-    getGroupPrivileges(context: Context, groupName: string): Array<[string, PrivilegeType]> {
+    getGroupPrivileges(context: Principal, groupName: string): Array<[string, PrivilegeType]> {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getGroupPrivileges(groupName);
     }
 
-    getPrivilegeLevel(context: Context, type: PrivilegeType): number {
+    getPrivilegeLevel(context: Principal, type: PrivilegeType): number {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getPrivilegeLevel(type);
     }
 
-    getResourceGroupPrivileges(context: Context, sid: string): Array<[string, PrivilegeType]> {
+    getResourceGroupPrivileges(context: Principal, sid: string): Array<[string, PrivilegeType]> {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getResourceGroupPrivileges(sid);
     }
 
-    getResourceUserPrivileges(context: Context, sid: string): Array<[string, string, PrivilegeType]> {
+    getResourceUserPrivileges(context: Principal, sid: string): Array<[string, string, PrivilegeType]> {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getResourceUserPrivileges(sid);
     }
 
-    getUser(context: Context, id: string): User {
+    getUser(context: Principal, id: string): User {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getUser(id);
     }
 
-    getUserPrivileges(context: Context, userId: string): Array<[string, PrivilegeType]> {
+    getUserPrivileges(context: Principal, userId: string): Array<[string, PrivilegeType]> {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getUserPrivileges(userId);
     }
 
-    hasGroup(context: Context, name: string): boolean {
+    hasGroup(context: Principal, name: string): boolean {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return this.accessController.hasGroup(name);
     }
 
-    hasPrivilege(context: Context, userId: string, sid: string, type: PrivilegeType): boolean {
+    hasPrivilege(context: Principal, userId: string, sid: string, type: PrivilegeType): boolean {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return this.accessController.hasPrivilege(userId, sid, type);
     }
 
-    hasUser(context: Context, id: string): boolean {
+    hasUser(context: Principal, id: string): boolean {
         return this.accessController.hasUser(id);
     }
 
-    removeGroup(context: Context, groupName: string): void {
+    removeGroup(context: Principal, groupName: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroup(groupName);
     }
 
-    removeGroupMember(context: Context, groupName: string, userId: string): void {
+    removeGroupMember(context: Principal, groupName: string, userId: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroupMember(groupName, userId);
     }
 
-    removeGroupPrivilege(context: Context, groupName: string, sid: string): void {
+    removeGroupPrivilege(context: Principal, groupName: string, sid: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroupPrivilege(groupName, sid);
     }
 
-    removeSid(context: Context, sid: string): void {
+    removeSid(context: Principal, sid: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeSid(sid);
     }
 
-    removeUser(context: Context, userId: string): void {
+    removeUser(context: Principal, userId: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeUser(userId);
     }
 
-    removeUserPrivilege(context: Context, userId: string, sid: string): void {
+    removeUserPrivilege(context: Principal, userId: string, sid: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeUserPrivilege(userId, sid);
     }
 
-    setGroupPrivilege(context: Context, groupName: string, type: PrivilegeType, sid: string): void {
+    setGroupPrivilege(context: Principal, groupName: string, type: PrivilegeType, sid: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.setGroupPrivilege(groupName, type, sid);
     }
 
-    setUserPrivilege(context: Context, userId: string, type: PrivilegeType, sid: string): void {
+    setUserPrivilege(context: Principal, userId: string, type: PrivilegeType, sid: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.setUserPrivilege(userId, type, sid);
     }
 
-    updateUser(context: Context, userId: string, userName: string): void {
+    updateUser(context: Principal, userId: string, userName: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.updateUser(userId, userName);
     }
 
-    getScene(context: Context): string {
+    getScene(context: Principal): string {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.VIEW);
         return this.sceneController.getScene();
     }
 
-    saveSceneFragment(context: Context, sceneFragment: string): string {
+    saveSceneFragment(context: Principal, sceneFragment: string): string {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
         return this.sceneController.saveSceneFragment(sceneFragment);
     }
 
-    removeSceneFragment(context: Context, sceneFragment: string): void {
+    removeSceneFragment(context: Principal, sceneFragment: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
         this.sceneController.removeSceneFragment(sceneFragment);
     }

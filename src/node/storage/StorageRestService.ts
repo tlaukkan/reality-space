@@ -1,8 +1,10 @@
 import {Storage} from "./Storage";
 import {Repository} from "./repository/Repository";
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
-import {matchUrl} from "../util/rest";
-import {RequestContext} from "../../common/dataspace/RequestContext";
+import {match, respond} from "../util/rest";
+import {Context} from "../../common/dataspace/Context";
+import {lift} from "../util/functional";
+import {RestApiContext} from "../../common/dataspace/RestApiContext";
 
 export class StorageRestService {
 
@@ -16,24 +18,20 @@ export class StorageRestService {
         await this.storage.startup();
     }
 
-    process(requestContext: RequestContext): Promise<RequestContext> {
-        return new Promise<RequestContext>((resolve, reject) => {
-            matchUrl(requestContext, '/api/regions/:regionId/users',
-                async (requestContext: RequestContext, pathParams: Map<string, string>) => {
-                    const regionId = pathParams.get("regionId");
-                    console.log(regionId);
-                    requestContext.response.write(JSON.stringify(this.storage.getUsers(requestContext.context)));
-                    requestContext.response.writeHead(200, {'Content-Type': 'text/json'});
-                    requestContext.response.end();
-            }).then(requestContext => {
-               resolve(requestContext);
-            }).catch(error => {
-                reject(error);
-            })
+    process(c: Context): Promise<Context> {
+        return new Promise<Context>((resolve, reject) => {
+            lift(new RestApiContext(c.context, c.request, c.response, new Map<string, string>(), c.processed))
+            .then(c => match(c, '/api/regions/:regionId/users', async c => this.getUsers(c)))
+            .then(c => resolve(c))
+            .catch(error => reject(error))
         });
     }
 
-
+    private getUsers(context: RestApiContext) {
+        const regionId = context.pathParams.get("regionId");
+        console.log(regionId);
+        respond(context, this.storage.getUsers(context.context));
+    }
 }
 
 /*

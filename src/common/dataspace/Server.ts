@@ -5,11 +5,10 @@ import {Connection} from "./Connection";
 import uuid = require("uuid");
 import {StorageRestService} from "../../node/storage/StorageRestService";
 import {IncomingMessage} from "http";
-import {Context} from "./Context";
+import {Principal} from "./Principal";
 import {decodeIdToken, validateIdToken} from "../../node/util/jwt";
-import {Sanitizer} from "./Sanitizer";
 import {IdTokenIssuer} from "./Configuration";
-import {RequestContext} from "./RequestContext";
+import {Context} from "./Context";
 
 export class Server {
 
@@ -41,15 +40,15 @@ export class Server {
                 return;
             }
 
-            let context = this.authorizeRequest(request);
-            if (!context) {
+            let principal = this.authorizeRequest(request);
+            if (!principal) {
                 response.writeHead(401, {'Content-Type': 'text/plain'});
                 response.end();
                 return true;
             }
-            let requestContext = new RequestContext(context, request, response, false);
+            let context = new Context(principal, request, response, false);
 
-            if ((await this.storageRestService.process(requestContext)).processed) {
+            if ((await this.storageRestService.process(context)).processed) {
                 return;
             }
 
@@ -75,7 +74,7 @@ export class Server {
         console.log('dataspace server - closed.\n');
     }
 
-    authorizeRequest(request: IncomingMessage): Context | undefined {
+    authorizeRequest(request: IncomingMessage): Principal | undefined {
         if (!request.headers.authorization) {
             console.warn("Authorization header does not exist.");
             return undefined;
@@ -100,7 +99,7 @@ export class Server {
             return undefined;
         }
 
-        return new Context(claims.get("id")!! as string, claims.get("name")!!  as string);
+        return new Principal(claims.get("id")!! as string, claims.get("name")!!  as string);
     }
 
     processConnection(request: websocket.request) {

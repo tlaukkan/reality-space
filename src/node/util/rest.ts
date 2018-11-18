@@ -1,21 +1,22 @@
-import {RequestContext} from "../../common/dataspace/RequestContext";
+import {Context} from "../../common/dataspace/Context";
+import {RestApiContext} from "../../common/dataspace/RestApiContext";
 
-export async function matchUrl(requestContext: RequestContext,
-                         urlPattern: string,
-                         processor: (requestContext: RequestContext, pathParams: Map<string, string>) => Promise<void>): Promise<RequestContext> {
-    if (requestContext.processed) {
-        return requestContext;
+export async function match(context: RestApiContext,
+                            urlPattern: string,
+                            processor: (requestContext: RestApiContext) => Promise<void>): Promise<RestApiContext> {
+    if (context.processed) {
+        return context;
     }
-    let idNames = match('/api/regions/:regionId/users', ':([a-zA-Z]*)');
+    let idNames = matchPattern('/api/regions/:regionId/users', ':([a-zA-Z]*)');
     var modifiedUrlPattern = urlPattern;
     if (idNames !== undefined) {
         idNames.forEach(param => {
             modifiedUrlPattern = modifiedUrlPattern.replace(":" + param, "([a-zA-Z0-9-]*)");
         });
     }
-    let idValues = match(requestContext.request.url!!, "^" + modifiedUrlPattern + "$");
+    let idValues = matchPattern(context.request.url!!, "^" + modifiedUrlPattern + "$");
     if (idValues === undefined) {
-        return requestContext;
+        return context;
     }
     let parameters = new Map<string, string>();
     if (idNames) {
@@ -24,18 +25,18 @@ export async function matchUrl(requestContext: RequestContext,
         }
     }
 
-    console.log("\n" + requestContext.request.method +": " + requestContext.request.url + " " + JSON.stringify(requestContext.request.headers));
+    console.log("\n" + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
     try {
-        await processor(requestContext, parameters);
+        await processor(context);
     } catch(error) {
         console.log(error);
-        requestContext.response.writeHead(500, {'Content-Type': 'text/plain'});
-        requestContext.response.end();
+        context.response.writeHead(500, {'Content-Type': 'text/plain'});
+        context.response.end();
     }
-    return new RequestContext(requestContext.context, requestContext.request, requestContext.response, true);
+    return new RestApiContext(context.context, context.request, context.response, parameters, true);
 }
 
-export function match(str: string, pattern: string) {
+function matchPattern(str: string, pattern: string) {
     let match = str!!.match(pattern);
 
     if (match != null) {
@@ -46,4 +47,10 @@ export function match(str: string, pattern: string) {
         return params;
     }
     return undefined;
+}
+
+export function respond(context: Context, object: object) {
+    context.response.write(JSON.stringify(object));
+    context.response.writeHead(200, {'Content-Type': 'text/json'});
+    context.response.end();
 }

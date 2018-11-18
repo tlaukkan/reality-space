@@ -1,16 +1,18 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Principal} from "./Principal";
 
-export class Context {
+export class RestApiContext {
     context: Principal;
     request: IncomingMessage;
     response: ServerResponse;
+    pathParams: Map<string, string>;
     processed: boolean;
 
-    constructor(principal: Principal, request: IncomingMessage, response: ServerResponse, processed: boolean) {
+    constructor(principal: Principal, request: IncomingMessage, response: ServerResponse, pathParams: Map<string, string>, processed: boolean) {
         this.context = principal;
         this.request = request;
         this.response = response;
+        this.pathParams = pathParams;
         this.processed = processed;
     }
 }

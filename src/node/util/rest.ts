@@ -1,12 +1,11 @@
-import {Context} from "../storage/Context";
-import {IncomingMessage, ServerResponse} from "http";
+import {RequestContext} from "../../common/dataspace/RequestContext";
 
-export function matchUrl(url: string,
+export async function matchUrl(requestContext: RequestContext,
                          urlPattern: string,
-                         context: Context,
-                         request: IncomingMessage,
-                         response: ServerResponse,
-                         processor: (context: Context, request: IncomingMessage, response: ServerResponse, pathParams: Map<string, string>) => void): boolean {
+                         processor: (requestContext: RequestContext, pathParams: Map<string, string>) => Promise<void>): Promise<RequestContext> {
+    if (requestContext.processed) {
+        return requestContext;
+    }
     let idNames = match('/api/regions/:regionId/users', ':([a-zA-Z]*)');
     var modifiedUrlPattern = urlPattern;
     if (idNames !== undefined) {
@@ -14,9 +13,9 @@ export function matchUrl(url: string,
             modifiedUrlPattern = modifiedUrlPattern.replace(":" + param, "([a-zA-Z0-9-]*)");
         });
     }
-    let idValues = match(url, "^" + modifiedUrlPattern + "$");
+    let idValues = match(requestContext.request.url!!, "^" + modifiedUrlPattern + "$");
     if (idValues === undefined) {
-        return false;
+        return requestContext;
     }
     let parameters = new Map<string, string>();
     if (idNames) {
@@ -25,9 +24,15 @@ export function matchUrl(url: string,
         }
     }
 
-    console.log("\n" + request.method +": " + request.url + " " + JSON.stringify(request.headers));
-    processor(context, request, response, parameters);
-    return true;
+    console.log("\n" + requestContext.request.method +": " + requestContext.request.url + " " + JSON.stringify(requestContext.request.headers));
+    try {
+        await processor(requestContext, parameters);
+    } catch(error) {
+        console.log(error);
+        requestContext.response.writeHead(500, {'Content-Type': 'text/plain'});
+        requestContext.response.end();
+    }
+    return new RequestContext(requestContext.context, requestContext.request, requestContext.response, true);
 }
 
 export function match(str: string, pattern: string) {

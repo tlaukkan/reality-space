@@ -1,9 +1,8 @@
-import {IncomingMessage, ServerResponse} from "http";
 import {Storage} from "./Storage";
 import {Repository} from "./repository/Repository";
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
 import {matchUrl} from "../util/rest";
-import {Context} from "./Context";
+import {RequestContext} from "../../common/dataspace/RequestContext";
 
 export class StorageRestService {
 
@@ -17,17 +16,21 @@ export class StorageRestService {
         await this.storage.startup();
     }
 
-    async process(context: Context, request: IncomingMessage, response: ServerResponse): Promise<boolean> {
-        if (matchUrl(request.url!!, '/api/regions/:regionId/users', context, request, response,
-            (context: Context, request: IncomingMessage, response: ServerResponse, pathParams: Map<string, string>) => {
-                console.log(pathParams);
-                response.writeHead(200, {'Content-Type': 'text/plain'});
-                response.end();
-        })) {
-            return true;
-        };
-
-        return false;
+    process(requestContext: RequestContext): Promise<RequestContext> {
+        return new Promise<RequestContext>((resolve, reject) => {
+            matchUrl(requestContext, '/api/regions/:regionId/users',
+                async (requestContext: RequestContext, pathParams: Map<string, string>) => {
+                    const regionId = pathParams.get("regionId");
+                    console.log(regionId);
+                    requestContext.response.write(JSON.stringify(this.storage.getUsers(requestContext.context)));
+                    requestContext.response.writeHead(200, {'Content-Type': 'text/json'});
+                    requestContext.response.end();
+            }).then(requestContext => {
+               resolve(requestContext);
+            }).catch(error => {
+                reject(error);
+            })
+        });
     }
 
 

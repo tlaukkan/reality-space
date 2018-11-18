@@ -5,7 +5,7 @@ import {Repository} from "./repository/Repository";
 import {PrivilegeType} from "./PrivilegeType";
 import {User} from "./User";
 import {Group} from "./Group";
-import {Context} from "./Context";
+import {Context} from "../../common/dataspace/Context";
 
 export class Storage {
 
@@ -64,6 +64,10 @@ export class Storage {
         await this.repository.save(this.sceneFileName, sceneContent);
         const accessContent = await this.accessController.serialize();
         await this.repository.save(this.accessFileName, accessContent);
+    }
+
+    getUsers(context: Context) : Array<User> {
+        return Array.from(this.accessController.model.users.values());
     }
 
     addGroup(context: Context, groupName: string): void {

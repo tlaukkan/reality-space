@@ -5,10 +5,11 @@ import {Connection} from "./Connection";
 import uuid = require("uuid");
 import {StorageRestService} from "../../node/storage/StorageRestService";
 import {IncomingMessage} from "http";
-import {Context} from "../../node/storage/Context";
+import {Context} from "./Context";
 import {decodeIdToken, validateIdToken} from "../../node/util/jwt";
 import {Sanitizer} from "./Sanitizer";
 import {IdTokenIssuer} from "./Configuration";
+import {RequestContext} from "./RequestContext";
 
 export class Server {
 
@@ -46,8 +47,9 @@ export class Server {
                 response.end();
                 return true;
             }
+            let requestContext = new RequestContext(context, request, response, false);
 
-            if (await this.storageRestService.process(context, request, response)) {
+            if ((await this.storageRestService.process(requestContext)).processed) {
                 return;
             }
 
@@ -67,7 +69,6 @@ export class Server {
     }
 
     close() {
-        console.log('dataspace server - closing ...');
         this.processor.stop();
         this.httpServer.close();
         this.webSocketServer.shutDown();

@@ -4,7 +4,7 @@ import {Sanitizer} from "../../../src/common/dataspace/Sanitizer";
 import {js2xml} from "xml-js";
 import {Storage} from "../../../src/node/storage/Storage";
 import {FileSystemRepository} from "../../../src/node/storage/repository/FileSystemRepository";
-import {Context} from "../../../src/node/storage/Context";
+import {Context} from "../../../src/common/dataspace/Context";
 
 describe('Storage test.', () => {
 

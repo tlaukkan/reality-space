@@ -20,7 +20,7 @@ export class StorageRestService {
 
     process(c: Context): Promise<Context> {
         return new Promise<Context>((resolve, reject) => {
-            lift(new RestApiContext(c.context, c.request, c.response, new Map<string, string>(), c.processed))
+            lift({pathParams: new Map(), ...c})
             .then(c => match(c, '/api/regions/:regionId/users', async c => this.getUsers(c)))
             .then(c => resolve(c))
             .catch(error => reject(error))

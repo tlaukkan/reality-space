@@ -52,7 +52,7 @@ export class Server {
                 return;
             }
 
-            console.log("\n" + request.method +": " + request.url + " not found -> 404");
+            console.log("\n404 " + request.method +": " + request.url + " not found");
             response.writeHead(404, {'Content-Type': 'text/plain'});
             response.end();
             return true;

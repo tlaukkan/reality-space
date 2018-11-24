@@ -1,10 +1,10 @@
-import {Storage} from "./Storage";
-import {Repository} from "./repository/Repository";
+import {Storage} from "../storage/Storage";
+import {Repository} from "../storage/repository/Repository";
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
 import {match, respond} from "../util/rest";
-import {Context} from "../../common/dataspace/Context";
-import {lift} from "../util/functional";
-import {RestApiContext} from "../../common/dataspace/RestApiContext";
+import {Context} from "../server/Context";
+import {lift} from "../../common/util/functional";
+import {RestApiContext} from "../server/RestApiContext";
 
 export class StorageRestService {
 

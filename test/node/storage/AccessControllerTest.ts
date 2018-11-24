@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 
 import {AccessController} from "../../../src/node/storage/AccessController";
-import {PrivilegeType} from "../../../src/node/storage/PrivilegeType";
+import {PrivilegeType} from "../../../src/node/storage/model/PrivilegeType";
 
 describe('Access controller test.', () => {
 

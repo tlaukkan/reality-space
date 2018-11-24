@@ -1,5 +1,5 @@
-import {Context} from "../../common/dataspace/Context";
-import {RestApiContext} from "../../common/dataspace/RestApiContext";
+import {Context} from "../server/Context";
+import {RestApiContext} from "../server/RestApiContext";
 import {info, warn} from "./log";
 
 export class Processors {

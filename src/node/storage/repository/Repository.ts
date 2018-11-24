@@ -4,5 +4,5 @@ export interface Repository {
 
     load(fileName: string): Promise<string>;
 
-    delete(fileName: string): Promise<bluebird>;
+    delete(fileName: string): Promise<string>;
 }

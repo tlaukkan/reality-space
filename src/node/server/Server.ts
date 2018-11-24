@@ -1,15 +1,15 @@
 import * as websocket from "websocket";
 import * as http from "http";
-import {Processor} from "./Processor";
-import {Connection} from "./Connection";
+import {Processor} from "../../common/dataspace/Processor";
+import {Connection} from "../../common/dataspace/Connection";
 import uuid = require("uuid");
-import {StorageRestService} from "../../node/storage/StorageRestService";
+import {StorageRestService} from "../api/StorageRestService";
 import {IncomingMessage} from "http";
-import {Principal} from "./Principal";
-import {decodeIdToken, validateIdToken} from "../../node/util/jwt";
-import {IdTokenIssuer} from "./Configuration";
+import {Principal} from "../../common/dataspace/Principal";
+import {decodeIdToken, validateIdToken} from "../../common/util/jwt";
+import {IdTokenIssuer} from "../../common/dataspace/Configuration";
 import {Context} from "./Context";
-import {errorWithRequestId, info, warnWithRequestId} from "../../node/util/log";
+import {errorWithRequestId, info, warnWithRequestId} from "../util/log";
 
 export class Server {
 

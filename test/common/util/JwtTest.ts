@@ -1,8 +1,8 @@
 import 'mocha';
-import {createIdToken, decodeIdToken, validateIdToken} from "../../../src/node/util/jwt";
 const { generateKeyPairSync } = require('crypto');
 const jwt = require('jsonwebtoken');
 import { expect } from 'chai';
+import {createIdToken, decodeIdToken, validateIdToken} from "../../../src/common/util/jwt";
 
 describe('JWT Test', () => {
 

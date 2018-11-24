@@ -1,11 +1,11 @@
-import {Server} from "../../../src/common/dataspace/Server";
+import {Server} from "../../../src/node/server/Server";
 import {Sanitizer} from "../../../src/common/dataspace/Sanitizer";
 import {Processor} from "../../../src/common/dataspace/Processor";
 import {Grid} from "../../../src/common/dataspace/Grid";
 import {FileSystemRepository} from "../../../src/node/storage/repository/FileSystemRepository";
-import {StorageRestService} from "../../../src/node/storage/StorageRestService";
+import {StorageRestService} from "../../../src/node/api/StorageRestService";
 import {IdTokenIssuer} from "../../../src/common/dataspace/Configuration";
-import {createIdToken} from "../../../src/node/util/jwt";
+import {createIdToken} from "../../../src/common/util/jwt";
 
 export const waitOnCondition = (condition: (() => boolean)): Promise<void> =>  {
     return new Promise((resolve, reject) => {

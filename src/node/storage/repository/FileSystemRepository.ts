@@ -4,7 +4,7 @@ const fs = require('fs');
 
 export class FileSystemRepository implements Repository {
 
-    async save(fileName: string, fileContent: string) {
+    async save(fileName: string, fileContent: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             fs.writeFile(fileName, fileContent, function (err: Error) {
                 if (err) {
@@ -15,7 +15,7 @@ export class FileSystemRepository implements Repository {
         });
     }
 
-    async load(fileName: string) {
+    async load(fileName: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             fs.readFile(fileName, function (err: Error, fileContent: string) {
                 if(err && (err as any).code == 'ENOENT') {
@@ -29,7 +29,7 @@ export class FileSystemRepository implements Repository {
         });
     }
 
-    async delete(fileName: string) {
+    async delete(fileName: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             fs.unlink('./server/upload/my.csv', function (err: Error) {
                 if (err && (err as any).code == 'ENOENT') {

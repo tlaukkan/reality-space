@@ -1,15 +1,14 @@
-import {AccessModel} from "./AccessModel";
-import {User} from "./User";
-import {Group} from "./Group";
-import {PrivilegeType} from "./PrivilegeType";
-import {GroupPrivilege} from "./GroupPrivilege";
-import {UserPrivilege} from "./UserPrivilege";
-import {AccessSerializableModel} from "./AccessSerializableModel";
-import {SerializableUser} from "./SerializableUser";
-import {SerializableGroup} from "./SerializableGroup";
-import {AccessManagement} from "./AccessManagement";
+import {AccessModel} from "./model/AccessModel";
+import {User} from "./model/User";
+import {Group} from "./model/Group";
+import {PrivilegeType} from "./model/PrivilegeType";
+import {GroupPrivilege} from "./model/GroupPrivilege";
+import {UserPrivilege} from "./model/UserPrivilege";
+import {AccessSerializableModel} from "./model/AccessSerializableModel";
+import {SerializableUser} from "./model/SerializableUser";
+import {SerializableGroup} from "./model/SerializableGroup";
 
-export class AccessController implements AccessManagement {
+export class AccessController {
 
     model: AccessModel = new AccessModel();
 

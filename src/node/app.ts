@@ -1,6 +1,6 @@
 import {Grid} from "../common/dataspace/Grid";
 import {Processor} from "../common/dataspace/Processor";
-import {Server} from "../common/dataspace/Server";
+import {Server} from "./server/Server";
 import {
     ClusterConfiguration,
     findGridConfiguration,
@@ -11,7 +11,7 @@ import {Sanitizer} from "../common/dataspace/Sanitizer";
 import {ServerAvatarClient} from "../common/dataspace/ServerAvatarClient";
 import {Storage} from "./storage/Storage";
 import {FileSystemRepository} from "./storage/repository/FileSystemRepository";
-import {StorageRestService} from "./storage/StorageRestService";
+import {StorageRestService} from "./api/StorageRestService";
 
 start()
     .then()

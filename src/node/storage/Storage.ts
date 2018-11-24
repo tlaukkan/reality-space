@@ -2,9 +2,9 @@ import {AccessController} from "./AccessController";
 import {SceneController} from "./SceneController";
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
 import {Repository} from "./repository/Repository";
-import {PrivilegeType} from "./PrivilegeType";
-import {User} from "./User";
-import {Group} from "./Group";
+import {PrivilegeType} from "./model/PrivilegeType";
+import {User} from "./model/User";
+import {Group} from "./model/Group";
 import {Principal} from "../../common/dataspace/Principal";
 
 export class Storage {

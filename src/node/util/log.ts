@@ -1,5 +1,5 @@
-import {RestApiContext} from "../../common/dataspace/RestApiContext";
-import {Context} from "../../common/dataspace/Context";
+import {RestApiContext} from "../server/RestApiContext";
+import {Context} from "../server/Context";
 
 require('console-stamp')(console, {
     pattern: 'UTC:yyyy-mm-dd\'T\'HH:MM:ss\'Z\'',

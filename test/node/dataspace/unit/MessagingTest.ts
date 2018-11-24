@@ -1,16 +1,16 @@
 import 'mocha';
 import { expect } from 'chai';
 import {Encode} from "../../../../src/common/dataspace/Encode";
-import {Server} from "../../../../src/common/dataspace/Server";
+import {Server} from "../../../../src/node/server/Server";
 import {Grid} from "../../../../src/common/dataspace/Grid";
 import {Processor} from "../../../../src/common/dataspace/Processor";
 import {Client} from "../../../../src/common/dataspace/Client";
-import {waitOnCondition} from "./../util";
+import {waitOnCondition} from "../../util/util";
 import uuid = require("uuid");
 import {w3cwebsocket} from "websocket";
 import {Sanitizer} from "../../../../src/common/dataspace/Sanitizer";
 import {FileSystemRepository} from "../../../../src/node/storage/repository/FileSystemRepository";
-import {StorageRestService} from "../../../../src/node/storage/StorageRestService";
+import {StorageRestService} from "../../../../src/node/api/StorageRestService";
 import {IdTokenIssuer} from "../../../../src/common/dataspace/Configuration";
 
 describe('Test Messaging', () => {

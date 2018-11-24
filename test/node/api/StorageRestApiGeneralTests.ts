@@ -1,7 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
-import {Server} from "../../../../src/common/dataspace/Server";
-import {createTestIdToken, startTestServer} from "../util";
+import {Server} from "../../../src/node/server/Server";
+import {createTestIdToken, startTestServer} from "../util/util";
 import uuid = require("uuid");
 
 describe('Storage REST API general tests..', () => {

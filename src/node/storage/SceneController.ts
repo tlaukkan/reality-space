@@ -1,10 +1,9 @@
 import {Element, js2xml, xml2js} from "xml-js";
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
-import {Fragment} from "./Fragment";
+import {Fragment} from "./model/Fragment";
 import uuid = require("uuid");
-import {SceneManagement} from "./SceneManagement";
 
-export class SceneController implements SceneManagement {
+export class SceneController {
 
     SCENE_FRAGMENT_ELEMENT = "a-scene-fragment";
 

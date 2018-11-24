@@ -9,6 +9,7 @@ import {Principal} from "./Principal";
 import {decodeIdToken, validateIdToken} from "../../node/util/jwt";
 import {IdTokenIssuer} from "./Configuration";
 import {Context} from "./Context";
+import {errorWithRequestId, info, warnWithRequestId} from "../../node/util/log";
 
 export class Server {
 
@@ -53,12 +54,12 @@ export class Server {
                     return;
                 }
 
-                console.log("\n404 " + request.method + ": " + request.url + " not found");
+                info(context, "404 " + request.method + ": " + request.url + " not found");
                 response.writeHead(404, {'Content-Type': 'text/plain'});
                 response.end();
                 return true;
             } catch (error) {
-                console.log("\n500 " + request.method + ": " + request.url + " error processing request.");
+                console.log("500 " + request.method + ": " + request.url + " error processing request.");
                 console.warn(error);
                 response.writeHead(500, {'Content-Type': 'text/plain'});
                 response.end();
@@ -79,37 +80,44 @@ export class Server {
         this.processor.stop();
         this.httpServer.close();
         this.webSocketServer.shutDown();
-        console.log('dataspace server - closed.\n');
+        console.log('dataspace server - closed.');
     }
 
     authorizeRequest(request: IncomingMessage): Principal | undefined {
+        const requestId = request.headers['request-id'] as string;
+        if (!requestId) {
+            warnWithRequestId("", "Request-ID header does not exist.");
+            return undefined;
+        }
+
         try {
+
             if (!request.headers.authorization) {
-                console.warn("Authorization header does not exist.");
+                warnWithRequestId(requestId, "Authorization header does not exist.");
                 return undefined;
             } else if (!request.headers.authorization.startsWith("Bearer ")) {
-                console.warn("Authorization header does not contain Bearer token.");
+                warnWithRequestId(requestId, "Authorization header does not contain Bearer token.");
                 return undefined;
             }
             const idToken = request.headers.authorization.substring("Bearer ".length);
-            const issuer = decodeIdToken(idToken).get("iss");
+            const issuer = decodeIdToken(idToken).get("iss") as string;
             if (!issuer) {
-                console.warn("Issuer claim not found.");
+                warnWithRequestId(requestId, "Issuer claim not found.");
                 return undefined;
             }
             const idTokenIssuer = this.issuers.get(issuer!! as string)!!;
             if (!idTokenIssuer) {
-                console.warn("Issuer not found: " + issuer);
+                warnWithRequestId(requestId, "Issuer not found: " + issuer);
                 return undefined;
             }
             const claims = validateIdToken(idToken, idTokenIssuer.publicKey);
-            if (!claims.has("id") || !claims.has("exp") || !claims.has("name")) {
-                console.warn("Missing mandatory claims.");
+            if (!claims.has("id") || !claims.has("exp") || !claims.has("name") || !claims.get("jti")) {
+                warnWithRequestId(requestId, "Missing mandatory claims.");
                 return undefined;
             }
-            return new Principal(claims.get("id")!! as string, claims.get("name")!!  as string);
+            return new Principal(issuer, claims.get("jti") as string, requestId, claims.get("id")!! as string, claims.get("name")!!  as string);
         } catch (error) {
-            console.warn("Error decoding authorization token.");
+            warnWithRequestId(requestId, "Error decoding authorization token.");
             return undefined;
         }
     }

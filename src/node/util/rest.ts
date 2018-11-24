@@ -1,5 +1,6 @@
 import {Context} from "../../common/dataspace/Context";
 import {RestApiContext} from "../../common/dataspace/RestApiContext";
+import {info} from "./log";
 
 export async function match(context: RestApiContext,
                             urlPattern: string,
@@ -25,16 +26,15 @@ export async function match(context: RestApiContext,
         }
     }
 
-    console.log(parameters);
+    //console.log(parameters);
 
     const updatedContext = new RestApiContext(context.context, context.request, context.response, parameters, true);
 
     try {
         await processor(updatedContext);
-        console.log("\n200 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
+        info(context, "200 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
     } catch(error) {
-        console.log("\n500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
-        console.log(error);
+        error(context, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), error);
         context.response.writeHead(500, {'Content-Type': 'text/plain'});
         context.response.end();
     }

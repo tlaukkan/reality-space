@@ -63,6 +63,7 @@
   },
   "dependencies": {
     "@tlaukkan/tsm": "^0.8.5",
+    "@types/console-stamp": "^0.2.32",
     "@types/es6-promise": "^3.3.0",
     "@types/jsonwebtoken": "^8.3.0",
     "@types/node": "^10.11.4",

@@ -1,3 +1,5 @@
+import uuid = require("uuid");
+
 const jwt = require('jsonwebtoken');
 
 export function createIdToken(issuer: String, userId: string, userEmail: string, userName: string, privateKeyEncoded: string) {
@@ -11,6 +13,7 @@ export function createIdToken(issuer: String, userId: string, userEmail: string,
     var token = jwt.sign({
         iss: issuer,
         id: userId,
+        jti: uuid.v4(),
         name: userName,
         email: userEmail,
         exp: Math.floor(Date.now() / 1000) + (60 * 60),

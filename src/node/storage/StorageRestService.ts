@@ -29,7 +29,7 @@ export class StorageRestService {
 
     private getUsers(context: RestApiContext) {
         const regionId = context.pathParams.get("regionId");
-        console.log(regionId);
+        //console.log(regionId);
         respond(context, this.storage.getUsers(context.context));
     }
 }

@@ -8,6 +8,7 @@ import {FileSystemRepository} from "../../../../src/node/storage/repository/File
 import {StorageRestService} from "../../../../src/node/storage/StorageRestService";
 import {ClusterConfiguration, IdTokenIssuer} from "../../../../src/common/dataspace/Configuration";
 import {createIdToken} from "../../../../src/node/util/jwt";
+import uuid = require("uuid");
 
 describe('Test Server', () => {
     let server: Server;
@@ -36,32 +37,35 @@ describe('Test Server', () => {
     });
 
     it('It should get users.', async () => {
-        const response = await fetch("http://127.0.0.1:8889/api/regions/0-0-0/users", { headers: { "Authorization": "Bearer " + idToken}});
+        const response = await fetch("http://127.0.0.1:8889/api/regions/0-0-0/users", { headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() }});
         expect(response.status).equals(200);
-        console.log(await response.text());
+        //console.log(await response.text());
     });
 
     it('It should return 401.', async () => {
-        const response = await fetch("http://127.0.0.1:8889/api/regions/0-0-0/users", { });
+        const response = await fetch("http://127.0.0.1:8889/api/regions/0-0-0/users", { headers: { "Request-ID": uuid.v4() } });
         expect(response.status).equals(401);
-        console.log(await response.text());
     });
 
     it('It should return 401.', async () => {
-        const response = await fetch("http://127.0.0.1:8889/api/regions/0-0-0/users", { headers: { "Authorization": "s"}});
+        const response = await fetch("http://127.0.0.1:8889/api/regions/0-0-0/users", { headers: { "Authorization": "Bearer " + idToken } });
         expect(response.status).equals(401);
-        console.log(await response.text());
+    });
+
+
+    it('It should return 401.', async () => {
+        const response = await fetch("http://127.0.0.1:8889/api/regions/0-0-0/users", { headers: { "Authorization": "s", "Request-ID": uuid.v4()}});
+        expect(response.status).equals(401);
     });
 
     it('It should return 401.', async () => {
-        const response = await fetch("http://127.0.0.1:8889/api/regions/0-0-0/users", { headers: { "Authorization": "Bearer doh"}});
+        const response = await fetch("http://127.0.0.1:8889/api/regions/0-0-0/users", { headers: { "Authorization": "Bearer doh", "Request-ID": uuid.v4()}});
         expect(response.status).equals(401);
-        console.log(await response.text());
     });
 
 
     it('It should return 404.', async () => {
-        const response = await fetch("http://127.0.0.1:8889/api/non-existent", { headers: { "Authorization": "Bearer " + idToken}});
+        const response = await fetch("http://127.0.0.1:8889/api/non-existent", { headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4()}});
         expect(response.status).equals(404);
     });
 

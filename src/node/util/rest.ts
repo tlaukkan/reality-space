@@ -1,10 +1,25 @@
 import {Context} from "../../common/dataspace/Context";
 import {RestApiContext} from "../../common/dataspace/RestApiContext";
-import {info} from "./log";
+import {info, warn} from "./log";
+
+export class Processors {
+    GET: undefined | ((requestContext: RestApiContext) => Promise<void>) = undefined;
+    POST: undefined | ((requestContext: RestApiContext) => Promise<void>) = undefined;
+    PUT: undefined | ((requestContext: RestApiContext) => Promise<void>) = undefined;
+    DELETE: undefined | ((requestContext: RestApiContext) => Promise<void>) = undefined;
+
+
+    constructor(GET: ((requestContext: RestApiContext) => Promise<void>) | undefined = undefined, POST: ((requestContext: RestApiContext) => Promise<void>) | undefined = undefined, PUT: ((requestContext: RestApiContext) => Promise<void>) | undefined = undefined, DELETE: ((requestContext: RestApiContext) => Promise<void>) | undefined = undefined) {
+        this.GET = GET;
+        this.POST = POST;
+        this.PUT = PUT;
+        this.DELETE = DELETE;
+    }
+}
 
 export async function match(context: RestApiContext,
                             urlPattern: string,
-                            processor: (requestContext: RestApiContext) => Promise<void>): Promise<RestApiContext> {
+                            processors: Processors): Promise<RestApiContext> {
     if (context.processed) {
         return context;
     }
@@ -19,6 +34,7 @@ export async function match(context: RestApiContext,
     if (idValues === undefined) {
         return context;
     }
+
     const parameters = new Map<string, string>();
     if (idNames) {
         for (let i = 0; i < idNames.length; i++) {
@@ -29,6 +45,15 @@ export async function match(context: RestApiContext,
     //console.log(parameters);
 
     const updatedContext = new RestApiContext(context.context, context.request, context.response, parameters, true);
+
+    const processor = (processors as any)[context.request.method!!] as (requestContext: RestApiContext) => Promise<void>;
+    if (!processor) {
+        warn(context, "405 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
+        context.response.writeHead(405, {'Content-Type': 'text/plain'});
+        context.response.end();
+        return updatedContext;
+    }
+
 
     try {
         await processor(updatedContext);

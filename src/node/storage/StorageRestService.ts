@@ -21,16 +21,18 @@ export class StorageRestService {
     process(c: Context): Promise<Context> {
         return new Promise<Context>((resolve, reject) => {
             lift({pathParams: new Map(), ...c})
-            .then(c => match(c, '/api/regions/:regionId/users', async c => this.getUsers(c)))
+            .then(c => match(c, '/api/regions/:regionId/users', {GET: async c => this.getUsers(c), POST: undefined, PUT: undefined, DELETE: undefined}))
             .then(c => resolve(c))
             .catch(error => reject(error))
         });
     }
 
     private getUsers(context: RestApiContext) {
-        const regionId = context.pathParams.get("regionId");
-        //console.log(regionId);
-        respond(context, this.storage.getUsers(context.context));
+        if (context.request.method == "GET") {
+            const regionId = context.pathParams.get("regionId");
+            //console.log(regionId);
+            respond(context, this.storage.getUsers(context.context));
+        }
     }
 }
 

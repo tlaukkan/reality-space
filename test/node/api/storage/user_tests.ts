@@ -1,10 +1,10 @@
 import 'mocha';
 import {expect} from 'chai';
-import {Server} from "../../../src/node/server/Server";
-import {createTestIdToken, startTestServer} from "../util/util";
+import {Server} from "../../../../src/node/server/Server";
+import {createTestIdToken, startTestServer} from "../../util/util";
 import uuid = require("uuid");
 
-describe('Storage API user resource tests.', () => {
+describe('Storage API / Testing users resource ...', () => {
     let server: Server;
     const idToken = createTestIdToken();
 

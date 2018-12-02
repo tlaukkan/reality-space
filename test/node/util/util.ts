@@ -6,6 +6,7 @@ import {FileSystemRepository} from "../../../src/node/storage/repository/FileSys
 import {StorageRestService} from "../../../src/node/api/StorageRestService";
 import {IdTokenIssuer} from "../../../src/common/dataspace/Configuration";
 import {createIdToken} from "../../../src/common/util/jwt";
+import {Principal} from "../../../src/common/dataspace/Principal";
 
 export const waitOnCondition = (condition: (() => boolean)): Promise<void> =>  {
     return new Promise((resolve, reject) => {
@@ -26,8 +27,15 @@ export async function startTestServer(server: Server) {
     const repository = new FileSystemRepository();
     const storageRestService = new StorageRestService(repository, sanitizer);
     await storageRestService.startup();
+
     server = new Server('127.0.0.1', 8889, processor, storageRestService, [new IdTokenIssuer("test-issuer", "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFwbDlqT0lrdjcrTVFwYzNZMVVUego5RE5TWFFlUUpSSThJZ2tIb3lLVDJGWGxhdHkrREJoNDJxTGRjc1JVV2hUNkJjVGRWKyszTUk5bVVsdVVBOHpjCjZzL29ZUi9RM0Q4RkpVaTJPZThWWGh2MS9lZERRVTJUZ3VZYUJ2eGlWWllYbFh1RGtqVTA1aUtNWWRpQmNGcDgKOHQ0RkRGUFVNUkdnTU5XcElEeEdPZUN4TjB2OG90dDNPQmtGSHlva0dkeE12dTFxNUtWUzRZNjBEOFVnQy80aQpJR0UzUUNMcUl6WitqbTBvOHZBcWdKRy9yQUw1VW11ZlIrS25XZElJVmZIeWhad3hGald1dXJmUFp3S1gyM2FqCmdjSURGalBmMVhkZVdkRVZpQ0dBRGVhaVlmeXJDazVFK0k3eDM4WmoxZUhxbGpKWWg2bzJqYUtKeEhzSDBaSksKdXdJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==")]);
     server.listen();
+
+    const principal = new Principal("", "", "", "1", "test");
+    if (!storageRestService.storage.hasUser(principal, principal.userId)) {
+        storageRestService.storage.addUser(principal, principal.userId, principal.userName);
+    }
+
     return server;
 }
 

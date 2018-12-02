@@ -54,7 +54,7 @@ export class Server {
                     return;
                 }
 
-                info(context, "404 " + request.method + ": " + request.url + " not found");
+                info(context.context, "404 " + request.method + ": " + request.url + " not found");
                 response.writeHead(404, {'Content-Type': 'text/plain'});
                 response.end();
                 return true;

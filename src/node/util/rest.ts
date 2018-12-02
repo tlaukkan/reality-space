@@ -23,11 +23,11 @@ export async function match(context: RestApiContext,
     if (context.processed) {
         return context;
     }
-    const idNames = matchPattern(urlPattern, ':([a-zA-Z]*)');
+    const idNames = matchPatternGlobal(urlPattern, '\\{([a-zA-Z]*)\\}');
     let modifiedUrlPattern = urlPattern;
     if (idNames !== undefined) {
         idNames.forEach(param => {
-            modifiedUrlPattern = modifiedUrlPattern.replace(":" + param, "([a-zA-Z0-9-]*)");
+            modifiedUrlPattern = modifiedUrlPattern.replace(param, "([a-zA-Z0-9-]*)");
         });
     }
     const idValues = matchPattern(context.request.url!!, "^" + modifiedUrlPattern + "$");
@@ -38,7 +38,7 @@ export async function match(context: RestApiContext,
     const parameters = new Map<string, string>();
     if (idNames) {
         for (let i = 0; i < idNames.length; i++) {
-            parameters.set(idNames[i], idValues[i]);
+            parameters.set(idNames[i].substring(1, idNames[i].length - 1), idValues[i]);
         }
     }
 
@@ -48,7 +48,7 @@ export async function match(context: RestApiContext,
 
     const processor = (processors as any)[context.request.method!!] as (requestContext: RestApiContext) => Promise<void>;
     if (!processor) {
-        warn(context, "405 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
+        warn(context.context, "405 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
         context.response.writeHead(405, {'Content-Type': 'text/plain'});
         context.response.end();
         return updatedContext;
@@ -57,7 +57,7 @@ export async function match(context: RestApiContext,
 
     try {
         await processor(updatedContext);
-        info(context, "200 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
+        info(context.context, "200 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
     } catch(error) {
         error(context, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), error);
         context.response.writeHead(500, {'Content-Type': 'text/plain'});
@@ -67,9 +67,20 @@ export async function match(context: RestApiContext,
     return updatedContext;
 }
 
+function matchPatternGlobal(str: string, pattern: string) {
+    let match = str!!.match(new RegExp(pattern, "g"));
+    if (match != null) {
+        let params = [];
+        for (let i = 0; i < match.length; i++) {
+            params.push(match[i]);
+        }
+        return params;
+    }
+    return undefined;
+}
+
 function matchPattern(str: string, pattern: string) {
     let match = str!!.match(pattern);
-
     if (match != null) {
         let params = [];
         for (let i = 1; i < match.length; i++) {

@@ -1,5 +1,6 @@
 import {RestApiContext} from "../server/RestApiContext";
 import {Context} from "../server/Context";
+import {Principal} from "../../common/dataspace/Principal";
 
 require('console-stamp')(console, {
     pattern: 'UTC:yyyy-mm-dd\'T\'HH:MM:ss\'Z\'',
@@ -7,18 +8,18 @@ require('console-stamp')(console, {
     colors: { stamp: 'yellow', label: 'white', metadata: 'green' }
 });
 
-export function info(context: Context, message:string) {
-    const contextString = formatContextString(context.context.requestId, context.context.tokenId, context.context.issuer, context.context.userId);
+export function info(context: Principal, message:string) {
+    const contextString = formatContextString(context.requestId, context.tokenId, context.issuer, context.userId);
     console.log(contextString + " > " + message);
 }
 
-export function warn(context: Context, message:string) {
-    const contextString = formatContextString(context.context.requestId, context.context.tokenId, context.context.issuer, context.context.userId);
+export function warn(context: Principal, message:string) {
+    const contextString = formatContextString(context.requestId, context.tokenId, context.issuer, context.userId);
     console.warn(contextString + " > " + message);
 }
 
-export function error(context: Context, message:string, error: any) {
-    const contextString = formatContextString(context.context.requestId, context.context.tokenId, context.context.issuer, context.context.userId);
+export function error(context: Principal, message:string, error: any) {
+    const contextString = formatContextString(context.requestId, context.tokenId, context.issuer, context.userId);
     console.error(contextString + " > " + message);
     console.error(error);
 }

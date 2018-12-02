@@ -16,6 +16,16 @@ describe('Regexp Test', () => {
         console.log("-");
     });
 
+    it('It should test regexp 2.', async () => {
+        var url = '/api/regions/{regionId}/users/{id}';
+        var re = '\\{([a-zA-Z]*)\\}';
+        var args = url.match(new RegExp(re, "g"))!!;
+        console.log(args);
+        console.log(args[0]);
+        console.log(args[1]);
+        console.log("-");
+    });
+
 
 });
 

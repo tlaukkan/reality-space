@@ -5,7 +5,7 @@ import {match} from "../framework/rest/rest";
 import {Context} from "../framework/http/Context";
 import {lift} from "../../common/util/functional";
 
-export class StorageRestService {
+export class StorageApi {
 
     storage: Storage;
 

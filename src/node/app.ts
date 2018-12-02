@@ -11,7 +11,7 @@ import {Sanitizer} from "../common/dataspace/Sanitizer";
 import {ServerAvatarClient} from "./server/ServerAvatarClient";
 import {Storage} from "./storage/Storage";
 import {FileSystemRepository} from "./storage/repository/FileSystemRepository";
-import {StorageRestService} from "./api/StorageRestService";
+import {StorageApi} from "./api/StorageApi";
 
 start()
     .then()
@@ -37,7 +37,7 @@ async function start() {
     );
 
     const repository = new FileSystemRepository();
-    const storageRestService = new StorageRestService(repository, sanitizer);
+    const storageRestService = new StorageApi(repository, sanitizer);
     await storageRestService.startup();
 
     const server = new Server(

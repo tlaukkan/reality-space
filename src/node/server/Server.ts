@@ -3,14 +3,9 @@ import * as http from "http";
 import {Processor} from "../../common/dataspace/Processor";
 import {Connection} from "../../common/dataspace/Connection";
 import uuid = require("uuid");
-import {StorageRestService} from "../api/StorageRestService";
-import {IncomingMessage, ServerResponse} from "http";
-import {Principal} from "../framework/rest/Principal";
-import {decodeIdToken, validateIdToken} from "../../common/util/jwt";
+import {StorageApi} from "../api/StorageApi";
 import {IdTokenIssuer} from "../../common/dataspace/Configuration";
 import {Context} from "../framework/http/Context";
-import {info, warnWithRequestId} from "../util/log";
-import {lift} from "../../common/util/functional";
 import {processRequest} from "../framework/http/http";
 
 export class Server {
@@ -18,17 +13,17 @@ export class Server {
     host: string;
     port: number;
     processor: Processor;
-    storageRestService: StorageRestService;
+    storageApi: StorageApi;
     webSocketServer: websocket.server = undefined as any as websocket.server;
 
     httpServer: http.Server = undefined as any as http.Server;
     issuers: Map<string, IdTokenIssuer> = new Map<string, IdTokenIssuer>();
 
-    constructor(host: string, port: number, processor: Processor, storageRestService: StorageRestService, idTokenIssuers: Array<IdTokenIssuer>) {
+    constructor(host: string, port: number, processor: Processor, storageRestService: StorageApi, idTokenIssuers: Array<IdTokenIssuer>) {
         this.host = host;
         this.port = port;
         this.processor = processor;
-        this.storageRestService = storageRestService;
+        this.storageApi = storageRestService;
         idTokenIssuers.forEach(idTokenIssuer => {
             this.issuers.set(idTokenIssuer.issuer, idTokenIssuer);
         })
@@ -38,7 +33,7 @@ export class Server {
     listen() {
         this.httpServer = http.createServer(async (request, response) => {
             await processRequest(request, response, [
-                async (c: Context) => this.storageRestService.process(c)
+                async (c: Context) => this.storageApi.process(c)
             ], this.issuers);
         });
 
@@ -57,9 +52,6 @@ export class Server {
         this.webSocketServer.shutDown();
         console.log('dataspace server - closed.');
     }
-
-
-
 
     processConnection(request: websocket.request) {
         console.log('dataspace server - client connected from ' + request.socket.remoteAddress + ':' + request.socket.remotePort);

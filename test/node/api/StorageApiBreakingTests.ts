@@ -4,7 +4,7 @@ import {Server} from "../../../src/node/server/Server";
 import {createTestIdToken, startTestServer} from "../util/util";
 import uuid = require("uuid");
 
-describe('Storage REST API general tests..', () => {
+describe('Storage API breaking tests..', () => {
     let server: Server;
     const idToken = createTestIdToken();
 
@@ -54,11 +54,6 @@ describe('Storage REST API general tests..', () => {
     it('It should call API with unsupported method and return 405.', async () => {
         const response = await fetch("http://127.0.0.1:8889/api/users", { method: 'PUT', headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() }});
         expect(response.status).equals(405);
-    });
-
-    it('It should get users.', async () => {
-        const response = await fetch("http://127.0.0.1:8889/api/users", { headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() }});
-        expect(response.status).equals(200);
     });
 
 });

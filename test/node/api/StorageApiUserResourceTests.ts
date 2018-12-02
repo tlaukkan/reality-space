@@ -4,7 +4,7 @@ import {Server} from "../../../src/node/server/Server";
 import {createTestIdToken, startTestServer} from "../util/util";
 import uuid = require("uuid");
 
-describe('Users API Test.', () => {
+describe('Storage API user resource tests.', () => {
     let server: Server;
     const idToken = createTestIdToken();
 

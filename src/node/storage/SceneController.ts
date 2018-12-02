@@ -2,6 +2,7 @@ import {Element, js2xml, xml2js} from "xml-js";
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
 import {Fragment} from "./model/Fragment";
 import uuid = require("uuid");
+import {AccessModel} from "./model/AccessModel";
 
 export class SceneController {
 
@@ -13,6 +14,10 @@ export class SceneController {
 
     constructor(sanitizer: Sanitizer) {
         this.sanitizer = sanitizer;
+        this.scene = this.parseFragment('<a-scene></a-scene>');
+    }
+
+    clear(): void {
         this.scene = this.parseFragment('<a-scene></a-scene>');
     }
 

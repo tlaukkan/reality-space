@@ -29,6 +29,15 @@ export class Storage {
         await this.load();
     }
 
+    clear() {
+        this.sceneController.clear();
+        this.accessController.clear();
+    }
+
+    init() {
+        this.accessController.init();
+    }
+
     async load() {
         const sceneContent = await this.repository.load(this.sceneFileName);
         if (sceneContent.length > 0) {
@@ -38,20 +47,7 @@ export class Storage {
         if (accessContent.length > 0) {
             this.accessController.deserialize(accessContent);
         } else {
-            this.accessController.addUser("anonymous", "anonymous");
-            this.accessController.setUserPrivilege("anonymous", PrivilegeType.VIEW, "");
-
-            this.accessController.addGroup("administrators");
-            this.accessController.setGroupPrivilege("administrators", PrivilegeType.ADMIN, "");
-
-            this.accessController.addGroup("modifiers");
-            this.accessController.setGroupPrivilege("modifiers", PrivilegeType.MODIFY, "");
-
-            this.accessController.addGroup("users");
-            this.accessController.setGroupPrivilege("users", PrivilegeType.USE, "");
-
-            this.accessController.addGroup("viewers");
-            this.accessController.setGroupPrivilege("viewers", PrivilegeType.VIEW, "");
+            this.accessController.init();
             await this.save();
         }
     }

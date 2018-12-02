@@ -12,6 +12,27 @@ export class AccessController {
 
     model: AccessModel = new AccessModel();
 
+    clear(): void {
+        this.model = new AccessModel();
+    }
+
+    init(): void {
+        this.addUser("anonymous", "anonymous");
+        this.setUserPrivilege("anonymous", PrivilegeType.VIEW, "");
+
+        this.addGroup("administrators");
+        this.setGroupPrivilege("administrators", PrivilegeType.ADMIN, "");
+
+        this.addGroup("modifiers");
+        this.setGroupPrivilege("modifiers", PrivilegeType.MODIFY, "");
+
+        this.addGroup("users");
+        this.setGroupPrivilege("users", PrivilegeType.USE, "");
+
+        this.addGroup("viewers");
+        this.setGroupPrivilege("viewers", PrivilegeType.VIEW, "");
+    }
+
     checkPrivilege(userId: string, sid: string, type: PrivilegeType): void {
         if (!this.hasPrivilege(userId, sid, type)) {
             throw new Error(userId + " " + type + " access denied to " + sid);

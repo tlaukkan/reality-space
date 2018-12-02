@@ -8,7 +8,7 @@ import {IdTokenIssuer} from "../../common/dataspace/Configuration";
 import {Context} from "../framework/http/Context";
 import {processRequest} from "../framework/http/http";
 
-export class Server {
+export class DataSpaceServer {
 
     host: string;
     port: number;
@@ -19,11 +19,11 @@ export class Server {
     httpServer: http.Server = undefined as any as http.Server;
     issuers: Map<string, IdTokenIssuer> = new Map<string, IdTokenIssuer>();
 
-    constructor(host: string, port: number, processor: Processor, storageRestService: StorageApi, idTokenIssuers: Array<IdTokenIssuer>) {
+    constructor(host: string, port: number, processor: Processor, storageApi1: StorageApi, idTokenIssuers: Array<IdTokenIssuer>) {
         this.host = host;
         this.port = port;
         this.processor = processor;
-        this.storageApi = storageRestService;
+        this.storageApi = storageApi1;
         idTokenIssuers.forEach(idTokenIssuer => {
             this.issuers.set(idTokenIssuer.issuer, idTokenIssuer);
         })

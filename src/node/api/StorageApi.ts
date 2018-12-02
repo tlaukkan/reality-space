@@ -22,14 +22,14 @@ export class StorageApi {
             lift({pathParams: new Map(), body: undefined, ...c})
             .then(c => match(c, '/api/users', {
                 GET: async c => this.storage.getUsers(c.principal),
-                POST: async c => this.storage.addUser(c.principal, c.body.id, c.body.name),
+                POST: async c => this.storage.addUser(c.principal, c.body.id.toString(), c.body.name.toString()),
                 PUT: undefined,
                 DELETE: undefined
             }))
             .then(c => match(c, '/api/users/{id}', {
                 GET: async c => this.storage.getUser(c.principal, c.pathParams.get('id')!!),
                 POST: undefined,
-                PUT: undefined,
+                PUT: async c => this.storage.updateUser(c.principal, c.pathParams.get('id')!!, c.body.name),
                 DELETE: undefined
              }))
             .then(c => resolve(c))

@@ -1,6 +1,6 @@
 import {Grid} from "../common/dataspace/Grid";
 import {Processor} from "../common/dataspace/Processor";
-import {Server} from "./server/Server";
+import {DataSpaceServer} from "./server/DataSpaceServer";
 import {
     ClusterConfiguration,
     findGridConfiguration,
@@ -40,7 +40,7 @@ async function start() {
     const storageRestService = new StorageApi(repository, sanitizer);
     await storageRestService.startup();
 
-    const server = new Server(
+    const server = new DataSpaceServer(
         '0.0.0.0',
         process.env.PORT as any || 8889,
         processor,

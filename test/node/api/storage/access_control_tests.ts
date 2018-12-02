@@ -1,15 +1,19 @@
 import 'mocha';
 import {expect} from 'chai';
-import {Server} from "../../../../src/node/server/Server";
-import {createTestIdToken, startTestServer} from "../../util/util";
+import {DataSpaceServer} from "../../../../src/node/server/DataSpaceServer";
+import {createTestIdToken, resetStorage, startTestServer} from "../../util/util";
 import uuid = require("uuid");
 
 describe('Storage API / Testing access control ...', () => {
-    let server: Server;
+    let server: DataSpaceServer;
     const idToken = createTestIdToken();
 
     before(async () => {
         server = await startTestServer(server);
+    });
+
+    beforeEach(async () => {
+        resetStorage(server);
     });
 
     after(function() {

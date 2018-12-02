@@ -1,4 +1,4 @@
-import {Context} from "../server/Context";
+import {Context} from "../server/Principal";
 import {RestApiContext} from "../server/RestApiContext";
 import {error, info, warn} from "./log";
 
@@ -42,13 +42,11 @@ export async function match(context: RestApiContext,
         }
     }
 
-    //console.log(parameters);
-
-    const updatedContext = new RestApiContext(context.context, context.request, context.response, true, parameters, undefined);
+    const updatedContext = new RestApiContext(context.principal, context.request, context.response, true, parameters, undefined);
 
     const processor = (processors as any)[context.request.method!!] as (requestContext: RestApiContext) => Promise<void>;
     if (!processor) {
-        warn(context.context, "405 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
+        warn(context.principal, "405 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
         context.response.writeHead(405, {'Content-Type': 'text/plain'});
         context.response.end();
         return updatedContext;
@@ -56,12 +54,7 @@ export async function match(context: RestApiContext,
 
 
     try {
-        if (context.request.method === "POST" || context.request.method === "PUT") {
-            await collectBody(updatedContext, processor);
-        } else {
-            await collectBody(updatedContext, processor);
-        }
-        info(context.context, "200 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
+        await processRequest(updatedContext, processor);
     } catch (error) {
         error(context, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), error);
         context.response.writeHead(500, {'Content-Type': 'text/plain'});
@@ -95,14 +88,7 @@ function matchPattern(str: string, pattern: string) {
     return undefined;
 }
 
-export function respond(context: Context, object: object) {
-    context.response.write(JSON.stringify(object));
-    context.response.writeHead(200, {'Content-Type': 'text/json'});
-    context.response.end();
-}
-
-
-export function collectBody(context: RestApiContext, processor: ((requestContext: RestApiContext) => Promise<any>)) {
+export function processRequest(context: RestApiContext, processor: ((requestContext: RestApiContext) => Promise<any>)) {
     const body = Array<Uint8Array>();
     context.request.on('data', (chunk) => {
         body.push(chunk);
@@ -123,13 +109,14 @@ export function collectBody(context: RestApiContext, processor: ((requestContext
             }
             context.response.writeHead(200, {'Content-Type': 'text/json'});
             context.response.end();
+            info(context.principal, "200 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
         } catch (err) {
-            error(context.context, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), err);
+            error(context.principal, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), err);
             context.response.writeHead(500, {'Content-Type': 'text/plain'});
             context.response.end();
         }
     }).on('error', (err) => {
-        error(context.context, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), err);
+        error(context.principal, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), err);
         context.response.writeHead(500, {'Content-Type': 'text/plain'});
         context.response.end();
     });

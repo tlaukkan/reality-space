@@ -8,7 +8,7 @@ import {IncomingMessage} from "http";
 import {Principal} from "../../common/dataspace/Principal";
 import {decodeIdToken, validateIdToken} from "../../common/util/jwt";
 import {IdTokenIssuer} from "../../common/dataspace/Configuration";
-import {Context} from "./Context";
+import {Context} from "./Principal";
 import {errorWithRequestId, info, warnWithRequestId} from "../util/log";
 
 export class Server {
@@ -54,7 +54,7 @@ export class Server {
                     return;
                 }
 
-                info(context.context, "404 " + request.method + ": " + request.url + " not found");
+                info(context.principal, "404 " + request.method + ": " + request.url + " not found");
                 response.writeHead(404, {'Content-Type': 'text/plain'});
                 response.end();
                 return true;

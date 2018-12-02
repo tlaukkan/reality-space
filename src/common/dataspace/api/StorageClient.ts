@@ -4,6 +4,7 @@ import {Group} from "./Group";
 import {GroupMember} from "./GroupMember";
 import {GroupPrivilege} from "./GroupPrivilege";
 import {UserPrivilege} from "./UserPrivilege";
+import {PrivilegeType} from "./PrivilegeType";
 
 export class StorageClient {
 
@@ -75,6 +76,23 @@ export class StorageClient {
         return this.parse(await this.request("GET", "/groups/" + name + "/privileges", [200]));
     }
 
+
+    async setUserPrivilege(userId: string, sid: string, type: PrivilegeType): Promise<UserPrivilege> {
+        return this.parse(await this.requestWithBody("POST", "/users/" + userId + "/privileges", new UserPrivilege(type, userId, sid), [200]));
+    }
+
+    async setGroupPrivilege(groupName: string, sid: string, type: PrivilegeType): Promise<GroupPrivilege> {
+        return this.parse(await this.requestWithBody("POST", "/groups/" + groupName + "/privileges", new GroupPrivilege(type, groupName, sid), [200]));
+    }
+
+
+    async removeUserPrivilege(userId: string, sid: string): Promise<void> {
+        await this.request("DELETE", "/users/" + userId + "/privileges/" + sid, [200]);
+    }
+
+    async removeGroupPrivilege(groupName: string, sid: string): Promise<void> {
+        await this.request("DELETE", "/groups/" + groupName + "/privileges/" + sid, [200]);
+    }
 
 
     private async request(method: string, path: string, successStatuses: Array<number>) {

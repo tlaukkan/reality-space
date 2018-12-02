@@ -67,7 +67,7 @@ export class StorageApi {
 
                 .then(c => match(c, '/api/groups/{name}/privileges', {
                     GET: async c => this.storage.getGroupPrivileges(c.principal, c.pathParams.get('name')!!).map(value => new GroupPrivilege(value[1], c.pathParams.get('name')!!, value[0])),
-                    POST: undefined,
+                    POST: async c => { this.storage.setGroupPrivilege(c.principal, c.pathParams.get('name')!!, c.body.type.toString(), c.body.sid.toString()); return new GroupPrivilege(c.body.type.toString(), c.pathParams.get('name')!!, c.body.sid.toString()); },
                     PUT: undefined,
                     DELETE: undefined
                 }))
@@ -75,12 +75,12 @@ export class StorageApi {
                     GET: undefined,
                     POST: undefined,
                     PUT: undefined,
-                    DELETE: undefined
+                    DELETE: async c => this.storage.removeGroupPrivilege(c.principal, c.pathParams.get('name')!!, c.pathParams.get('sid')!!)
                 }))
 
                 .then(c => match(c, '/api/users/{userId}/privileges', {
                     GET: async c => this.storage.getUserPrivileges(c.principal, c.pathParams.get('userId')!!).map(value => new UserPrivilege(value[1], c.pathParams.get('userId')!!, value[0])),
-                    POST: undefined,
+                    POST: async c => { this.storage.setUserPrivilege(c.principal, c.pathParams.get('userId')!!, c.body.type.toString(), c.body.sid.toString()); return new UserPrivilege(c.body.type.toString(), c.pathParams.get('userId')!!, c.body.sid.toString()); },
                     PUT: undefined,
                     DELETE: undefined
                 }))
@@ -88,9 +88,8 @@ export class StorageApi {
                     GET: undefined,
                     POST: undefined,
                     PUT: undefined,
-                    DELETE: undefined
+                    DELETE: async c => this.storage.removeUserPrivilege(c.principal, c.pathParams.get('userId')!!, c.pathParams.get('sid')!!)
                 }))
-
 
                 .then(c => resolve(c))
                 .catch(error => reject(error))

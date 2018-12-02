@@ -176,8 +176,8 @@ export class AccessController {
     }
 
     removeUserPrivilege(userId: string, sid: string) {
-        if (!this.model.groups.has(userId)) {
-            throw new Error("Group doest not exist: " + userId);
+        if (!this.model.users.has(userId)) {
+            throw new Error("User doest not exist: " + userId);
         }
         if (!this.model.userPrivileges.has(sid)) {
             this.model.userPrivileges.set(sid, new Map<String, UserPrivilege>());

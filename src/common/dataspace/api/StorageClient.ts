@@ -12,46 +12,63 @@ export class StorageClient {
     }
 
     async getUsers(): Promise<Array<User>> {
-        const response = (await fetch(this.url + "/users", { headers: { "Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4() }}));
-        if (response.status != 200) {
-            throw new Error(response.status.toString());
-        }
-        return await response.json();
+        return this.parse(await this.request("GET", "/users", [200]));
     };
 
     async getUser(id: string): Promise<User | undefined> {
-        const response = await fetch(this.url + "/users/" + id, { headers: { "Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4() }});
-        if (response.status == 404) {
-            return undefined;
-        }
-        if (response.status != 200) {
-            throw new Error(response.status.toString());
-        }
-        return await response.json();
+        return this.parseOptional(await this.request("GET", "/users/" + id, [200, 404]));
     }
 
     async addUser(user: User): Promise<User> {
-        const response = await fetch(this.url + "/users", { method: "POST", headers: { "Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4() }, body: JSON.stringify(user)});
-        if (response.status != 200) {
-            throw new Error(response.status.toString());
-        }
-        return await response.json();
+        return this.parse(await this.requestWithBody("POST", "/users", user, [200]));
     }
 
     async updateUser(user: User): Promise<User> {
-        const response = await fetch(this.url + "/users/" + user.id, { method: "PUT", headers: { "Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4() }, body: JSON.stringify(user)});
-        if (response.status != 200) {
-            throw new Error(response.status.toString());
-        }
-        return await response.json();
+        return this.parse(await this.requestWithBody("PUT", "/users/" + user.id, user, [200]));
     }
 
     async removeUser(id: string): Promise<void> {
-        const response = await fetch(this.url + "/users/" + id, { method: "DELETE", headers: { "Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4() }});
-        if (response.status != 200) {
+        await this.request("DELETE", "/users/" + id, [200]);
+    }
+
+
+
+
+
+
+    private async request(method: string, path: string, successStatuses: Array<number>) {
+        const response = (await fetch(this.url + path, {
+            method: method,
+            headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()}
+        }));
+        if (successStatuses.indexOf(response.status) == -1) {
             throw new Error(response.status.toString());
         }
-        return;
+        return response;
+    }
+
+    private async requestWithBody(method: string, path: string, body: any, successStatuses: Array<number>) {
+        const response = (await fetch(this.url + path, {
+            method: method,
+            headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
+            body: JSON.stringify(body)
+        }));
+        if (successStatuses.indexOf(response.status) == -1) {
+            throw new Error(response.status.toString());
+        }
+        return response;
+    }
+
+    private async parse(response: Response): Promise<any> {
+        return await response.json();
+    }
+
+    private async parseOptional(response: Response): Promise<any | undefined> {
+        if (response.status == 404) {
+            return undefined;
+        } else {
+            return await response.json();
+        }
     }
 
 }

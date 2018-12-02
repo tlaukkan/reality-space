@@ -6,6 +6,7 @@ import {Context} from "../framework/http/Context";
 import {lift} from "../../common/util/functional";
 import {Group} from "../storage/model/Group";
 import {User} from "../storage/model/User";
+import {GroupMember} from "../../common/dataspace/api/GroupMember";
 
 export class StorageApi {
 
@@ -45,6 +46,18 @@ export class StorageApi {
                 POST: undefined,
                 PUT: undefined,
                 DELETE: async c => this.storage.removeGroup(c.principal, c.pathParams.get('name')!!)
+            }))
+            .then(c => match(c, '/api/groups/{name}/members', {
+                GET: undefined,
+                POST: async c => { this.storage.addGroupMember(c.principal, c.pathParams.get('name')!!, c.body.userId.toString()); return new GroupMember(c.pathParams.get('name')!!, c.body.userId.toString()); },
+                PUT: undefined,
+                DELETE: undefined
+            }))
+            .then(c => match(c, '/api/groups/{name}/members/{userId}', {
+                GET: undefined,
+                POST: undefined,
+                PUT: undefined,
+                DELETE: async c => this.storage.removeGroupMember(c.principal, c.pathParams.get('name')!!, c.pathParams.get('userId')!!)
             }))
             .then(c => resolve(c))
             .catch(error => reject(error))

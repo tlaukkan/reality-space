@@ -163,12 +163,14 @@ export class Storage {
     addGroup(context: Principal, groupName: string): Group {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.addGroup(groupName);
+        info(context, "group '" + groupName + "' added.");
         return this.accessController.getGroup(groupName);
     }
 
     removeGroup(context: Principal, groupName: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroup(groupName);
+        info(context, "group '" + groupName + "' removed.");
     }
 
     // Group members
@@ -176,12 +178,13 @@ export class Storage {
     addGroupMember(context: Principal, groupName: string, userId: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.addGroupMember(groupName, userId);
-        info(context, userId + " added to viewers group.");
+        info(context, "user " + userId + " added to " + groupName + " group.");
     }
 
     removeGroupMember(context: Principal, groupName: string, userId: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroupMember(groupName, userId);
+        info(context, "user " + userId + " removed from " + groupName + " group.");
     }
 
     // Privileges

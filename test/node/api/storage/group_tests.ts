@@ -42,17 +42,51 @@ describe('Storage API / Testing groups resource ...', () => {
 
     it('It should add group.', async () => {
         const group = await client.addGroup(new Group("test", []));
-        expect(group!!.name).eq("test");
-        expect(group!!.userIds.length).eq(0);
+        expect(group.name).eq("test");
+        expect(group.userIds.length).eq(0);
     });
 
     it('It should remove group.', async () => {
         const group = await client.addGroup(new Group("test", []));
-        expect(group!!.name).eq("test");
-        expect(group!!.userIds.length).eq(0);
+        expect(group.name).eq("test");
+        expect(group.userIds.length).eq(0);
         await client.removeGroup("test");
         const removedGroup = await client.getGroup("test");
         expect(removedGroup).to.be.undefined;
     });
+
+    it('It should add member to group.', async () => {
+        const group = await client.addGroup(new Group("test", []));
+        expect(group.name).eq("test");
+        expect(group.userIds.length).eq(0);
+
+        const groupMember = await client.addGroupMember("test", "1");
+        expect(groupMember.groupName, "test");
+        expect(groupMember.userId, "1");
+
+        const updatedGroup = await client.getGroup("test");
+        expect(group.name).eq("test");
+        expect(updatedGroup!!.userIds.length).eq(1);
+        expect(updatedGroup!!.userIds[0]).eq("1");
+    });
+
+    it('It should remove member from group.', async () => {
+        const group = await client.addGroup(new Group("test", []));
+        expect(group.name).eq("test");
+        expect(group.userIds.length).eq(0);
+
+        const groupMember = await client.addGroupMember("test", "1");
+        expect(groupMember.groupName, "test");
+        expect(groupMember.userId, "1");
+        expect(group.name).eq("test");
+
+        expect((await client.getGroup("test"))!!.userIds.length).eq(1);
+
+        await client.removeGroupMember("test", "1");
+        expect(group.name).eq("test");
+
+        expect((await client.getGroup("test"))!!.userIds.length).eq(0);
+    });
+
 
 });

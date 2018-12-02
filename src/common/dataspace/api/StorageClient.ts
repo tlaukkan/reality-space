@@ -1,6 +1,7 @@
 import {User} from "./User";
 import uuid = require("uuid");
 import {Group} from "./Group";
+import {GroupMember} from "./GroupMember";
 
 export class StorageClient {
 
@@ -53,6 +54,14 @@ export class StorageClient {
     }
 
 
+
+    async addGroupMember(groupName: string, userId: string): Promise<GroupMember> {
+        return this.parse(await this.requestWithBody("POST", "/groups/" + groupName + "/members", new GroupMember(groupName, userId), [200]));
+    }
+
+    async removeGroupMember(groupName: string, userId: string): Promise<void> {
+        await this.request("DELETE", "/groups/" + groupName + "/members/" + userId, [200]);
+    }
 
 
 

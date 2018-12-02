@@ -39,7 +39,14 @@ describe('Storage API / Testing users resource ...', () => {
     it('It should update user.', async () => {
         const response = await fetch("http://127.0.0.1:8889/api/users", { method: "POST", headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() }, body: '{"id":2,"name":"test-2"}'});
         expect(response.status).equals(200);
-        const response2 = await fetch("http://127.0.0.1:8889/api/users/2", { method: "PUT", headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() }, body: '{"id":2,"name":"test-2-3"}'});
+        const response2 = await fetch("http://127.0.0.1:8889/api/users/2", { method: "PUT", headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() }, body: '{"id":2,"name":"test-2-updated"}'});
+        expect(response2.status).equals(200);
+    });
+
+    it('It should delete user.', async () => {
+        const response = await fetch("http://127.0.0.1:8889/api/users", { method: "POST", headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() }, body: '{"id":2,"name":"test-2"}'});
+        expect(response.status).equals(200);
+        const response2 = await fetch("http://127.0.0.1:8889/api/users/2", { method: "DELETE", headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() } });
         expect(response2.status).equals(200);
     });
 

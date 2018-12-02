@@ -102,18 +102,18 @@ export class Storage {
         }
 
         this.accessController.addUser(userId, userName);
-        info(context, userId + " added to users with name : '" + userName + "'");
+        info(context, "user " + userId + " added with name : '" + userName + "'");
         // Add user as viewer if viewers group exists.
         if (this.accessController.hasGroup("viewers")) {
             this.accessController.addGroupMember("viewers", userId);
-            info(context, userId + " added to viewers group.");
+            info(context, "user " + userId + " added to viewers group.");
         }
 
         // Add user as administrator if no administrators exist in administrator group.
         if (this.accessController.hasGroup("administrators")) {
             if (this.accessController.getGroup("administrators").userIds.size == 0) {
                 this.accessController.addGroupMember("administrators", userId);
-                info(context, userId + " added as first administrator to administrators group.");
+                info(context, "user " + userId + " added as first administrator to administrators group.");
             }
         }
     }
@@ -121,11 +121,13 @@ export class Storage {
     updateUser(context: Principal, userId: string, userName: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.updateUser(userId, userName);
+        info(context, "user " + userId + " updated with name : '" + userName + "'");
     }
 
     removeUser(context: Principal, userId: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeUser(userId);
+        info(context, "user " + userId + " removed.");
     }
 
     // Groups

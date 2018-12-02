@@ -30,7 +30,7 @@ export class StorageApi {
                 GET: async c => this.storage.getUser(c.principal, c.pathParams.get('id')!!),
                 POST: undefined,
                 PUT: async c => this.storage.updateUser(c.principal, c.pathParams.get('id')!!, c.body.name),
-                DELETE: undefined
+                DELETE: async c => this.storage.removeUser(c.principal, c.pathParams.get('id')!!)
              }))
             .then(c => resolve(c))
             .catch(error => reject(error))

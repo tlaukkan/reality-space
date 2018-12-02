@@ -194,21 +194,25 @@ export class Storage {
     setGroupPrivilege(context: Principal, groupName: string, type: PrivilegeType, sid: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.setGroupPrivilege(groupName, type, sid);
+        info(context, "group '" + groupName + "' privilege for '" + sid + "' set to  : '" + type);
     }
 
     setUserPrivilege(context: Principal, userId: string, type: PrivilegeType, sid: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.setUserPrivilege(userId, type, sid);
+        info(context, "user '" + userId + "' privilege for '" + sid + "' set to  : '" + type);
     }
 
     removeGroupPrivilege(context: Principal, groupName: string, sid: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroupPrivilege(groupName, sid);
+        info(context, "group '" + groupName + "' privilege for '" + sid + "' removed.");
     }
 
     removeUserPrivilege(context: Principal, userId: string, sid: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeUserPrivilege(userId, sid);
+        info(context, "user '" + userId + "' privilege for '" + sid + "' removed.");
     }
 
 }

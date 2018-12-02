@@ -17,6 +17,19 @@ export class StorageClient {
     }
 
 
+    async getScene(): Promise<String> {
+        return this.parse(await this.request("GET", "/scene", [200]));
+    };
+
+    async saveSceneFragment(sceneFragment: string): Promise<string> {
+        return this.parse(await this.requestWithBody("POST", "/scene", sceneFragment, [200]));
+    }
+
+    async removeSceneFragment(sceneFragment: string): Promise<void> {
+        await this.requestWithBody("DELETE", "/scene", sceneFragment, [200]);
+    }
+
+
 
     async getUsers(): Promise<Array<User>> {
         return this.parse(await this.request("GET", "/users", [200]));
@@ -118,12 +131,23 @@ export class StorageClient {
         return response;
     }
 
+    private async requestWithTextBody(method: string, path: string, body: string, successStatuses: Array<number>) {
+        const response = (await fetch(this.url + path, {
+            method: method,
+            headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
+            body: body
+        }));
+        if (successStatuses.indexOf(response.status) == -1) {
+            throw new Error(response.status.toString());
+        }
+        return response;
+    }
+
     private async parse(response: Response): Promise<any> {
         return await response.json();
     }
 
     private async parseOptional(response: Response): Promise<any | undefined> {
-        //console.log(await response.text());
         if (response.status == 404) {
             return undefined;
         } else {

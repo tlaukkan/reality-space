@@ -25,6 +25,12 @@ export class StorageApi {
     process(c: Context): Promise<Context> {
         return new Promise<Context>((resolve, reject) => {
             lift({pathParams: new Map(), body: undefined, ...c})
+                .then(c => match(c, '/api/scene', {
+                    GET: async c => this.storage.getScene(c.principal),
+                    POST: async c => this.storage.saveSceneFragment(c.principal, c.body),
+                    PUT: undefined,
+                    DELETE: async c => this.storage.removeSceneFragment(c.principal, c.body),
+                }))
 
                 .then(c => match(c, '/api/users', {
                     GET: async c => this.storage.getUsers(c.principal).map(u => cu(u)),

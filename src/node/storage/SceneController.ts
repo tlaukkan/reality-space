@@ -75,7 +75,7 @@ export class SceneController {
                 entity.attributes = {};
             }
             if (!(entity.attributes as any).sid) {
-                (entity.attributes as any).sid = uuid.v4();
+                (entity.attributes as any).sid = uuid.v4().toString();
             }
             const sid = (entity.attributes as any).sid;
             if (this.entityMap.has(sid)) {

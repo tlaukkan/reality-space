@@ -7,16 +7,15 @@ import {User} from "./model/User";
 import {Group} from "./model/Group";
 import {Principal} from "../framework/rest/Principal";
 import {info} from "../util/log";
-import undefinedError = Mocha.utils.undefinedError;
 
 export class Storage {
 
     private readonly sceneFileName: string;
     private readonly accessFileName: string;
 
-    private accessController: AccessController;
-    private sceneController: SceneController;
-    private repository: Repository;
+    accessController: AccessController;
+    sceneController: SceneController;
+    repository: Repository;
 
     constructor(sceneFileName: string, accessFileName: string, repository: Repository, sanitizer: Sanitizer) {
         this.sceneFileName = sceneFileName;
@@ -73,12 +72,14 @@ export class Storage {
 
     saveSceneFragment(context: Principal, sceneFragment: string): string {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
+        info(context, "saved scene fragment: " + sceneFragment);
         return this.sceneController.saveSceneFragment(sceneFragment);
     }
 
     removeSceneFragment(context: Principal, sceneFragment: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
         this.sceneController.removeSceneFragment(sceneFragment);
+        info(context, "removed scene fragment: " + sceneFragment);
     }
 
     // Users
@@ -94,10 +95,6 @@ export class Storage {
         } else {
             return undefined;
         }
-    }
-
-    hasUser(context: Principal, id: string): boolean {
-        return this.accessController.hasUser(id);
     }
 
     addUser(context: Principal, id: string, userName: string): User {
@@ -155,11 +152,6 @@ export class Storage {
         }
     }
 
-    hasGroup(context: Principal, name: string): boolean {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
-        return this.accessController.hasGroup(name);
-    }
-
     addGroup(context: Principal, groupName: string): Group {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.addGroup(groupName);
@@ -189,21 +181,6 @@ export class Storage {
 
     // Privileges
 
-    getPrivilegeLevel(context: Principal, type: PrivilegeType): number {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
-        return this.accessController.getPrivilegeLevel(type);
-    }
-
-    getResourceGroupPrivileges(context: Principal, sid: string): Array<[string, PrivilegeType]> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
-        return this.accessController.getResourceGroupPrivileges(sid);
-    }
-
-    getResourceUserPrivileges(context: Principal, sid: string): Array<[string, string, PrivilegeType]> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
-        return this.accessController.getResourceUserPrivileges(sid);
-    }
-
     getGroupPrivileges(context: Principal, groupName: string): Array<[string, PrivilegeType]> {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getGroupPrivileges(groupName);
@@ -212,11 +189,6 @@ export class Storage {
     getUserPrivileges(context: Principal, userId: string): Array<[string, PrivilegeType]> {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getUserPrivileges(userId);
-    }
-
-    hasPrivilege(context: Principal, userId: string, sid: string, type: PrivilegeType): boolean {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
-        return this.accessController.hasPrivilege(userId, sid, type);
     }
 
     setGroupPrivilege(context: Principal, groupName: string, type: PrivilegeType, sid: string): void {
@@ -237,11 +209,6 @@ export class Storage {
     removeUserPrivilege(context: Principal, userId: string, sid: string): void {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeUserPrivilege(userId, sid);
-    }
-
-    removeSid(context: Principal, sid: string): void {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
-        this.accessController.removeSid(sid);
     }
 
 }

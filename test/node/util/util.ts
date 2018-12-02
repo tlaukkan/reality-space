@@ -22,7 +22,7 @@ export const waitOnCondition = (condition: (() => boolean)): Promise<void> =>  {
 export async function startTestServer(server: DataSpaceServer) {
     const sanitizer = new Sanitizer("a-scene-fragment,a-scene,a-box,a-circle,a-collada-model,a-cone,a-curvedimage,a-cylinder,a-dodecahedron,a-gltf-model,a-icosahedron,a-image,a-obj-model,a-octahedron,a-plane,a-ring,a-sound,a-sphere,a-tetrahedron,a-text,a-torus-knot,a-torus,a-triangle",
         "sid,scale,src,geometry,material,position,rotation,sound,text",
-        "[^\\w\\s\\.:;]");
+        "[^\\w\\s\\.:;-]");
     const processor = new Processor(new Grid(0, 0, 0, 1000, 100, 200), sanitizer);
     const repository = new FileSystemRepository();
     const storageRestService = new StorageApi(repository, sanitizer);

@@ -24,9 +24,7 @@ describe('Storage test.', () => {
 
         const principal = new Principal("", "", "", "1", "test-user-1");
 
-        if (!storage.hasUser(principal, principal.userId)) {
-            storage.addUser(principal, principal.userId, principal.userName);
-        }
+        storage.addUser(principal, principal.userId, principal.userName);
         const addedFragment = sceneController.parseFragment(
             storage.saveSceneFragment(principal, '<a-scene-fragment><a-box text="a" invalid="2"></a-box></a-scene-fragment>'));
 

@@ -107,13 +107,13 @@ async function onRequestEnd(body: Array<Uint8Array>, processor: (requestContext:
 }
 
 function endResponse(context: RestApiContext, httpStatusCode: number) {
-    info(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " " + JSON.stringify(context.request.headers));
+    info(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " ");
     context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
     context.response.end();
 }
 
 function endResponseWithError(context: RestApiContext, err: Error, httpStatusCode: number) {
-    error(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " " + JSON.stringify(context.request.headers), err);
+    error(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " ", err);
     context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
     context.response.end();
 }

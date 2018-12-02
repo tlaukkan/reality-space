@@ -8,7 +8,7 @@ import {
     ServerConfiguration
 } from "../common/dataspace/Configuration";
 import {Sanitizer} from "../common/dataspace/Sanitizer";
-import {ServerAvatarClient} from "../common/dataspace/ServerAvatarClient";
+import {ServerAvatarClient} from "./server/ServerAvatarClient";
 import {Storage} from "./storage/Storage";
 import {FileSystemRepository} from "./storage/repository/FileSystemRepository";
 import {StorageRestService} from "./api/StorageRestService";

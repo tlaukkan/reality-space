@@ -1,6 +1,6 @@
-import {RestApiContext} from "../server/RestApiContext";
-import {Context} from "../server/Context";
-import {Principal} from "../../common/dataspace/Principal";
+import {RestApiContext} from "../framework/rest/RestApiContext";
+import {Context} from "../framework/http/Context";
+import {Principal} from "../framework/rest/Principal";
 
 require('console-stamp')(console, {
     pattern: 'UTC:yyyy-mm-dd\'T\'HH:MM:ss\'Z\'',

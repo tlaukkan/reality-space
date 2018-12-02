@@ -6,7 +6,7 @@ import {FileSystemRepository} from "../../../src/node/storage/repository/FileSys
 import {StorageRestService} from "../../../src/node/api/StorageRestService";
 import {IdTokenIssuer} from "../../../src/common/dataspace/Configuration";
 import {createIdToken} from "../../../src/common/util/jwt";
-import {Principal} from "../../../src/common/dataspace/Principal";
+import {Principal} from "../../../src/node/framework/rest/Principal";
 
 export const waitOnCondition = (condition: (() => boolean)): Promise<void> =>  {
     return new Promise((resolve, reject) => {

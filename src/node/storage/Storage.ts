@@ -5,7 +5,7 @@ import {Repository} from "./repository/Repository";
 import {PrivilegeType} from "./model/PrivilegeType";
 import {User} from "./model/User";
 import {Group} from "./model/Group";
-import {Principal} from "../../common/dataspace/Principal";
+import {Principal} from "../framework/rest/Principal";
 import {info} from "../util/log";
 
 export class Storage {

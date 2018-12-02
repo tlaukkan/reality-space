@@ -4,7 +4,7 @@ import {Sanitizer} from "../../../src/common/dataspace/Sanitizer";
 import {js2xml} from "xml-js";
 import {Storage} from "../../../src/node/storage/Storage";
 import {FileSystemRepository} from "../../../src/node/storage/repository/FileSystemRepository";
-import {Principal} from "../../../src/common/dataspace/Principal";
+import {Principal} from "../../../src/node/framework/rest/Principal";
 
 describe('Storage test.', () => {
 

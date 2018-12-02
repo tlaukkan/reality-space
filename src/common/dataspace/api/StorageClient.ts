@@ -21,16 +21,37 @@ export class StorageClient {
 
     async getUser(id: string): Promise<User | undefined> {
         const response = await fetch(this.url + "/users/" + id, { headers: { "Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4() }});
-
         if (response.status == 404) {
             return undefined;
         }
-
         if (response.status != 200) {
             throw new Error(response.status.toString());
         }
-
         return await response.json();
+    }
+
+    async addUser(user: User): Promise<User> {
+        const response = await fetch(this.url + "/users", { method: "POST", headers: { "Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4() }, body: JSON.stringify(user)});
+        if (response.status != 200) {
+            throw new Error(response.status.toString());
+        }
+        return await response.json();
+    }
+
+    async updateUser(user: User): Promise<User> {
+        const response = await fetch(this.url + "/users/" + user.id, { method: "PUT", headers: { "Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4() }, body: JSON.stringify(user)});
+        if (response.status != 200) {
+            throw new Error(response.status.toString());
+        }
+        return await response.json();
+    }
+
+    async removeUser(id: string): Promise<void> {
+        const response = await fetch(this.url + "/users/" + id, { method: "DELETE", headers: { "Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4() }});
+        if (response.status != 200) {
+            throw new Error(response.status.toString());
+        }
+        return;
     }
 
 }

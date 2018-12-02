@@ -7,12 +7,14 @@ export class RestApiContext {
     response: ServerResponse;
     pathParams: Map<string, string>;
     processed: boolean;
+    body: any | undefined;
 
-    constructor(principal: Principal, request: IncomingMessage, response: ServerResponse, pathParams: Map<string, string>, processed: boolean) {
+    constructor(principal: Principal, request: IncomingMessage, response: ServerResponse, processed: boolean, pathParams: Map<string, string>, body: any | undefined) {
         this.context = principal;
         this.request = request;
         this.response = response;
         this.pathParams = pathParams;
         this.processed = processed;
+        this.body = body;
     }
 }

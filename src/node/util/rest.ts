@@ -1,15 +1,15 @@
 import {Context} from "../server/Context";
 import {RestApiContext} from "../server/RestApiContext";
-import {info, warn} from "./log";
+import {error, info, warn} from "./log";
 
 export class Processors {
-    GET: undefined | ((requestContext: RestApiContext) => Promise<void>) = undefined;
-    POST: undefined | ((requestContext: RestApiContext) => Promise<void>) = undefined;
-    PUT: undefined | ((requestContext: RestApiContext) => Promise<void>) = undefined;
-    DELETE: undefined | ((requestContext: RestApiContext) => Promise<void>) = undefined;
+    GET: undefined | ((requestContext: RestApiContext) => Promise<any>) = undefined;
+    POST: undefined | ((requestContext: RestApiContext) => Promise<any>) = undefined;
+    PUT: undefined | ((requestContext: RestApiContext) => Promise<any>) = undefined;
+    DELETE: undefined | ((requestContext: RestApiContext) => Promise<any>) = undefined;
 
 
-    constructor(GET: ((requestContext: RestApiContext) => Promise<void>) | undefined = undefined, POST: ((requestContext: RestApiContext) => Promise<void>) | undefined = undefined, PUT: ((requestContext: RestApiContext) => Promise<void>) | undefined = undefined, DELETE: ((requestContext: RestApiContext) => Promise<void>) | undefined = undefined) {
+    constructor(GET: ((requestContext: RestApiContext) => Promise<any>) | undefined = undefined, POST: ((requestContext: RestApiContext) => Promise<any>) | undefined = undefined, PUT: ((requestContext: RestApiContext) => Promise<any>) | undefined = undefined, DELETE: ((requestContext: RestApiContext) => Promise<any>) | undefined = undefined) {
         this.GET = GET;
         this.POST = POST;
         this.PUT = PUT;
@@ -44,7 +44,7 @@ export async function match(context: RestApiContext,
 
     //console.log(parameters);
 
-    const updatedContext = new RestApiContext(context.context, context.request, context.response, parameters, true);
+    const updatedContext = new RestApiContext(context.context, context.request, context.response, true, parameters, undefined);
 
     const processor = (processors as any)[context.request.method!!] as (requestContext: RestApiContext) => Promise<void>;
     if (!processor) {
@@ -56,9 +56,13 @@ export async function match(context: RestApiContext,
 
 
     try {
-        await processor(updatedContext);
+        if (context.request.method === "POST" || context.request.method === "PUT") {
+            await collectBody(updatedContext, processor);
+        } else {
+            await collectBody(updatedContext, processor);
+        }
         info(context.context, "200 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
-    } catch(error) {
+    } catch (error) {
         error(context, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), error);
         context.response.writeHead(500, {'Content-Type': 'text/plain'});
         context.response.end();
@@ -95,4 +99,38 @@ export function respond(context: Context, object: object) {
     context.response.write(JSON.stringify(object));
     context.response.writeHead(200, {'Content-Type': 'text/json'});
     context.response.end();
+}
+
+
+export function collectBody(context: RestApiContext, processor: ((requestContext: RestApiContext) => Promise<any>)) {
+    const body = Array<Uint8Array>();
+    context.request.on('data', (chunk) => {
+        body.push(chunk);
+    }).on('end', async () => {
+        try {
+            const requestBodyJson = Buffer.concat(body).toString();
+            if (requestBodyJson) {
+                const requestBodyObj = JSON.parse(requestBodyJson);
+                const responseBody = await processor({...context, body: requestBodyObj});
+                if (responseBody) {
+                    context.response.write(JSON.stringify(responseBody));
+                }
+            } else {
+                const responseBody = await processor(context);
+                if (responseBody) {
+                    context.response.write(JSON.stringify(responseBody));
+                }
+            }
+            context.response.writeHead(200, {'Content-Type': 'text/json'});
+            context.response.end();
+        } catch (err) {
+            error(context.context, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), err);
+            context.response.writeHead(500, {'Content-Type': 'text/plain'});
+            context.response.end();
+        }
+    }).on('error', (err) => {
+        error(context.context, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), err);
+        context.response.writeHead(500, {'Content-Type': 'text/plain'});
+        context.response.end();
+    });
 }

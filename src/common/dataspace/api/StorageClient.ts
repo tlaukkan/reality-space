@@ -2,6 +2,8 @@ import {User} from "./User";
 import uuid = require("uuid");
 import {Group} from "./Group";
 import {GroupMember} from "./GroupMember";
+import {GroupPrivilege} from "./GroupPrivilege";
+import {UserPrivilege} from "./UserPrivilege";
 
 export class StorageClient {
 
@@ -61,6 +63,16 @@ export class StorageClient {
 
     async removeGroupMember(groupName: string, userId: string): Promise<void> {
         await this.request("DELETE", "/groups/" + groupName + "/members/" + userId, [200]);
+    }
+
+
+
+    async getUserPrivileges(userId: string): Promise<Array<UserPrivilege>> {
+        return this.parse(await this.request("GET", "/users/" + userId + "/privileges", [200]));
+    }
+
+    async getGroupPrivileges(name: string): Promise<Array<GroupPrivilege>> {
+        return this.parse(await this.request("GET", "/groups/" + name + "/privileges", [200]));
     }
 
 

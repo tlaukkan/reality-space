@@ -1,13 +1,13 @@
 import {PrivilegeType} from "./PrivilegeType";
 
-export class UserPrivilege {
+export class GroupPrivilege {
     type: PrivilegeType;
-    userId: string;
+    name: string;
     sid: string;
 
-    constructor(type: PrivilegeType, userId: string, sid: string) {
+    constructor(type: PrivilegeType, name: string, sid: string) {
         this.type = type;
-        this.userId = userId;
+        this.name = name;
         this.sid = sid;
     }
 }

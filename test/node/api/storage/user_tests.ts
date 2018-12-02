@@ -29,12 +29,16 @@ describe('Storage API / Testing users resource ...', () => {
         expect(users[0].name).eq("anonymous");
         expect(users[1].id).eq("1");
         expect(users[1].name).eq("test");
+        expect(users[1].groupNames.length).eq(2);
+        expect(users[1].groupNames[1]).eq("administrators");
     });
 
     it('It should get user.', async () => {
         const user = await client.getUser("1");
         expect(user!!.id).eq("1");
         expect(user!!.name).eq("test");
+        expect(user!!.groupNames.length).eq(2);
+        expect(user!!.groupNames[1]).eq("administrators");
     });
 
     it('It should get non existent user.', async () => {
@@ -46,6 +50,8 @@ describe('Storage API / Testing users resource ...', () => {
         const user = await client.addUser(new User("2", "test-2", []));
         expect(user!!.id).eq("2");
         expect(user!!.name).eq("test-2");
+        expect(user!!.groupNames.length).eq(1);
+        expect(user!!.groupNames[0]).eq("viewers");
     });
 
     it('It should update user.', async () => {
@@ -55,6 +61,8 @@ describe('Storage API / Testing users resource ...', () => {
         const updateUser = await client.updateUser(new User("2", "test-2-updated", []));
         expect(updateUser!!.id).eq("2");
         expect(updateUser!!.name).eq("test-2-updated");
+        expect(user!!.groupNames.length).eq(1);
+        expect(user!!.groupNames[0]).eq("viewers");
     });
 
     it('It should remove user.', async () => {

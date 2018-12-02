@@ -4,7 +4,8 @@ import {Sanitizer} from "../../common/dataspace/Sanitizer";
 import {match} from "../framework/rest/rest";
 import {Context} from "../framework/http/Context";
 import {lift} from "../../common/util/functional";
-import {User} from "../../common/dataspace/api/User";
+import {Group} from "../storage/model/Group";
+import {User} from "../storage/model/User";
 
 export class StorageApi {
 
@@ -22,20 +23,41 @@ export class StorageApi {
         return new Promise<Context>((resolve, reject) => {
             lift({pathParams: new Map(), body: undefined, ...c})
             .then(c => match(c, '/api/users', {
-                GET: async c => this.storage.getUsers(c.principal).map(u => new User(u.id, u.name, Array.from(u.groupNames))),
-                POST: async c => this.storage.addUser(c.principal, c.body.id.toString(), c.body.name.toString()),
+                GET: async c => this.storage.getUsers(c.principal).map(u => cu(u)),
+                POST: async c => cu(this.storage.addUser(c.principal, c.body.id.toString(), c.body.name.toString())),
                 PUT: undefined,
                 DELETE: undefined
             }))
             .then(c => match(c, '/api/users/{id}', {
-                GET: async c => this.storage.getUser(c.principal, c.pathParams.get('id')!!),
+                GET: async c => cu(this.storage.getUser(c.principal, c.pathParams.get('id')!!)),
                 POST: undefined,
-                PUT: async c => this.storage.updateUser(c.principal, c.pathParams.get('id')!!, c.body.name),
+                PUT: async c => cu(this.storage.updateUser(c.principal, c.pathParams.get('id')!!, c.body.name)),
                 DELETE: async c => this.storage.removeUser(c.principal, c.pathParams.get('id')!!)
              }))
+            .then(c => match(c, '/api/groups', {
+                GET: async c => this.storage.getGroups(c.principal).map(g => cg(g)),
+                POST: async c => cg(this.storage.addGroup(c.principal, c.body.name.toString())),
+                PUT: undefined,
+                DELETE: undefined
+            }))
+            .then(c => match(c, '/api/groups/{name}', {
+                GET: async c => cg(this.storage.getGroup(c.principal, c.pathParams.get('name')!!)),
+                POST: undefined,
+                PUT: undefined,
+                DELETE: async c => this.storage.removeGroup(c.principal, c.pathParams.get('name')!!)
+            }))
             .then(c => resolve(c))
             .catch(error => reject(error))
         });
     }
 
+
+}
+
+function cg(group: Group | undefined) {
+    return group ? {name: group.name, userIds: Array.from(group.userIds)} : undefined;
+}
+
+function cu(user: User | undefined) {
+    return user ? {id: user.id, name: user.name, groupNames: Array.from(user.groupNames)} : undefined;
 }

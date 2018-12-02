@@ -1,5 +1,6 @@
 import {User} from "./User";
 import uuid = require("uuid");
+import {Group} from "./Group";
 
 export class StorageClient {
 
@@ -10,6 +11,8 @@ export class StorageClient {
         this.url = url;
         this.idToken = idToken;
     }
+
+
 
     async getUsers(): Promise<Array<User>> {
         return this.parse(await this.request("GET", "/users", [200]));
@@ -31,6 +34,23 @@ export class StorageClient {
         await this.request("DELETE", "/users/" + id, [200]);
     }
 
+
+
+    async getGroups(): Promise<Array<Group>> {
+        return this.parse(await this.request("GET", "/groups", [200]));
+    };
+
+    async getGroup(name: string): Promise<Group | undefined> {
+        return this.parseOptional(await this.request("GET", "/groups/" + name, [200, 404]));
+    }
+
+    async addGroup(group: Group): Promise<Group> {
+        return this.parse(await this.requestWithBody("POST", "/groups", group, [200]));
+    }
+
+    async removeGroup(name: string): Promise<void> {
+        await this.request("DELETE", "/groups/" + name, [200]);
+    }
 
 
 
@@ -64,6 +84,7 @@ export class StorageClient {
     }
 
     private async parseOptional(response: Response): Promise<any | undefined> {
+        //console.log(await response.text());
         if (response.status == 404) {
             return undefined;
         } else {

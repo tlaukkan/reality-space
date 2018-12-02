@@ -141,14 +141,18 @@ export class Storage {
 
     // Groups
 
-    getGroups(context: Principal, name: string): Array<Group> {
+    getGroups(context: Principal): Array<Group> {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         return Array.from(this.accessController.model.groups.values());
     }
 
-    getGroup(context: Principal, name: string): Group {
+    getGroup(context: Principal, name: string): Group | undefined {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
-        return this.accessController.getGroup(name);
+        if (this.accessController.hasGroup(name)) {
+            return this.accessController.getGroup(name);
+        } else {
+            return undefined;
+        }
     }
 
     hasGroup(context: Principal, name: string): boolean {
@@ -156,9 +160,10 @@ export class Storage {
         return this.accessController.hasGroup(name);
     }
 
-    addGroup(context: Principal, groupName: string): void {
+    addGroup(context: Principal, groupName: string): Group {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         this.accessController.addGroup(groupName);
+        return this.accessController.getGroup(groupName);
     }
 
     removeGroup(context: Principal, groupName: string): void {

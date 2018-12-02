@@ -4,6 +4,7 @@ import {Sanitizer} from "../../common/dataspace/Sanitizer";
 import {match} from "../framework/rest/rest";
 import {Context} from "../framework/http/Context";
 import {lift} from "../../common/util/functional";
+import {User} from "../../common/dataspace/api/User";
 
 export class StorageApi {
 
@@ -21,7 +22,7 @@ export class StorageApi {
         return new Promise<Context>((resolve, reject) => {
             lift({pathParams: new Map(), body: undefined, ...c})
             .then(c => match(c, '/api/users', {
-                GET: async c => this.storage.getUsers(c.principal),
+                GET: async c => this.storage.getUsers(c.principal).map(u => new User(u.id, u.name, Array.from(u.groupNames))),
                 POST: async c => this.storage.addUser(c.principal, c.body.id.toString(), c.body.name.toString()),
                 PUT: undefined,
                 DELETE: undefined

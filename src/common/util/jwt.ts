@@ -2,7 +2,7 @@ import uuid = require("uuid");
 
 const jwt = require('jsonwebtoken');
 
-export function createIdToken(issuer: String, userId: string, userEmail: string, userName: string, privateKeyEncoded: string) {
+export function createIdToken(issuer: String, userId: string, userEmail: string, userName: string, privateKeyEncoded: string): string {
     let privateKey: string;
     if (privateKeyEncoded.startsWith('-')) {
         privateKey = privateKeyEncoded;

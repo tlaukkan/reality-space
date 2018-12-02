@@ -7,6 +7,7 @@ import {User} from "./model/User";
 import {Group} from "./model/Group";
 import {Principal} from "../framework/rest/Principal";
 import {info} from "../util/log";
+import undefinedError = Mocha.utils.undefinedError;
 
 export class Storage {
 
@@ -86,42 +87,50 @@ export class Storage {
         return Array.from(this.accessController.model.users.values());
     }
 
-    getUser(context: Principal, id: string): User {
+    getUser(context: Principal, id: string): User | undefined {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
-        return this.accessController.getUser(id);
+        if (this.accessController.hasUser(id)) {
+            return this.accessController.getUser(id);
+        } else {
+            return undefined;
+        }
     }
 
     hasUser(context: Principal, id: string): boolean {
         return this.accessController.hasUser(id);
     }
 
-    addUser(context: Principal, userId: string, userName: string): void {
+    addUser(context: Principal, id: string, userName: string): User {
         if (this.accessController.getGroup("administrators").userIds.size > 0) {
             // Omit admin check if no admins exist in admin group.
             this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
         }
 
-        this.accessController.addUser(userId, userName);
-        info(context, "user " + userId + " added with name : '" + userName + "'");
+        this.accessController.addUser(id, userName);
+        info(context, "user " + id + " added with name : '" + userName + "'");
         // Add user as viewer if viewers group exists.
         if (this.accessController.hasGroup("viewers")) {
-            this.accessController.addGroupMember("viewers", userId);
-            info(context, "user " + userId + " added to viewers group.");
+            this.accessController.addGroupMember("viewers", id);
+            info(context, "user " + id + " added to viewers group.");
         }
 
         // Add user as administrator if no administrators exist in administrator group.
         if (this.accessController.hasGroup("administrators")) {
             if (this.accessController.getGroup("administrators").userIds.size == 0) {
-                this.accessController.addGroupMember("administrators", userId);
-                info(context, "user " + userId + " added as first administrator to administrators group.");
+                this.accessController.addGroupMember("administrators", id);
+                info(context, "user " + id + " added as first administrator to administrators group.");
             }
         }
+
+        return this.accessController.getUser(id);
     }
 
-    updateUser(context: Principal, userId: string, userName: string): void {
+    updateUser(context: Principal, id: string, userName: string): User {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
-        this.accessController.updateUser(userId, userName);
-        info(context, "user " + userId + " updated with name : '" + userName + "'");
+        this.accessController.updateUser(id, userName);
+        info(context, "user " + id + " updated with name : '" + userName + "'");
+
+        return this.accessController.getUser(id);
     }
 
     removeUser(context: Principal, userId: string): void {

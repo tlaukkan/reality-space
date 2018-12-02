@@ -80,14 +80,27 @@ async function onRequestEnd(body: Array<Uint8Array>, processor: (requestContext:
             const responseBody = await processor({...context, body: requestBodyObj});
             if (responseBody) {
                 context.response.write(JSON.stringify(responseBody));
+                endResponse(context, 200);
+            } else {
+                if (context.request.method === "DELETE") {
+                    endResponse(context, 200);
+                } else {
+                    endResponse(context, 404);
+                }
             }
         } else {
             const responseBody = await processor(context);
             if (responseBody) {
                 context.response.write(JSON.stringify(responseBody));
+                endResponse(context, 200);
+            } else {
+                if (context.request.method === "DELETE") {
+                    endResponse(context, 200);
+                } else {
+                    endResponse(context, 404);
+                }
             }
         }
-        endResponse(context, 200);
     } catch (err) {
         endResponseWithError(context, err, 500);
     }

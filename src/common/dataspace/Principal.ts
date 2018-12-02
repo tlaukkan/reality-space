@@ -5,7 +5,6 @@ export class Principal {
     userId: string;
     userName: string;
 
-
     constructor(issuer: string, tokenId: string, requestId: string, userId: string, userName: string) {
         this.issuer = issuer;
         this.tokenId = tokenId;

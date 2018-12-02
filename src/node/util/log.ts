@@ -1,5 +1,5 @@
 import {RestApiContext} from "../server/RestApiContext";
-import {Context} from "../server/Principal";
+import {Context} from "../server/Context";
 import {Principal} from "../../common/dataspace/Principal";
 
 require('console-stamp')(console, {

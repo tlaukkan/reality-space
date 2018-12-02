@@ -8,7 +8,7 @@ import {IncomingMessage} from "http";
 import {Principal} from "../../common/dataspace/Principal";
 import {decodeIdToken, validateIdToken} from "../../common/util/jwt";
 import {IdTokenIssuer} from "../../common/dataspace/Configuration";
-import {Context} from "./Principal";
+import {Context} from "./Context";
 import {errorWithRequestId, info, warnWithRequestId} from "../util/log";
 
 export class Server {

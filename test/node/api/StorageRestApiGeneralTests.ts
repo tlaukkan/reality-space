@@ -52,12 +52,12 @@ describe('Storage REST API general tests..', () => {
     });
 
     it('It should call API with unsupported method and return 405.', async () => {
-        const response = await fetch("http://127.0.0.1:8889/api/regions/0-0-0/users", { method: 'post', headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() }});
+        const response = await fetch("http://127.0.0.1:8889/api/users", { method: 'PUT', headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() }});
         expect(response.status).equals(405);
     });
 
     it('It should get users.', async () => {
-        const response = await fetch("http://127.0.0.1:8889/api/regions/0-0-0/users", { headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() }});
+        const response = await fetch("http://127.0.0.1:8889/api/users", { headers: { "Authorization": "Bearer " + idToken, "Request-ID": uuid.v4() }});
         expect(response.status).equals(200);
     });
 

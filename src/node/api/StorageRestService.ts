@@ -2,7 +2,7 @@ import {Storage} from "../storage/Storage";
 import {Repository} from "../storage/repository/Repository";
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
 import {match} from "../util/rest";
-import {Context} from "../server/Principal";
+import {Context} from "../server/Context";
 import {lift} from "../../common/util/functional";
 
 export class StorageRestService {

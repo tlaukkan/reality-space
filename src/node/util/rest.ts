@@ -1,13 +1,14 @@
-import {Context} from "../server/Principal";
 import {RestApiContext} from "../server/RestApiContext";
-import {error, info, warn} from "./log";
+import {error, info} from "./log";
+
+const CACHE_REGEXP = new Map<string, RegExp>();
+const CACHE_REGEXP_WITH_GLOBAL_FLAG = new Map<string, RegExp>();
 
 export class Processors {
     GET: undefined | ((requestContext: RestApiContext) => Promise<any>) = undefined;
     POST: undefined | ((requestContext: RestApiContext) => Promise<any>) = undefined;
     PUT: undefined | ((requestContext: RestApiContext) => Promise<any>) = undefined;
     DELETE: undefined | ((requestContext: RestApiContext) => Promise<any>) = undefined;
-
 
     constructor(GET: ((requestContext: RestApiContext) => Promise<any>) | undefined = undefined, POST: ((requestContext: RestApiContext) => Promise<any>) | undefined = undefined, PUT: ((requestContext: RestApiContext) => Promise<any>) | undefined = undefined, DELETE: ((requestContext: RestApiContext) => Promise<any>) | undefined = undefined) {
         this.GET = GET;
@@ -23,69 +24,41 @@ export async function match(context: RestApiContext,
     if (context.processed) {
         return context;
     }
-    const idNames = matchPatternGlobal(urlPattern, '\\{([a-zA-Z]*)\\}');
-    let modifiedUrlPattern = urlPattern;
-    if (idNames !== undefined) {
-        idNames.forEach(param => {
-            modifiedUrlPattern = modifiedUrlPattern.replace(param, "([a-zA-Z0-9-]*)");
-        });
-    }
-    const idValues = matchPattern(context.request.url!!, "^" + modifiedUrlPattern + "$");
-    if (idValues === undefined) {
+
+    const pathParamNames = matchPatternGlobal(urlPattern, '\\{([a-zA-Z]*)\\}');
+    const urlRegExpPattern = pathParamNames && pathParamNames.length > 0 ? pathParamNames.reduce(function(u, p) {
+        return u.replace(p, "([a-zA-Z0-9-]*)");
+    }, urlPattern) : urlPattern;
+
+
+    const pathParamValues = matchPattern(context.request.url!!, "^" + urlRegExpPattern + "$");
+
+    if (pathParamValues === undefined) {
+        // No URL match.
         return context;
     }
 
-    const parameters = new Map<string, string>();
-    if (idNames) {
-        for (let i = 0; i < idNames.length; i++) {
-            parameters.set(idNames[i].substring(1, idNames[i].length - 1), idValues[i]);
-        }
-    }
+    const parameters = pathParamNames ? pathParamNames!!.reduce(function(map: Map<string, string>, idName: string, i: number) {
+        return new Map<string, string>(map).set(idName.substring(1, idName.length - 1), pathParamValues[i]);
+    }, new Map<string, string>()) : new Map<string, string>();
 
     const updatedContext = new RestApiContext(context.principal, context.request, context.response, true, parameters, undefined);
 
     const processor = (processors as any)[context.request.method!!] as (requestContext: RestApiContext) => Promise<void>;
+
     if (!processor) {
-        warn(context.principal, "405 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
-        context.response.writeHead(405, {'Content-Type': 'text/plain'});
-        context.response.end();
+        // Matching url pattern found but no processor implementation defined.
+        endResponse(context, 405);
         return updatedContext;
     }
 
-
     try {
         await processRequest(updatedContext, processor);
-    } catch (error) {
-        error(context, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), error);
-        context.response.writeHead(500, {'Content-Type': 'text/plain'});
-        context.response.end();
+    } catch (err) {
+        endResponseWithError(context, err, 500);
     }
 
     return updatedContext;
-}
-
-function matchPatternGlobal(str: string, pattern: string) {
-    let match = str!!.match(new RegExp(pattern, "g"));
-    if (match != null) {
-        let params = [];
-        for (let i = 0; i < match.length; i++) {
-            params.push(match[i]);
-        }
-        return params;
-    }
-    return undefined;
-}
-
-function matchPattern(str: string, pattern: string) {
-    let match = str!!.match(pattern);
-    if (match != null) {
-        let params = [];
-        for (let i = 1; i < match.length; i++) {
-            params.push(match[i]);
-        }
-        return params;
-    }
-    return undefined;
 }
 
 export function processRequest(context: RestApiContext, processor: ((requestContext: RestApiContext) => Promise<any>)) {
@@ -93,31 +66,72 @@ export function processRequest(context: RestApiContext, processor: ((requestCont
     context.request.on('data', (chunk) => {
         body.push(chunk);
     }).on('end', async () => {
-        try {
-            const requestBodyJson = Buffer.concat(body).toString();
-            if (requestBodyJson) {
-                const requestBodyObj = JSON.parse(requestBodyJson);
-                const responseBody = await processor({...context, body: requestBodyObj});
-                if (responseBody) {
-                    context.response.write(JSON.stringify(responseBody));
-                }
-            } else {
-                const responseBody = await processor(context);
-                if (responseBody) {
-                    context.response.write(JSON.stringify(responseBody));
-                }
-            }
-            context.response.writeHead(200, {'Content-Type': 'text/json'});
-            context.response.end();
-            info(context.principal, "200 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers));
-        } catch (err) {
-            error(context.principal, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), err);
-            context.response.writeHead(500, {'Content-Type': 'text/plain'});
-            context.response.end();
-        }
+        await onRequestEnd(body, processor, context);
     }).on('error', (err) => {
-        error(context.principal, "500 " + context.request.method +": " + context.request.url + " " + JSON.stringify(context.request.headers), err);
-        context.response.writeHead(500, {'Content-Type': 'text/plain'});
-        context.response.end();
+        endResponseWithError(context, err, 500);
     });
+}
+
+async function onRequestEnd(body: Array<Uint8Array>, processor: (requestContext: RestApiContext) => Promise<any>, context: RestApiContext) {
+    try {
+        const requestBodyJson = Buffer.concat(body).toString();
+        if (requestBodyJson) {
+            const requestBodyObj = JSON.parse(requestBodyJson);
+            const responseBody = await processor({...context, body: requestBodyObj});
+            if (responseBody) {
+                context.response.write(JSON.stringify(responseBody));
+            }
+        } else {
+            const responseBody = await processor(context);
+            if (responseBody) {
+                context.response.write(JSON.stringify(responseBody));
+            }
+        }
+        endResponse(context, 200);
+    } catch (err) {
+        endResponseWithError(context, err, 500);
+    }
+}
+
+function endResponse(context: RestApiContext, httpStatusCode: number) {
+    info(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " " + JSON.stringify(context.request.headers));
+    context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
+    context.response.end();
+}
+
+function endResponseWithError(context: RestApiContext, err: Error, httpStatusCode: number) {
+    error(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " " + JSON.stringify(context.request.headers), err);
+    context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
+    context.response.end();
+}
+
+function matchPatternGlobal(str: string, pattern: string) {
+    let match = str!!.match(buildRegExpWithGlobalFlag(pattern));
+    if (match != null) {
+        return Array.from(match);
+    }
+    return undefined;
+}
+
+function matchPattern(str: string, pattern: string) {
+    let match = str!!.match(buildRegExp(pattern));
+    if (match != null) {
+        return Array.from(match).splice(1);
+    }
+    return undefined;
+}
+
+function buildRegExp(pattern: string): RegExp {
+    if (!CACHE_REGEXP.has(pattern)) {
+        CACHE_REGEXP.set(pattern, new RegExp(pattern));
+    }
+    return CACHE_REGEXP.get(pattern)!!;
+}
+
+
+function buildRegExpWithGlobalFlag(pattern: string): RegExp {
+    if (!CACHE_REGEXP_WITH_GLOBAL_FLAG.has(pattern)) {
+        CACHE_REGEXP_WITH_GLOBAL_FLAG.set(pattern, new RegExp(pattern, "g"));
+    }
+    return CACHE_REGEXP_WITH_GLOBAL_FLAG.get(pattern)!!;
 }

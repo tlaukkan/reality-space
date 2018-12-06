@@ -9,10 +9,12 @@ import {PrivilegeType} from "./PrivilegeType";
 export class StorageClient {
 
     url: string;
+    serverName: string;
     idToken: string;
 
-    constructor(url: string, idToken: string) {
+    constructor(url: string, serverName: string, idToken: string) {
         this.url = url;
+        this.serverName = serverName;
         this.idToken = idToken;
     }
 
@@ -110,7 +112,7 @@ export class StorageClient {
 
 
     private async request(method: string, path: string, successStatuses: Array<number>) {
-        const response = (await fetch(this.url + path, {
+        const response = (await fetch(this.url + "/servers/" + this.serverName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()}
         }));
@@ -121,7 +123,7 @@ export class StorageClient {
     }
 
     private async requestWithBody(method: string, path: string, body: any, successStatuses: Array<number>) {
-        const response = (await fetch(this.url + path, {
+        const response = (await fetch(this.url + "/servers/" + this.serverName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
             body: JSON.stringify(body)
@@ -133,7 +135,7 @@ export class StorageClient {
     }
 
     private async requestWithTextBody(method: string, path: string, body: string, successStatuses: Array<number>) {
-        const response = (await fetch(this.url + path, {
+        const response = (await fetch(this.url + "/servers/" + this.serverName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
             body: body

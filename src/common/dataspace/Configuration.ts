@@ -2,6 +2,7 @@ require('isomorphic-fetch');
 
 export class ServerConfig {
     url: string = "";
+    apiUrl: string = "";
     x: number = 0;
     y: number = 0;
     z: number = 0;

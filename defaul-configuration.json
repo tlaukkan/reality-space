@@ -11,13 +11,17 @@
   },
   "servers": [
     {
+      "name": "0-0-0",
       "url": "wss://aframe-dataspace-0-0-0.herokuapp.com/",
+      "apiUrl": "https://aframe-dataspace-0-0-0.herokuapp.com/",
       "x": 0,
       "y": 0,
       "z": 0
     },
     {
+      "name": "0-0-100",
       "url": "wss://aframe-dataspace-0-0-100.herokuapp.com/",
+      "apiUrl": "https://aframe-dataspace-0-0-100.herokuapp.com/api",
       "x": 0,
       "y": 0,
       "z": 100

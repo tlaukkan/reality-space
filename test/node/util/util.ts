@@ -25,7 +25,7 @@ export async function startTestServer(server: DataSpaceServer) {
         "[^\\w\\s\\.:;-]");
     const processor = new Processor(new Grid(0, 0, 0, 1000, 100, 200), sanitizer);
     const repository = new FileSystemRepository();
-    const storageRestService = new StorageApi(repository, sanitizer);
+    const storageRestService = new StorageApi(repository, sanitizer, ["test", "test2"]);
 
     server = new DataSpaceServer('127.0.0.1', 8889, processor, storageRestService, [new IdTokenIssuer("test-issuer", "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFwbDlqT0lrdjcrTVFwYzNZMVVUego5RE5TWFFlUUpSSThJZ2tIb3lLVDJGWGxhdHkrREJoNDJxTGRjc1JVV2hUNkJjVGRWKyszTUk5bVVsdVVBOHpjCjZzL29ZUi9RM0Q4RkpVaTJPZThWWGh2MS9lZERRVTJUZ3VZYUJ2eGlWWllYbFh1RGtqVTA1aUtNWWRpQmNGcDgKOHQ0RkRGUFVNUkdnTU5XcElEeEdPZUN4TjB2OG90dDNPQmtGSHlva0dkeE12dTFxNUtWUzRZNjBEOFVnQy80aQpJR0UzUUNMcUl6WitqbTBvOHZBcWdKRy9yQUw1VW11ZlIrS25XZElJVmZIeWhad3hGald1dXJmUFp3S1gyM2FqCmdjSURGalBmMVhkZVdkRVZpQ0dBRGVhaVlmeXJDazVFK0k3eDM4WmoxZUhxbGpKWWg2bzJqYUtKeEhzSDBaSksKdXdJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==")]);
     server.listen();
@@ -34,10 +34,13 @@ export async function startTestServer(server: DataSpaceServer) {
 }
 
 export function resetStorage(server: DataSpaceServer) {
-    server.storageApi.storage.clear();
-    server.storageApi.storage.init();
-    const principal = new Principal("", "", "", "1", "test");
-    server.storageApi.storage.addUser(principal, principal.userId, principal.userName);
+    server.storageApi.storages.forEach(storage => {
+        storage.clear();
+        storage.init();
+        const principal = new Principal("", "", "", "1", "test");
+        storage.addUser(new Principal("", "", "", "1", "test"), principal.userId, principal.userName);
+    });
+
 }
 
 export function createTestIdToken(): string {

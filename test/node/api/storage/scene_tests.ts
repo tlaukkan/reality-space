@@ -8,7 +8,7 @@ import {User} from "../../../../src/common/dataspace/api/User";
 describe('Storage API / Testing users resource ...', () => {
     let server: DataSpaceServer;
     const idToken = createTestIdToken();
-    const client = new StorageClient("http://127.0.0.1:8889/api", idToken);
+    const client = new StorageClient("http://127.0.0.1:8889/api", "test", idToken);
 
     before(async () => {
         server = await startTestServer(server);
@@ -30,7 +30,7 @@ describe('Storage API / Testing users resource ...', () => {
         expect(await client.getScene()).eq('<a-scene/>');
         const sceneFragment = await client.saveSceneFragment('<a-scene-fragment><a-box text="a" invalid="2"></a-box></a-scene-fragment>');
 
-        const addedFragment = server.storageApi.storage.sceneController.parseFragment(sceneFragment);
+        const addedFragment = server.storageApi.storages.get("test")!!.sceneController.parseFragment(sceneFragment);
 
         expect(addedFragment.entities.length).equal(1);
         expect(addedFragment.entities[0].name).equal('a-box');
@@ -42,7 +42,7 @@ describe('Storage API / Testing users resource ...', () => {
         expect(await client.getScene()).eq('<a-scene/>');
         const sceneFragment = await client.saveSceneFragment('<a-scene-fragment><a-box text="a" invalid="2"></a-box></a-scene-fragment>');
 
-        const addedFragment = server.storageApi.storage.sceneController.parseFragment(sceneFragment);
+        const addedFragment = server.storageApi.storages.get("test")!!.sceneController.parseFragment(sceneFragment);
 
         expect(addedFragment.entities.length).equal(1);
         expect(addedFragment.entities[0].name).equal('a-box');

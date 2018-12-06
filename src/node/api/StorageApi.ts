@@ -12,89 +12,93 @@ import {UserPrivilege} from "../../common/dataspace/api/UserPrivilege";
 
 export class StorageApi {
 
-    storage: Storage;
+    storages: Map<string, Storage> = new Map();
 
-    constructor(repository: Repository, sanitizer: Sanitizer) {
-        this.storage = new Storage("data/scene.xml", "data/access.json", repository, sanitizer);
+    constructor(repository: Repository, sanitizer: Sanitizer, serverNames: Array<string>) {
+        serverNames.forEach(serverName => {
+            this.storages.set(serverName, new Storage(serverName + "/scene.xml", serverName + "/access.json", repository, sanitizer));
+        });
     }
 
     async startup() {
-        await this.storage.startup();
+        this.storages.forEach(async (storage) => {
+            await storage.startup();
+        });
     }
 
     process(c: Context): Promise<Context> {
         return new Promise<Context>((resolve, reject) => {
             lift({pathParams: new Map(), body: undefined, ...c})
-                .then(c => match(c, '/api/scene', BodyEncoding.TEXT, {
-                    GET: async c => this.storage.getScene(c.principal),
-                    POST: async c => this.storage.saveSceneFragment(c.principal, c.body),
+                .then(c => match(c, '/api/servers/{server}/scene', BodyEncoding.TEXT, {
+                    GET: async c => this.storage(c.pathParams.get('server')!!).getScene(c.principal),
+                    POST: async c => this.storage(c.pathParams.get('server')!!).saveSceneFragment(c.principal, c.body),
                     PUT: undefined,
-                    DELETE: async c => this.storage.removeSceneFragment(c.principal, c.body),
+                    DELETE: async c => this.storage(c.pathParams.get('server')!!).removeSceneFragment(c.principal, c.body),
                 }))
 
-                .then(c => match(c, '/api/users', BodyEncoding.JSON, {
-                    GET: async c => this.storage.getUsers(c.principal).map(u => cu(u)),
-                    POST: async c => cu(this.storage.addUser(c.principal, c.body.id.toString(), c.body.name.toString())),
+                .then(c => match(c, '/api/servers/{server}/users', BodyEncoding.JSON, {
+                    GET: async c => this.storage(c.pathParams.get('server')!!).getUsers(c.principal).map(u => cu(u)),
+                    POST: async c => cu(this.storage(c.pathParams.get('server')!!).addUser(c.principal, c.body.id.toString(), c.body.name.toString())),
                     PUT: undefined,
                     DELETE: undefined
                 }))
-                .then(c => match(c, '/api/users/{id}', BodyEncoding.JSON, {
-                    GET: async c => cu(this.storage.getUser(c.principal, c.pathParams.get('id')!!)),
+                .then(c => match(c, '/api/servers/{server}/users/{id}', BodyEncoding.JSON, {
+                    GET: async c => cu(this.storage(c.pathParams.get('server')!!).getUser(c.principal, c.pathParams.get('id')!!)),
                     POST: undefined,
-                    PUT: async c => cu(this.storage.updateUser(c.principal, c.pathParams.get('id')!!, c.body.name)),
-                    DELETE: async c => this.storage.removeUser(c.principal, c.pathParams.get('id')!!)
+                    PUT: async c => cu(this.storage(c.pathParams.get('server')!!).updateUser(c.principal, c.pathParams.get('id')!!, c.body.name)),
+                    DELETE: async c => this.storage(c.pathParams.get('server')!!).removeUser(c.principal, c.pathParams.get('id')!!)
                  }))
 
-                .then(c => match(c, '/api/groups', BodyEncoding.JSON, {
-                    GET: async c => this.storage.getGroups(c.principal).map(g => cg(g)),
-                    POST: async c => cg(this.storage.addGroup(c.principal, c.body.name.toString())),
+                .then(c => match(c, '/api/servers/{server}/groups', BodyEncoding.JSON, {
+                    GET: async c => this.storage(c.pathParams.get('server')!!).getGroups(c.principal).map(g => cg(g)),
+                    POST: async c => cg(this.storage(c.pathParams.get('server')!!).addGroup(c.principal, c.body.name.toString())),
                     PUT: undefined,
                     DELETE: undefined
                 }))
-                .then(c => match(c, '/api/groups/{name}', BodyEncoding.JSON, {
-                    GET: async c => cg(this.storage.getGroup(c.principal, c.pathParams.get('name')!!)),
+                .then(c => match(c, '/api/servers/{server}/groups/{name}', BodyEncoding.JSON, {
+                    GET: async c => cg(this.storage(c.pathParams.get('server')!!).getGroup(c.principal, c.pathParams.get('name')!!)),
                     POST: undefined,
                     PUT: undefined,
-                    DELETE: async c => this.storage.removeGroup(c.principal, c.pathParams.get('name')!!)
+                    DELETE: async c => this.storage(c.pathParams.get('server')!!).removeGroup(c.principal, c.pathParams.get('name')!!)
                 }))
 
-                .then(c => match(c, '/api/groups/{name}/members', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/servers/{server}/groups/{name}/members', BodyEncoding.JSON, {
                     GET: undefined,
-                    POST: async c => { this.storage.addGroupMember(c.principal, c.pathParams.get('name')!!, c.body.userId.toString()); return new GroupMember(c.pathParams.get('name')!!, c.body.userId.toString()); },
+                    POST: async c => { this.storage(c.pathParams.get('server')!!).addGroupMember(c.principal, c.pathParams.get('name')!!, c.body.userId.toString()); return new GroupMember(c.pathParams.get('name')!!, c.body.userId.toString()); },
                     PUT: undefined,
                     DELETE: undefined
                 }))
-                .then(c => match(c, '/api/groups/{name}/members/{userId}', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/servers/{server}/groups/{name}/members/{userId}', BodyEncoding.JSON, {
                     GET: undefined,
                     POST: undefined,
                     PUT: undefined,
-                    DELETE: async c => this.storage.removeGroupMember(c.principal, c.pathParams.get('name')!!, c.pathParams.get('userId')!!)
+                    DELETE: async c => this.storage(c.pathParams.get('server')!!).removeGroupMember(c.principal, c.pathParams.get('name')!!, c.pathParams.get('userId')!!)
                 }))
 
-                .then(c => match(c, '/api/groups/{name}/privileges', BodyEncoding.JSON, {
-                    GET: async c => this.storage.getGroupPrivileges(c.principal, c.pathParams.get('name')!!).map(value => new GroupPrivilege(value[1], c.pathParams.get('name')!!, value[0])),
-                    POST: async c => { this.storage.setGroupPrivilege(c.principal, c.pathParams.get('name')!!, c.body.type.toString(), c.body.sid.toString()); return new GroupPrivilege(c.body.type.toString(), c.pathParams.get('name')!!, c.body.sid.toString()); },
+                .then(c => match(c, '/api/servers/{server}/groups/{name}/privileges', BodyEncoding.JSON, {
+                    GET: async c => this.storage(c.pathParams.get('server')!!).getGroupPrivileges(c.principal, c.pathParams.get('name')!!).map(value => new GroupPrivilege(value[1], c.pathParams.get('name')!!, value[0])),
+                    POST: async c => { this.storage(c.pathParams.get('server')!!).setGroupPrivilege(c.principal, c.pathParams.get('name')!!, c.body.type.toString(), c.body.sid.toString()); return new GroupPrivilege(c.body.type.toString(), c.pathParams.get('name')!!, c.body.sid.toString()); },
                     PUT: undefined,
                     DELETE: undefined
                 }))
-                .then(c => match(c, '/api/groups/{name}/privileges/{sid}', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/servers/{server}/groups/{name}/privileges/{sid}', BodyEncoding.JSON, {
                     GET: undefined,
                     POST: undefined,
                     PUT: undefined,
-                    DELETE: async c => this.storage.removeGroupPrivilege(c.principal, c.pathParams.get('name')!!, c.pathParams.get('sid')!!)
+                    DELETE: async c => this.storage(c.pathParams.get('server')!!).removeGroupPrivilege(c.principal, c.pathParams.get('name')!!, c.pathParams.get('sid')!!)
                 }))
 
-                .then(c => match(c, '/api/users/{userId}/privileges', BodyEncoding.JSON, {
-                    GET: async c => this.storage.getUserPrivileges(c.principal, c.pathParams.get('userId')!!).map(value => new UserPrivilege(value[1], c.pathParams.get('userId')!!, value[0])),
-                    POST: async c => { this.storage.setUserPrivilege(c.principal, c.pathParams.get('userId')!!, c.body.type.toString(), c.body.sid.toString()); return new UserPrivilege(c.body.type.toString(), c.pathParams.get('userId')!!, c.body.sid.toString()); },
+                .then(c => match(c, '/api/servers/{server}/users/{userId}/privileges', BodyEncoding.JSON, {
+                    GET: async c => this.storage(c.pathParams.get('server')!!).getUserPrivileges(c.principal, c.pathParams.get('userId')!!).map(value => new UserPrivilege(value[1], c.pathParams.get('userId')!!, value[0])),
+                    POST: async c => { this.storage(c.pathParams.get('server')!!).setUserPrivilege(c.principal, c.pathParams.get('userId')!!, c.body.type.toString(), c.body.sid.toString()); return new UserPrivilege(c.body.type.toString(), c.pathParams.get('userId')!!, c.body.sid.toString()); },
                     PUT: undefined,
                     DELETE: undefined
                 }))
-                .then(c => match(c, '/api/users/{userId}/privileges/{sid}', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/servers/{server}/users/{userId}/privileges/{sid}', BodyEncoding.JSON, {
                     GET: undefined,
                     POST: undefined,
                     PUT: undefined,
-                    DELETE: async c => this.storage.removeUserPrivilege(c.principal, c.pathParams.get('userId')!!, c.pathParams.get('sid')!!)
+                    DELETE: async c => this.storage(c.pathParams.get('server')!!).removeUserPrivilege(c.principal, c.pathParams.get('userId')!!, c.pathParams.get('sid')!!)
                 }))
 
                 .then(c => resolve(c))
@@ -102,6 +106,12 @@ export class StorageApi {
         });
     }
 
+    storage(serverName: string) : Storage {
+        if (!this.storages.has(serverName)) {
+            throw new Error("No such server: " + serverName);
+        }
+        return this.storages.get(serverName)!!;
+    }
 
 }
 

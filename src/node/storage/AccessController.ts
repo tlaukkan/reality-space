@@ -303,7 +303,7 @@ export class AccessController {
                 serializableModel.groupPrivileges.push(groupPrivilege);
             })
         });
-        return JSON.stringify(serializableModel);
+        return JSON.stringify(serializableModel, null, '  ');
     }
 
     deserialize(serializedAccessModel: string) {

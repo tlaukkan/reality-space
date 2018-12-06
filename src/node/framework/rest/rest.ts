@@ -18,8 +18,14 @@ export class Processors {
     }
 }
 
+export enum BodyEncoding {
+    JSON,
+    TEXT
+}
+
 export async function match(context: RestApiContext,
                             urlPattern: string,
+                            bodyEncoding: BodyEncoding,
                             processors: Processors): Promise<RestApiContext> {
     if (context.processed) {
         return context;
@@ -53,7 +59,7 @@ export async function match(context: RestApiContext,
     }
 
     try {
-        await processRequest(updatedContext, processor);
+        await processRequest(updatedContext, bodyEncoding, processor);
     } catch (err) {
         endResponseWithError(context, err, 500);
     }
@@ -61,25 +67,25 @@ export async function match(context: RestApiContext,
     return updatedContext;
 }
 
-export function processRequest(context: RestApiContext, processor: ((requestContext: RestApiContext) => Promise<any>)) {
+export function processRequest(context: RestApiContext, bodyEncoding: BodyEncoding, processor: ((requestContext: RestApiContext) => Promise<any>)) {
     const body = Array<Uint8Array>();
     context.request.on('data', (chunk) => {
         body.push(chunk);
     }).on('end', async () => {
-        await onRequestEnd(body, processor, context);
+        await onRequestEnd(body, bodyEncoding, processor, context);
     }).on('error', (err) => {
         endResponseWithError(context, err, 500);
     });
 }
 
-async function onRequestEnd(body: Array<Uint8Array>, processor: (requestContext: RestApiContext) => Promise<any>, context: RestApiContext) {
+async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding, processor: (requestContext: RestApiContext) => Promise<any>, context: RestApiContext) {
     try {
         const requestBodyJson = Buffer.concat(body).toString();
         if (requestBodyJson) {
-            const requestBodyObj = JSON.parse(requestBodyJson);
+            const requestBodyObj = bodyEncoding === BodyEncoding.JSON ? JSON.parse(requestBodyJson) : requestBodyJson;
             const responseBody = await processor({...context, body: requestBodyObj});
             if (responseBody) {
-                context.response.write(JSON.stringify(responseBody));
+                context.response.write(bodyEncoding === BodyEncoding.JSON ? JSON.stringify(responseBody) : responseBody);
                 endResponse(context, 200);
             } else {
                 if (context.request.method === "DELETE") {
@@ -91,7 +97,7 @@ async function onRequestEnd(body: Array<Uint8Array>, processor: (requestContext:
         } else {
             const responseBody = await processor(context);
             if (responseBody) {
-                context.response.write(JSON.stringify(responseBody));
+                context.response.write(bodyEncoding === BodyEncoding.JSON ? JSON.stringify(responseBody) : responseBody);
                 endResponse(context, 200);
             } else {
                 if (context.request.method === "DELETE") {

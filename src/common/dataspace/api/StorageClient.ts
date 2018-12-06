@@ -17,16 +17,17 @@ export class StorageClient {
     }
 
 
+
     async getScene(): Promise<String> {
-        return this.parse(await this.request("GET", "/scene", [200]));
+        return this.getText(await this.request("GET", "/scene", [200]));
     };
 
     async saveSceneFragment(sceneFragment: string): Promise<string> {
-        return this.parse(await this.requestWithBody("POST", "/scene", sceneFragment, [200]));
+        return this.getText(await this.requestWithTextBody("POST", "/scene", sceneFragment, [200]));
     }
 
     async removeSceneFragment(sceneFragment: string): Promise<void> {
-        await this.requestWithBody("DELETE", "/scene", sceneFragment, [200]);
+        await this.requestWithTextBody("DELETE", "/scene", sceneFragment, [200]);
     }
 
 
@@ -155,4 +156,7 @@ export class StorageClient {
         }
     }
 
+    private async getText(response: Response): Promise<any> {
+        return await response.text();
+    }
 }

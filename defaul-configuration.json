@@ -14,7 +14,7 @@
       "name": "0-0-0",
       "url": "wss://aframe-dataspace-0-0-0.herokuapp.com/",
       "apiUrl": "https://aframe-dataspace-storage.herokuapp.com/api",
-      "assetUrl:": "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com/",
+      "assetUrl": "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com/",
       "x": 0,
       "y": 0,
       "z": 0

@@ -1,10 +1,10 @@
 import 'mocha';
 import {expect} from 'chai';
-import {DataSpaceServer} from "../../../../src/node/server/DataSpaceServer";
-import {createTestIdToken, resetStorage, startTestServer} from "../../util/util";
-import {StorageClient} from "../../../../src/common/dataspace/api/StorageClient";
-import {User} from "../../../../src/common/dataspace/api/User";
-import {SceneController} from "../../../../src/node/storage/SceneController";
+import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
+import {createTestIdToken, resetStorage, startTestServer} from "../util/util";
+import {StorageClient} from "../../../src/common/dataspace/api/StorageClient";
+import {User} from "../../../src/common/dataspace/api/User";
+import {SceneController} from "../../../src/node/storage/SceneController";
 
 describe('Storage API / Testing users resource ...', () => {
     let server: DataSpaceServer;

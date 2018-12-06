@@ -1,10 +1,10 @@
 import 'mocha';
 
 import {DataSpaceServer} from "../../../../src/node/server/DataSpaceServer";
-import {Grid} from "../../../../src/common/dataspace/Grid";
-import {Processor} from "../../../../src/common/dataspace/Processor";
+import {Grid} from "../../../../src/node/processor/Grid";
+import {Processor} from "../../../../src/node/processor/Processor";
 import {Sanitizer} from "../../../../src/common/dataspace/Sanitizer";
-import {FileSystemRepository} from "../../../../src/node/storage/repository/FileSystemRepository";
+import {FileSystemRepository} from "../../../../src/node/storage/FileSystemRepository";
 import {StorageApi} from "../../../../src/node/api/StorageApi";
 import {IdTokenIssuer} from "../../../../src/common/dataspace/Configuration";
 import {startTestServer} from "../../util/util";

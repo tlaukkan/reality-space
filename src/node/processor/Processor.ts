@@ -1,9 +1,9 @@
 import {Connection} from "./Connection";
 import {Grid} from "./Grid";
-import {Encode} from "./Encode";
-import {Decode} from "./Decode";
+import {Encode} from "../../common/dataspace/Encode";
+import {Decode} from "../../common/dataspace/Decode";
 import Timer = NodeJS.Timer;
-import {Sanitizer} from "./Sanitizer";
+import {Sanitizer} from "../../common/dataspace/Sanitizer";
 
 export class Processor {
 

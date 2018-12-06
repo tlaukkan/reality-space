@@ -1,5 +1,5 @@
-import {Grid} from "../common/dataspace/Grid";
-import {Processor} from "../common/dataspace/Processor";
+import {Grid} from "./processor/Grid";
+import {Processor} from "./processor/Processor";
 import {DataSpaceServer} from "./server/DataSpaceServer";
 import {
     getProcessorConfiguration,
@@ -9,11 +9,11 @@ import {
 } from "../common/dataspace/Configuration";
 import {Sanitizer} from "../common/dataspace/Sanitizer";
 import {ServerAvatarClient} from "./server/ServerAvatarClient";
-import {FileSystemRepository} from "./storage/repository/FileSystemRepository";
+import {FileSystemRepository} from "./storage/FileSystemRepository";
 import {StorageApi} from "./api/StorageApi";
 import {loadConfiguration} from "./util/configuration";
-import {S3Repository} from "./storage/repository/S3Repository";
-import {Repository} from "./storage/repository/Repository";
+import {S3Repository} from "./storage/S3Repository";
+import {Repository} from "./storage/Repository";
 const config = require('config');
 
 start().then().catch(e => console.log('dataspace server - startup error: ', e));

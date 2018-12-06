@@ -1,7 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
-import {createTestIdToken} from "../../../util/util";
-import {StorageClient} from "../../../../../src/common/dataspace/api/StorageClient";
+import {createTestIdToken} from "../../util/util";
+import {StorageClient} from "../../../../src/common/dataspace/api/StorageClient";
 
 describe('Storage API / Local integration testing', () => {
     const idToken = createTestIdToken();

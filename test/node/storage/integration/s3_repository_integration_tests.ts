@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {S3Repository} from "../../../../src/node/storage/repository/S3Repository";
+import {S3Repository} from "../../../../src/node/storage/S3Repository";
 
 describe('S3 Repository Test.', () => {
 

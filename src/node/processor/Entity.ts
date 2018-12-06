@@ -1,5 +1,5 @@
 import {Connection} from "./Connection";
-import {Encode} from "./Encode";
+import {Encode} from "../../common/dataspace/Encode";
 
 export class Entity {
     connection: Connection;

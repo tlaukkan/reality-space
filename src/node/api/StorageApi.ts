@@ -1,5 +1,5 @@
 import {Storage} from "../storage/Storage";
-import {Repository} from "../storage/repository/Repository";
+import {Repository} from "../storage/Repository";
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
 import {BodyEncoding, match} from "../framework/rest/rest";
 import {Context} from "../framework/http/Context";

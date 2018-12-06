@@ -1,7 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
-import {DataSpaceServer} from "../../../../src/node/server/DataSpaceServer";
-import {createTestIdToken, resetStorage, startTestServer} from "../../util/util";
+import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
+import {createTestIdToken, resetStorage, startTestServer} from "../util/util";
 import uuid = require("uuid");
 
 describe('Storage API / Testing access control ...', () => {

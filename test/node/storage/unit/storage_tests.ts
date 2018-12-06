@@ -1,10 +1,10 @@
 import { expect } from 'chai';
-import {SceneController} from "../../../src/node/storage/SceneController";
-import {Sanitizer} from "../../../src/common/dataspace/Sanitizer";
+import {SceneController} from "../../../../src/node/storage/SceneController";
+import {Sanitizer} from "../../../../src/common/dataspace/Sanitizer";
 import {js2xml} from "xml-js";
-import {Storage} from "../../../src/node/storage/Storage";
-import {FileSystemRepository} from "../../../src/node/storage/repository/FileSystemRepository";
-import {Principal} from "../../../src/node/framework/rest/Principal";
+import {Storage} from "../../../../src/node/storage/Storage";
+import {FileSystemRepository} from "../../../../src/node/storage/FileSystemRepository";
+import {Principal} from "../../../../src/node/framework/rest/Principal";
 
 describe('Storage test.', () => {
 

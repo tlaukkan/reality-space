@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import {SceneController} from "../../../src/node/storage/SceneController";
-import {Sanitizer} from "../../../src/common/dataspace/Sanitizer";
+import {SceneController} from "../../../../src/node/storage/SceneController";
+import {Sanitizer} from "../../../../src/common/dataspace/Sanitizer";
 import {js2xml} from "xml-js";
 
 describe('Scene controller test.', () => {

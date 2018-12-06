@@ -1,10 +1,10 @@
 import 'mocha';
 import {expect} from 'chai';
-import {DataSpaceServer} from "../../../../src/node/server/DataSpaceServer";
-import {createTestIdToken, resetStorage, startTestServer} from "../../util/util";
-import {StorageClient} from "../../../../src/common/dataspace/api/StorageClient";
-import {User} from "../../../../src/common/dataspace/api/User";
-import {Group} from "../../../../src/common/dataspace/api/Group";
+import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
+import {createTestIdToken, resetStorage, startTestServer} from "../util/util";
+import {StorageClient} from "../../../src/common/dataspace/api/StorageClient";
+import {User} from "../../../src/common/dataspace/api/User";
+import {Group} from "../../../src/common/dataspace/api/Group";
 
 describe('Storage API / Testing groups resource ...', () => {
     let server: DataSpaceServer;

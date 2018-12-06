@@ -1,8 +1,8 @@
-import {Grid} from '../../../src/common/dataspace/Grid';
+import {Grid} from '../../../src/node/processor/Grid';
 import 'mocha';
 import { expect } from 'chai';
-import {Entity} from "../../../src/common/dataspace/Entity";
-import {Connection} from "../../../src/common/dataspace/Connection";
+import {Entity} from "../../../src/node/processor/Entity";
+import {Connection} from "../../../src/node/processor/Connection";
 import {Encode} from "../../../src/common/dataspace/Encode";
 
 const connection = new Connection("");

@@ -1,6 +1,6 @@
 import {Entity} from "./Entity";
 import {Connection} from "./Connection";
-import {Encode} from "./Encode";
+import {Encode} from "../../common/dataspace/Encode";
 
 class Cell {
     xi: number;

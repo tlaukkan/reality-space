@@ -1,7 +1,7 @@
 import * as websocket from "websocket";
 import * as http from "http";
-import {Processor} from "../../common/dataspace/Processor";
-import {Connection} from "../../common/dataspace/Connection";
+import {Processor} from "../processor/Processor";
+import {Connection} from "../processor/Connection";
 import uuid = require("uuid");
 import {StorageApi} from "../api/StorageApi";
 import {IdTokenIssuer} from "../../common/dataspace/Configuration";

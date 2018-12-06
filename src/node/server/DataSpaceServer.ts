@@ -6,7 +6,7 @@ import uuid = require("uuid");
 import {StorageApi} from "../api/StorageApi";
 import {IdTokenIssuer} from "../../common/dataspace/Configuration";
 import {Context} from "../framework/http/Context";
-import {processRequest} from "../framework/http/http";
+import {endResponseWithError, processRequest} from "../framework/http/http";
 
 export class DataSpaceServer {
 

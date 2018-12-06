@@ -16,7 +16,7 @@ export class StorageApi {
 
     constructor(repository: Repository, sanitizer: Sanitizer, serverNames: Array<string>) {
         serverNames.forEach(serverName => {
-            this.storages.set(serverName, new Storage(serverName + "/scene.xml", serverName + "/access.json", repository, sanitizer));
+            this.storages.set(serverName, new Storage(serverName + "/entities.xml", serverName + "/access.json", repository, sanitizer));
             console.log("dataspace server - server storage added: " + serverName);
         });
     }

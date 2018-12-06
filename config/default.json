@@ -14,7 +14,8 @@
     "wsUrl": ""
   },
   "Storage": {
-    "apiUrl": ""
+    "apiUrl": "",
+    "type": "fs"
   },
   "Server": {
     "port": "8889"

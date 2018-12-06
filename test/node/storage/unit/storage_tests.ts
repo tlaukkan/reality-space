@@ -12,8 +12,8 @@ describe('Storage test.', () => {
         const repository = new FileSystemRepository();
         const sanitizer = new Sanitizer('a-entities,a-scene,a-box', 'text,sid,scale', '[^\\w\\s:;-]');
 
-        let sceneFileName = "data/test-scene.xml";
-        let accessFileName = "data/test-access.json";
+        let sceneFileName = "test/entities.xml";
+        let accessFileName = "test/access.json";
 
         await repository.delete(sceneFileName);
         await repository.delete(accessFileName);

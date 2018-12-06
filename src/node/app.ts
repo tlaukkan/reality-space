@@ -79,12 +79,15 @@ function newProcessor(serverConfiguration: ProcessorConfiguration, sanitizer: Sa
 }
 
 async function newRepository(): Promise<Repository> {
-    const bucket = config.get('AWS.publicBucket');
-    if (bucket) {
+    const storageType = config.get('Storage.type');
+    if (storageType == "S3") {
+        console.log("dataspace server - storage repository type is S3.");
+        const bucket = config.get('AWS.publicBucket');
         const repository = new S3Repository(bucket);
         await repository.startup();
         return repository;
     } else {
+        console.log("dataspace server - storage repository type is file system.");
         const repository = new FileSystemRepository();
         await repository.startup();
         return repository;

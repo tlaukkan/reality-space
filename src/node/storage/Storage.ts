@@ -40,8 +40,13 @@ export class Storage {
 
     async load() {
         const sceneContent = await this.repository.load(this.sceneFileName);
+        //console.log("LOADING entities.xml: " + this.sceneFileName + " " + sceneContent);
         if (sceneContent.length > 0) {
             this.sceneController.deserialize(sceneContent);
+        } else {
+            // Lets save empty file.
+            //console.log("INITIALIZING entities.xml");
+            await this.repository.save(this.sceneFileName, this.sceneController.serialize());
         }
         const accessContent = await this.repository.load(this.accessFileName);
         if (accessContent.length > 0) {

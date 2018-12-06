@@ -1,15 +1,22 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Context} from "./Context";
-import {info, warnWithRequestId} from "../../util/log";
+import {error, info, warnWithRequestId} from "../../util/log";
 import {decodeIdToken, validateIdToken} from "../../../common/util/jwt";
 import {Principal} from "../rest/Principal";
 import {IdTokenIssuer} from "../../../common/dataspace/Configuration";
+import * as fs from "fs";
+const mime = require('mime-types');
 
 export async function processRequest(request: IncomingMessage, response: ServerResponse, handlers: Array<(c: Context) => Promise<Context>>, issuers: Map<string, IdTokenIssuer>): Promise<void> {
     try {
         if (request.url === '/health') {
             response.writeHead(200, {'Content-Type': 'text/plain'});
             response.end();
+            return;
+        }
+
+        if (request.url!!.startsWith('/repository')) {
+            await serveStaticFiles(request, response);
             return;
         }
 
@@ -38,6 +45,47 @@ export async function processRequest(request: IncomingMessage, response: ServerR
         return;
     }
 }
+
+function serveStaticFiles(request: IncomingMessage, response: ServerResponse): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+
+        const filePath = './' + request.url;
+
+        console.log('serving: ' + filePath);
+
+        if (filePath.indexOf('..') != -1) {
+            response.writeHead(404);
+            response.end();
+            resolve();
+            return;
+        }
+
+        const contentType = mime.lookup(filePath);
+        if (contentType !== "application/xml") {
+            response.writeHead(404);
+            response.end();
+            resolve();
+            return;
+        }
+
+        fs.readFile(filePath, function (error, content) {
+            if (error) {
+                if (error.code == 'ENOENT') {
+                    endResponseWithError(request, response, error, 404);
+                    resolve();
+                } else {
+                    endResponseWithError(request, response, error, 500);
+                    resolve();
+                }
+            } else {
+                response.writeHead(200, {'Content-Type': contentType});
+                response.end(content, 'utf-8');
+                resolve();
+            }
+        });
+    });
+}
+
 
 function authorizeRequest(request: IncomingMessage, response: ServerResponse, issuers: Map<string, IdTokenIssuer>): Context | undefined {
     const requestId = request.headers['request-id'] as string;
@@ -77,4 +125,10 @@ function authorizeRequest(request: IncomingMessage, response: ServerResponse, is
         warnWithRequestId(requestId, "Error decoding authorization token.");
         return undefined;
     }
+}
+
+export function endResponseWithError(request: IncomingMessage, response: ServerResponse, err: Error, httpStatusCode: number) {
+    error(new Principal("", "", "", "", ""), httpStatusCode.toString() + " " + request.method + ": " + request.url + " ", err);
+    response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
+    response.end();
 }

@@ -6,12 +6,13 @@ import {ManagedUpload} from "aws-sdk/lib/s3/managed_upload";
 import SendData = ManagedUpload.SendData;
 import {DeleteObjectOutput, GetObjectOutput, ListObjectsOutput} from "aws-sdk/clients/s3";
 const Readable = require('stream').Readable;
-const mime = require('mime-types')
+const mime = require('mime-types');
 
 export class S3Repository implements Repository {
 
     s3: AWS.S3;
     bucketName: string;
+    repositoryPath = 'servers/';
 
     constructor(bucketName: string) {
         this.bucketName = bucketName;
@@ -36,13 +37,12 @@ export class S3Repository implements Repository {
     }
 
     async save(fileName: string, fileContent: string): Promise<void> {
-
         return new Promise<void>((resolve, reject) => {
             const mimeType = mime.lookup(fileName);
             const readable = new Readable();
             readable.push(fileContent);
             readable.push(null);
-            this.s3.upload ({Bucket: this.bucketName, Key: fileName, ContentType: mimeType, Body: readable},
+            this.s3.upload ({Bucket: this.bucketName, Key: this.repositoryPath + fileName, ContentType: mimeType, Body: readable},
                 function (err: Error, data: SendData) {
                 if (err) {
                     reject(err);
@@ -55,7 +55,7 @@ export class S3Repository implements Repository {
 
     async load(fileName: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            this.s3.getObject({ Bucket: this.bucketName, Key: fileName },
+            this.s3.getObject({ Bucket: this.bucketName, Key: this.repositoryPath + fileName },
                 function (err: Error, data: GetObjectOutput) {
                     if (err != null) {
                         if ((err as any).code === 'NoSuchKey') {
@@ -75,7 +75,7 @@ export class S3Repository implements Repository {
         return new Promise<string>((resolve, reject) => {
             const params = {
                 Bucket: this.bucketName,
-                Key: fileName
+                Key: this.repositoryPath + fileName
             };
             this.s3.deleteObject(params, function(err: Error, data: DeleteObjectOutput) {
                 if (err) {

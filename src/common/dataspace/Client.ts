@@ -7,11 +7,15 @@ interface OnClose { (): void }
 export class Client {
 
     url: string;
+    apiUrl: string;
+    assetUrl: string;
     ws: WebSocket = undefined as any as WebSocket;
     connected: boolean = false;
 
-    constructor(url: string) {
+    constructor(url: string, apiUrl: string, assetUrl: string) {
         this.url = url;
+        this.apiUrl = apiUrl;
+        this.assetUrl = assetUrl;
     }
 
     newWebSocket: WebSocketConstruct = (url:string, protocol:string) => { return new WebSocket(url, protocol)};

@@ -97,7 +97,7 @@ export class ClusterClient {
 
         for (let server of newServers) {
             if (!this.clients.has(server.url)) {
-                let client = new Client(server.url);
+                let client = new Client(server.url, server.apiUrl, server.assetUrl);
                 this.clients.set(server.url, client);
                 client.newWebSocket = this.newWebSocket;
                 client.onClose = () => {

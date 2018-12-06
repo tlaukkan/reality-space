@@ -4,6 +4,7 @@ export class ServerConfig {
     name: string = "";
     url: string = "";
     apiUrl: string = "";
+    assetUrl: string = "";
     x: number = 0;
     y: number = 0;
     z: number = 0;

@@ -6,6 +6,7 @@ import {ManagedUpload} from "aws-sdk/lib/s3/managed_upload";
 import SendData = ManagedUpload.SendData;
 import {DeleteObjectOutput, GetObjectOutput} from "aws-sdk/clients/s3";
 const Readable = require('stream').Readable;
+const mime = require('mime-types')
 
 export class S3Repository implements Repository {
 
@@ -22,11 +23,13 @@ export class S3Repository implements Repository {
     }
 
     async save(fileName: string, fileContent: string): Promise<void> {
+
         return new Promise<void>((resolve, reject) => {
+            const mimeType = mime.lookup(fileName);
             const readable = new Readable();
             readable.push(fileContent);
             readable.push(null);
-            this.s3.upload ({Bucket: this.bucketName, Key: fileName, Body: readable},
+            this.s3.upload ({Bucket: this.bucketName, Key: fileName, ContentType: mimeType, Body: readable},
                 function (err: Error, data: SendData) {
                 if (err) {
                     reject(err);

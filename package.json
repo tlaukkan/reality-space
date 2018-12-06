@@ -69,6 +69,8 @@
     "@types/node": "^10.11.4",
     "@types/uuid": "^3.4.4",
     "@types/websocket": "0.0.40",
+    "aws-sdk": "^2.371.0",
+    "config": "^1.30.0",
     "console-stamp": "^0.2.6",
     "es6-promise": "^4.2.5",
     "isomorphic-fetch": "^2.2.1",

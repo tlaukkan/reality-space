@@ -12,44 +12,59 @@ export class DataSpaceServer {
 
     host: string;
     port: number;
-    processor: Processor;
-    storageApi: StorageApi;
+    processor: Processor | undefined;
+    storageApi: StorageApi | undefined;
     webSocketServer: websocket.server = undefined as any as websocket.server;
 
     httpServer: http.Server = undefined as any as http.Server;
     issuers: Map<string, IdTokenIssuer> = new Map<string, IdTokenIssuer>();
 
-    constructor(host: string, port: number, processor: Processor, storageApi1: StorageApi, idTokenIssuers: Array<IdTokenIssuer>) {
+    constructor(host: string, port: number, processor: Processor | undefined, storageApi: StorageApi | undefined, idTokenIssuers: Array<IdTokenIssuer>) {
         this.host = host;
         this.port = port;
         this.processor = processor;
-        this.storageApi = storageApi1;
+        this.storageApi = storageApi;
         idTokenIssuers.forEach(idTokenIssuer => {
             this.issuers.set(idTokenIssuer.issuer, idTokenIssuer);
         })
-
     }
 
-    listen() {
+    startup() {
         this.httpServer = http.createServer(async (request, response) => {
-            await processRequest(request, response, [
-                async (c: Context) => this.storageApi.process(c)
-            ], this.issuers);
+            if (this.storageApi) {
+                await processRequest(request, response, [
+                    async (c: Context) => this.storageApi!!.process(c)
+                ], this.issuers);
+            }
         });
 
-        this.webSocketServer = new websocket.server({httpServer: this.httpServer});
-        this.webSocketServer.on('request', (request) => this.processConnection(request));
+        if (this.processor) {
+            console.log('dataspace server - started processor.')
+            this.webSocketServer = new websocket.server({httpServer: this.httpServer});
+            this.webSocketServer.on('request', (request) => this.processConnection(request));
+            this.processor.start();
+        }
 
-        this.processor.start();
         this.httpServer.listen(this.port, this.host);
 
-        console.log('dataspace server - started at ws://' + this.host + ':' + this.port + '/');
+        if (this.processor) {
+            console.log('dataspace server - processor listening at local URL: at ws://' + this.host + ':' + this.port + '/');
+        }
+        if (this.storageApi) {
+            console.log('dataspace server - storage listening at local URL: http://' + this.host + ':' + this.port + '/api');
+        }
+
     }
 
-    close() {
-        this.processor.stop();
+    async close() {
+        if (this.processor) {
+            this.processor.stop();
+            this.webSocketServer.shutDown();
+        }
+        if (this.storageApi) {
+            await this.storageApi.shutdown();
+        }
         this.httpServer.close();
-        this.webSocketServer.shutDown();
         console.log('dataspace server - closed.');
     }
 
@@ -58,7 +73,7 @@ export class DataSpaceServer {
         const ws = request.accept('ds-v1.0', request.origin);
 
         const connection = new Connection(uuid.v4());
-        this.processor.add(connection);
+        this.processor!!.add(connection);
         connection.send = async (message) => {
             ws.send(message);
         };
@@ -68,7 +83,7 @@ export class DataSpaceServer {
         });
         ws.on('close', () => {
             console.log('dataspace server - client disconnected from ' + request.socket.remoteAddress + ':' + request.socket.remotePort);
-            this.processor.remove(connection);
+            this.processor!!.remove(connection);
         });
     }
 

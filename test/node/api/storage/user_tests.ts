@@ -18,8 +18,8 @@ describe('Storage API / Testing users resource ...', () => {
         resetStorage(server);
     });
 
-    after(function() {
-        server.close();
+    after(async () => {
+        await server.close();
     });
 
     it('It should get users.', async () => {

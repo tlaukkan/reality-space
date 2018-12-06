@@ -16,8 +16,8 @@ describe('Storage API / Testing access control ...', () => {
         resetStorage(server);
     });
 
-    after(function() {
-        server.close();
+    after(async () => {
+        await server.close();
     });
 
     it('It should test health check.', async () => {

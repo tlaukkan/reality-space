@@ -6,11 +6,11 @@ import {js2xml} from "xml-js";
 describe('Scene controller test.', () => {
 
     it('should test scene controller', () => {
-        const sanitizer = new Sanitizer('a-scene-fragment,a-scene,a-box', 'text,sid,scale', '[^\\w\\s:;-]');
+        const sanitizer = new Sanitizer('a-entities,a-scene,a-box', 'text,sid,scale', '[^\\w\\s:;-]');
         const storage = new SceneController(sanitizer);
 
         const addedFragment = storage.parseFragment(
-            storage.saveSceneFragment('<a-scene-fragment><a-box text="a" invalid="2"></a-box></a-scene-fragment>'));
+            storage.saveSceneFragment('<a-entities><a-box text="a" invalid="2"></a-box></a-entities>'));
 
         expect(addedFragment.entities.length).equal(1);
         expect(addedFragment.entities[0].name).equal('a-box');
@@ -20,7 +20,7 @@ describe('Scene controller test.', () => {
         expect(storage.parseFragment(storage.serialize()).entities.length).equal(1);
 
         const addedFragment2 = storage.parseFragment(
-            storage.saveSceneFragment('<a-scene-fragment><a-box text="b" invalid="2"></a-box></a-scene-fragment>'));
+            storage.saveSceneFragment('<a-entities><a-box text="b" invalid="2"></a-box></a-entities>'));
 
         expect(addedFragment2.entities.length).equal(1);
         expect(addedFragment2.entities[0].name).equal('a-box');

@@ -17,12 +17,19 @@ export class StorageApi {
     constructor(repository: Repository, sanitizer: Sanitizer, serverNames: Array<string>) {
         serverNames.forEach(serverName => {
             this.storages.set(serverName, new Storage(serverName + "/scene.xml", serverName + "/access.json", repository, sanitizer));
+            console.log("dataspace server - server storage added: " + serverName);
         });
     }
 
     async startup() {
         this.storages.forEach(async (storage) => {
             await storage.startup();
+        });
+    }
+
+    async shutdown() {
+        this.storages.forEach(async (storage) => {
+            await storage.shutdown();
         });
     }
 

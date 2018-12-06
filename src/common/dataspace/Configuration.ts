@@ -1,6 +1,7 @@
 require('isomorphic-fetch');
 
 export class ServerConfig {
+    name: string = "";
     url: string = "";
     apiUrl: string = "";
     x: number = 0;
@@ -49,51 +50,61 @@ export async function fetchConfiguration(url: string): Promise<ClusterConfigurat
     return JSON.parse(responseText) as ClusterConfiguration;
 }
 
-export class ServerConfiguration {
+export class ProcessorConfiguration {
+    name: string;
+    url: string;
     cx: number;
     cy: number;
     cz: number;
     edge: number;
     step: number;
     range: number;
-    allowedElements: string;
-    allowedAttributes: string;
-    allowedAttributeValueRegex: string;
 
-
-    constructor(cx: number, cy: number, cz: number, edge: number, step: number, range: number, allowedElements: string, allowedAttributes: string, attributeValueRegex: string) {
+    constructor(name: string, url: string, cx: number, cy: number, cz: number, edge: number, step: number, range: number) {
+        this.name = name;
+        this.url = url;
         this.cx = cx;
         this.cy = cy;
         this.cz = cz;
         this.edge = edge;
         this.step = step;
         this.range = range;
-        this.allowedElements = allowedElements;
-        this.allowedAttributes = allowedAttributes;
-        this.allowedAttributeValueRegex = attributeValueRegex;
     }
 }
 
-export function findGridConfiguration(clusterConfiguration: ClusterConfiguration, serverUrl: String) : ServerConfiguration {
+export class StorageConfiguration {
+    url: string;
+    serverNames: Array<string>;
+
+    constructor(url: string, serverNames: Array<string>) {
+        this.url = url;
+        this.serverNames = serverNames;
+    }
+}
+
+export function getProcessorConfiguration(clusterConfiguration: ClusterConfiguration, serverUrl: string) : ProcessorConfiguration {
     for (let serverInfo of clusterConfiguration.servers) {
         const normalizedServerUrl = serverInfo.url.trim().toLowerCase();
-        if (normalizedServerUrl === serverUrl) {
-            const gridConfiguration = new ServerConfiguration(
+        if (normalizedServerUrl === serverUrl.trim().toLowerCase()) {
+            const gridConfiguration = new ProcessorConfiguration(
+                serverInfo.name,
+                serverUrl,
                 serverInfo.x,
                 serverInfo.y,
                 serverInfo.z,
                 clusterConfiguration.edge,
                 clusterConfiguration.step,
-                clusterConfiguration.range,
-                clusterConfiguration.sanitizer.allowedElements,
-                clusterConfiguration.sanitizer.allowedAttributes,
-                clusterConfiguration.sanitizer.allowedAttributeValueRegex
+                clusterConfiguration.range
             );
-            console.log("cluster '" + clusterConfiguration.name + "' server: " + serverInfo.url + " configuration: \n" + JSON.stringify(gridConfiguration, null, 2));
             return gridConfiguration;
         }
     };
     throw new Error("No matching server " + serverUrl + " in loaded configuration " + JSON.stringify(clusterConfiguration));
+}
+
+export function getStorageConfiguration(clusterConfiguration: ClusterConfiguration, storageApiUrl: string) {
+    const matchingServerNames = clusterConfiguration.servers.filter(s => s.apiUrl.toLocaleLowerCase() === storageApiUrl.trim().toLocaleLowerCase()).map(s => s.name);
+    return new StorageConfiguration(storageApiUrl, matchingServerNames);
 }
 
 export function findItTokenIssuerConfiguration(clusterConfiguration: ClusterConfiguration, issuer: string) : IdTokenIssuer | null {
@@ -104,3 +115,4 @@ export function findItTokenIssuerConfiguration(clusterConfiguration: ClusterConf
     }
     return null;
 }
+

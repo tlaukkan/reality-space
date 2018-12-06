@@ -2,79 +2,99 @@ import {Grid} from "../common/dataspace/Grid";
 import {Processor} from "../common/dataspace/Processor";
 import {DataSpaceServer} from "./server/DataSpaceServer";
 import {
-    ClusterConfiguration,
-    findGridConfiguration,
+    getProcessorConfiguration,
+    getStorageConfiguration,
     getClusterConfiguration, IdTokenIssuer,
-    ServerConfiguration
+    ProcessorConfiguration, StorageConfiguration, SanitizerConfig
 } from "../common/dataspace/Configuration";
 import {Sanitizer} from "../common/dataspace/Sanitizer";
 import {ServerAvatarClient} from "./server/ServerAvatarClient";
-import {Storage} from "./storage/Storage";
 import {FileSystemRepository} from "./storage/repository/FileSystemRepository";
 import {StorageApi} from "./api/StorageApi";
+import {loadConfiguration} from "./util/configuration";
+import {S3Repository} from "./storage/repository/S3Repository";
+import {Repository} from "./storage/repository/Repository";
+const config = require('config');
 
-start()
-    .then()
-    .catch(e => console.log('error starting storage server: ', e));
+start().then().catch(e => console.log('dataspace server - startup error: ', e));
 
 async function start() {
-    const gridConfiguration = await getGridConfiguration();
-    const configuration = gridConfiguration[0];
-    const idTokenIssuers = gridConfiguration[1];
-    const sanitizer = new Sanitizer(configuration.allowedElements,
-        configuration.allowedAttributes,
-        configuration.allowedAttributeValueRegex);
 
-    const processor = new Processor(
-        new Grid(
-            configuration.cx,
-            configuration.cy,
-            configuration.cz,
-            configuration.edge,
-            configuration.step,
-            configuration.range
-        ),sanitizer
-    );
+    // Load configuration.
+    const gridConfiguration = await loadConfiguration();
 
-    const repository = new FileSystemRepository();
-    const storageRestService = new StorageApi(repository, sanitizer);
-    await storageRestService.startup();
+    console.log("Loaded configuration: " + JSON.stringify(gridConfiguration, null, ' '));
 
+    const sanitizerConfiguration = gridConfiguration[0];
+    const processorConfiguration = gridConfiguration[1];
+    const storageConfiguration = gridConfiguration[2];
+    const idTokenIssuers = gridConfiguration[3];
+
+    // Construct components.
+    const sanitizer = new Sanitizer(sanitizerConfiguration.allowedElements, sanitizerConfiguration.allowedAttributes, sanitizerConfiguration.allowedAttributeValueRegex);
+    const processor = processorConfiguration ? newProcessor(processorConfiguration, sanitizer) : undefined;
+    const storageApi = storageConfiguration ? await newStorageApi(storageConfiguration, sanitizer) : undefined;
+
+    if (processor) {
+        console.log("dataspace server - started processor at public URL: " + processorConfiguration!!.url);
+    }
+    if (storageApi) {
+        console.log("dataspace server - started storage at public URL: " + storageConfiguration!!.url);
+    }
+
+    // Construct server.
     const server = new DataSpaceServer(
         '0.0.0.0',
-        process.env.PORT as any || 8889,
+        config.get("Server.port"),
         processor,
-        storageRestService,
+        storageApi,
         idTokenIssuers);
 
-    server.listen();
+    // Start listening.
+    server.startup();
 
+    // Start server avatar client.
     if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL) {
         const serverAvatarClient = new ServerAvatarClient(process.env.CLUSTER_CONFIGURATION_URL);
         await serverAvatarClient.start();
     }
 
-    process.on('exit', function () {
-        server.close();
+    // Add exit hook
+    process.on('exit', async () => {
+        await server.close();
     });
 }
 
-async function getGridConfiguration(): Promise<[ServerConfiguration, Array<IdTokenIssuer>]> {
-    if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL) {
-        const wsUrl = process.env.WS_URL;
-        const clusterConfiguration = await getClusterConfiguration(process.env.CLUSTER_CONFIGURATION_URL);
-        return [findGridConfiguration(clusterConfiguration, wsUrl.trim().toLowerCase()),
-            clusterConfiguration.idTokenIssuers];
-    }
-    return [new ServerConfiguration(
-        process.env.GRID_CX as any || 0,
-        process.env.GRID_CY as any || 0,
-        process.env.GRID_CZ as any || 0,
-        process.env.GRID_EDGE as any || 1000,
-        process.env.GRID_STEP  as any || 100,
-        process.env.GRID_RANGE as any || 200,
-        process.env.ALLOWED_ELEMENTS as any || 'a-box',
-        process.env.ALLOWED_ATTRIBUTES  as any || 'scale',
-        process.env.ALLOWED_ATTRIBUTE_VALUE_REGEX as any || '[^\\w\\s:;]',
-    ),[]];
+function newProcessor(serverConfiguration: ProcessorConfiguration, sanitizer: Sanitizer) {
+    return new Processor(
+        new Grid(
+            serverConfiguration.cx,
+            serverConfiguration.cy,
+            serverConfiguration.cz,
+            serverConfiguration.edge,
+            serverConfiguration.step,
+            serverConfiguration.range
+        ), sanitizer
+    );
 }
+
+async function newRepository(): Promise<Repository> {
+    const bucket = config.get('AWS.publicBucket');
+    if (bucket) {
+        const repository = new S3Repository(bucket);
+        await repository.startup();
+        return repository;
+    } else {
+        const repository = new FileSystemRepository();
+        await repository.startup();
+        return repository;
+    }
+}
+
+async function newStorageApi(storageConfiguration: StorageConfiguration, sanitizer: Sanitizer) {
+    const repository = await newRepository();
+    const storageRestService = new StorageApi(repository, sanitizer, storageConfiguration.serverNames);
+    await storageRestService.startup();
+    return storageRestService;
+}
+

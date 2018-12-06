@@ -33,7 +33,7 @@ export async function match(context: RestApiContext,
 
     const pathParamNames = matchPatternGlobal(urlPattern, '\\{([a-zA-Z]*)\\}');
     const urlRegExpPattern = pathParamNames && pathParamNames.length > 0 ? pathParamNames.reduce(function(u, p) {
-        return u.replace(p, "([a-zA-Z0-9-]*)");
+        return u.replace(p, "([a-zA-Z0-9-_]*)");
     }, urlPattern) : urlPattern;
 
 

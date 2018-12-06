@@ -1,12 +1,27 @@
 import {Repository} from "./Repository";
+import {PathLike} from "fs";
 
 const fs = require('fs');
 
 export class FileSystemRepository implements Repository {
+    repositoryPath = 'repository/';
+
+    async startup(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            fs.access(this.repositoryPath, fs.F_OK, (err: Error) => {
+                if (err) {
+                    console.error(err)
+                    reject(err);
+                }
+                resolve();
+            })
+        });
+    }
 
     async save(fileName: string, fileContent: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            fs.writeFile(fileName, fileContent, function (err: Error) {
+
+            fs.writeFile(this.repositoryPath + fileName, fileContent, function (err: Error) {
                 if (err) {
                     reject(err);
                 }
@@ -17,7 +32,7 @@ export class FileSystemRepository implements Repository {
 
     async load(fileName: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            fs.readFile(fileName, function (err: Error, fileContent: string) {
+            fs.readFile(this.repositoryPath + fileName, function (err: Error, fileContent: string) {
                 if(err && (err as any).code == 'ENOENT') {
                     resolve('');
                 }
@@ -35,7 +50,7 @@ export class FileSystemRepository implements Repository {
 
     async delete(fileName: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            fs.unlink(fileName, function (err: Error) {
+            fs.unlink(this.repositoryPath + fileName, function (err: Error) {
                 if (err && (err as any).code == 'ENOENT') {
                     resolve();
                 }

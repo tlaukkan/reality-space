@@ -6,11 +6,12 @@ describe('File System Repository Test.', () => {
 
     it('Should test file system repository', async () => {
         const repository = new FileSystemRepository();
-        await repository.save("data/test.txt", "test");
-        const loaded = await repository.load("data/test.txt");
+        await repository.startup();
+        await repository.save("0_0_0/test.txt", "test");
+        const loaded = await repository.load("0_0_0/test.txt");
         expect(loaded).eq("test");
-        await repository.delete("data/test.txt");
-        expect(await repository.load("data/test.txt")).eq("");
+        await repository.delete("0_0_0/test.txt");
+        expect(await repository.load("0_0_0/test.txt")).eq("");
     });
 
 });

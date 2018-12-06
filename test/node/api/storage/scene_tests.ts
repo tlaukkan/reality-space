@@ -4,6 +4,7 @@ import {DataSpaceServer} from "../../../../src/node/server/DataSpaceServer";
 import {createTestIdToken, resetStorage, startTestServer} from "../../util/util";
 import {StorageClient} from "../../../../src/common/dataspace/api/StorageClient";
 import {User} from "../../../../src/common/dataspace/api/User";
+import {SceneController} from "../../../../src/node/storage/SceneController";
 
 describe('Storage API / Testing users resource ...', () => {
     let server: DataSpaceServer;
@@ -18,19 +19,19 @@ describe('Storage API / Testing users resource ...', () => {
         resetStorage(server);
     });
 
-    after(function() {
-        server.close();
+    after(async () => {
+        await server.close();
     });
 
     it('It should get scene.', async () => {
-        expect(await client.getScene()).eq('<a-scene/>');
+        expect(await client.getScene()).eq('<a-entities/>');
     });
 
     it('It should add scene fragment.', async () => {
-        expect(await client.getScene()).eq('<a-scene/>');
-        const sceneFragment = await client.saveSceneFragment('<a-scene-fragment><a-box text="a" invalid="2"></a-box></a-scene-fragment>');
+        expect(await client.getScene()).eq(SceneController.EMPTY_FRAGMENT);
+        const sceneFragment = await client.saveSceneFragment('<a-entities><a-box text="a" invalid="2"></a-box></a-entities>');
 
-        const addedFragment = server.storageApi.storages.get("test")!!.sceneController.parseFragment(sceneFragment);
+        const addedFragment = server.storageApi!!.storages.get("test")!!.sceneController.parseFragment(sceneFragment);
 
         expect(addedFragment.entities.length).equal(1);
         expect(addedFragment.entities[0].name).equal('a-box');
@@ -39,10 +40,10 @@ describe('Storage API / Testing users resource ...', () => {
     });
 
     it('It should remove scene fragment.', async () => {
-        expect(await client.getScene()).eq('<a-scene/>');
-        const sceneFragment = await client.saveSceneFragment('<a-scene-fragment><a-box text="a" invalid="2"></a-box></a-scene-fragment>');
+        expect(await client.getScene()).eq(SceneController.EMPTY_FRAGMENT);
+        const sceneFragment = await client.saveSceneFragment('<a-entities><a-box text="a" invalid="2"></a-box></a-entities>');
 
-        const addedFragment = server.storageApi.storages.get("test")!!.sceneController.parseFragment(sceneFragment);
+        const addedFragment = server.storageApi!!.storages.get("test")!!.sceneController.parseFragment(sceneFragment);
 
         expect(addedFragment.entities.length).equal(1);
         expect(addedFragment.entities[0].name).equal('a-box');
@@ -50,6 +51,6 @@ describe('Storage API / Testing users resource ...', () => {
         expect((addedFragment.entities[0].attributes as any).sid.length).to.be.greaterThan(0);
         await client.removeSceneFragment(sceneFragment);
 
-        expect(await client.getScene()).eq('<a-scene/>');
+        expect(await client.getScene()).eq(SceneController.EMPTY_FRAGMENT);
     });
 });

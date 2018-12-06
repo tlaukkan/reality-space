@@ -20,8 +20,8 @@ describe('Storage API / Testing privileges ...', () => {
         resetStorage(server);
     });
 
-    after(function() {
-        server.close();
+    after(async () => {
+        await server.close();
     });
 
     it('It should get user privileges.', async () => {

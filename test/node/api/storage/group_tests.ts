@@ -19,8 +19,8 @@ describe('Storage API / Testing groups resource ...', () => {
         resetStorage(server);
     });
 
-    after(function() {
-        server.close();
+    after(async () => {
+        await server.close();
     });
 
     it('It should get groups.', async () => {

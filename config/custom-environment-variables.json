@@ -1,7 +1,25 @@
 {
   "AWS": {
     "accessKeyId": "AWS_ACCESS_KEY_ID",
-    "secretAccessKey": "SECRET_ACCESS_KEY",
-    "region": "REGION"
+    "secretAccessKey": "AWS_SECRET_ACCESS_KEY",
+    "region": "AWS_REGION",
+    "publicBucket": "AWS_PUBLIC_BUCKET"
+  },
+  "Sanitizer": {
+    "allowedElements": "SANITIZER_ALLOWED_ELEMENTS",
+    "allowedAttributes": "SANITIZER_ALLOWED_ATTRIBUTES",
+    "allowedAttributeValueRegex": "SANITIZER_ALLOWED_ATTRIBUTE_VALUE_REGEX"
+  },
+  "Processor": {
+    "wsUrl": "WS_URL"
+  },
+  "Storage": {
+    "apiUrl": "STORAGE_API_URL"
+  },
+  "Server": {
+    "port": "PORT"
+  },
+  "Cluster": {
+    "configurationUrl": "CLUSTER_CONFIGURATION_URL"
   }
 }

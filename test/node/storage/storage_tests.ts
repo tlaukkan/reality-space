@@ -10,7 +10,7 @@ describe('Storage test.', () => {
 
     it('should test storage', async () => {
         const repository = new FileSystemRepository();
-        const sanitizer = new Sanitizer('a-scene-fragment,a-scene,a-box', 'text,sid,scale', '[^\\w\\s:;-]');
+        const sanitizer = new Sanitizer('a-entities,a-scene,a-box', 'text,sid,scale', '[^\\w\\s:;-]');
 
         let sceneFileName = "data/test-scene.xml";
         let accessFileName = "data/test-access.json";
@@ -26,7 +26,7 @@ describe('Storage test.', () => {
 
         storage.addUser(principal, principal.userId, principal.userName);
         const addedFragment = sceneController.parseFragment(
-            storage.saveSceneFragment(principal, '<a-scene-fragment><a-box text="a" invalid="2"></a-box></a-scene-fragment>'));
+            storage.saveSceneFragment(principal, '<a-entities><a-box text="a" invalid="2"></a-box></a-entities>'));
 
         expect(addedFragment.entities.length).equal(1);
         expect(addedFragment.entities[0].name).equal('a-box');
@@ -36,7 +36,7 @@ describe('Storage test.', () => {
         expect(sceneController.parseFragment(storage.getScene(principal)).entities.length).equal(1);
 
         const addedFragment2 = sceneController.parseFragment(
-            storage.saveSceneFragment(principal, '<a-scene-fragment><a-box text="b" invalid="2"></a-box></a-scene-fragment>'));
+            storage.saveSceneFragment(principal, '<a-entities><a-box text="b" invalid="2"></a-box></a-entities>'));
 
         expect(addedFragment2.entities.length).equal(1);
         expect(addedFragment2.entities[0].name).equal('a-box');

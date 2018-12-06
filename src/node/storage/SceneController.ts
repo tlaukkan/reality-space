@@ -6,7 +6,8 @@ import {AccessModel} from "./model/AccessModel";
 
 export class SceneController {
 
-    SCENE_FRAGMENT_ELEMENT = "a-scene-fragment";
+    static FRAGMENT_ROOT_ELEMENT = "a-entities";
+    static EMPTY_FRAGMENT = '<'+ SceneController.FRAGMENT_ROOT_ELEMENT+'/>';
 
     sanitizer: Sanitizer;
     scene: Fragment;
@@ -14,11 +15,11 @@ export class SceneController {
 
     constructor(sanitizer: Sanitizer) {
         this.sanitizer = sanitizer;
-        this.scene = this.parseFragment('<a-scene></a-scene>');
+        this.scene = this.parseFragment(SceneController.EMPTY_FRAGMENT);
     }
 
     clear(): void {
-        this.scene = this.parseFragment('<a-scene></a-scene>');
+        this.scene = this.parseFragment(SceneController.EMPTY_FRAGMENT);
     }
 
     saveSceneFragment(sceneFragment: string): string {
@@ -28,7 +29,7 @@ export class SceneController {
 
         const fragment = this.parseFragment(sceneFragment);
 
-        if (fragment.rootElement.name != this.SCENE_FRAGMENT_ELEMENT) {
+        if (fragment.rootElement.name != SceneController.FRAGMENT_ROOT_ELEMENT) {
             throw Error("Invalid root element name: " + fragment.rootElement.name);
         }
 
@@ -45,7 +46,7 @@ export class SceneController {
 
         const fragment = this.parseFragment(sceneFragment);
 
-        if (fragment.rootElement.name != this.SCENE_FRAGMENT_ELEMENT) {
+        if (fragment.rootElement.name != SceneController.FRAGMENT_ROOT_ELEMENT) {
             throw Error("Invalid root element name: " + fragment.rootElement.name);
         }
 
@@ -104,7 +105,7 @@ export class SceneController {
     parseFragment(fragmentXml: string): Fragment {
         let container = xml2js(fragmentXml) as Element;
 
-        this.sanitizer.sanitizeElements(container .elements!!);
+        this.sanitizer.sanitizeElements(container.elements!!);
 
         let rootElement = container.elements!![0];
 

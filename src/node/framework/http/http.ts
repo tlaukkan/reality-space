@@ -49,7 +49,7 @@ export async function processRequest(request: IncomingMessage, response: ServerR
 function serveStaticFiles(request: IncomingMessage, response: ServerResponse): Promise<void> {
     return new Promise<void>((resolve, reject) => {
 
-        const filePath = './' + request.url;
+        const filePath = '.' + request.url;
 
         console.log('serving: ' + filePath);
 

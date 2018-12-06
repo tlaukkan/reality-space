@@ -6,7 +6,7 @@ import {w3cwebsocket} from "websocket";
 describe('Integration Test Client', () => {
 
     it('Should connect client to localhost.', async () => {
-        const client = new Client("ws://127.0.0.1:8889/", "http://localhost:8889/api", "");
+        const client = new Client("ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/repository");
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
         client.close();

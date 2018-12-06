@@ -13,7 +13,7 @@ describe('Test Messaging', () => {
 
     before(async () => {
         server = await startTestServer(server);
-        client = new Client("ws://127.0.0.1:8889/", "http://localhost:8889/api", "");
+        client = new Client("ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/repository");
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
     });
@@ -56,7 +56,7 @@ describe('Test Messaging', () => {
 
         const startMillis = new Date().getTime();
         for (let i = 0; i < n; i++) {
-            const client = new Client("ws://127.0.0.1:8889/", "http://localhost:8889/api", "");
+            const client = new Client("ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/repository");
             client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
 
             clients.push(client);

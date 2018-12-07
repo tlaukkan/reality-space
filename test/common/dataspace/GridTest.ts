@@ -203,11 +203,11 @@ describe('Test Grid', () => {
         expect(c.outQueue.dequeue()!![1]).equal("u|0|1001.00|1000.00|1000.00|1.00|2.00|3.00|4.00|");
         expect(c.outQueue.size()).equal(0);
 
-        grid.act("0", "a");
-        grid.act("1", "b");
+        grid.act("0", "a", "b");
+        grid.act("1", "b", "c");
 
         expect(c.outQueue.size()).equal(1);
-        expect(c.outQueue.dequeue()!![1]).equal("c|0|a|");
+        expect(c.outQueue.dequeue()!![1]).equal("c|0|a|b|");
         expect(c.outQueue.size()).equal(0);
 
         grid.describe("0", "A");

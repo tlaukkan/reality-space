@@ -80,17 +80,19 @@ export class Decode {
         ];
     }
 
-    static act(parts: string[]) : [string, string] {
+    static act(parts: string[]) : [string, string, string] {
         return [
             parts[1],
             parts[2],
+            parts[3]
         ];
     }
 
-    static acted(parts: string[]) : [number, string] {
+    static acted(parts: string[]) : [number, string, string] {
         return [
             parseInt(parts[1]),
-            parts[2]
+            parts[2],
+            parts[3]
         ];
     }
 

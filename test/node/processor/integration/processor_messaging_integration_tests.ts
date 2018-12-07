@@ -8,7 +8,7 @@ describe('Integration Test Messaging', () => {
     let client: Client;
 
     before(async () => {
-        client = new Client("wws://aframe-dataspace-0-0-0.herokuapp.com/");
+        client = new Client("test", "wws://aframe-dataspace-0-0-0.herokuapp.com/", "https://aframe-dataspace-storage.herokuapp.com/api", "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com/", "");
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
     });
@@ -27,7 +27,7 @@ describe('Integration Test Messaging', () => {
                 client.describe("1", "<a-box/>");
                 client.onReceive = async function (message) {
                     expect(message.split(Encode.SEPARATOR)[0]).equals(Encode.DESCRIBED);
-                    client.act("1", "a");
+                    client.act("1", "a", "b");
                     client.onReceive = async function (message) {
                         expect(message.split(Encode.SEPARATOR)[0]).equals(Encode.ACTED);
                         client.remove("1");

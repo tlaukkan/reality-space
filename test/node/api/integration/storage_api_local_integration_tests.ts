@@ -5,7 +5,7 @@ import {StorageClient} from "../../../../src/common/dataspace/api/StorageClient"
 
 describe('Storage API / Local integration testing', () => {
     const idToken = createTestIdToken();
-    const client = new StorageClient("http://127.0.0.1:8889/api", "0_0_0", idToken);
+    const client = new StorageClient("0_0_0", "http://127.0.0.1:8889/api", idToken);
 
     before(async () => {
     });

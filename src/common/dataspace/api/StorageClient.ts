@@ -8,17 +8,28 @@ import {PrivilegeType} from "./PrivilegeType";
 
 export class StorageClient {
 
-    url: string;
+    apiUrl: string;
+    assetUrl: string;
     serverName: string;
     idToken: string;
 
-    constructor(url: string, serverName: string, idToken: string) {
-        this.url = url;
+    constructor(serverName: string, apiUrl: string, assetUrl: string, idToken: string) {
         this.serverName = serverName;
+        this.apiUrl = apiUrl;
+        this.assetUrl = assetUrl;
         this.idToken = idToken;
     }
 
-
+    async getSceneFromAssets(): Promise<string> {
+        const response = (await fetch(this.assetUrl + "/servers/" + this.serverName + "/entities.xml", {
+            method: "GET",
+            headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()}
+        }));
+        if (response.status != 200) {
+            throw new Error(response.status.toString());
+        }
+        return await response.text();
+    }
 
     async getScene(): Promise<String> {
         return this.getText(await this.request("GET", "/scene", [200]));
@@ -112,7 +123,7 @@ export class StorageClient {
 
 
     private async request(method: string, path: string, successStatuses: Array<number>) {
-        const response = (await fetch(this.url + "/servers/" + this.serverName + path, {
+        const response = (await fetch(this.apiUrl + "/servers/" + this.serverName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()}
         }));
@@ -123,7 +134,7 @@ export class StorageClient {
     }
 
     private async requestWithBody(method: string, path: string, body: any, successStatuses: Array<number>) {
-        const response = (await fetch(this.url + "/servers/" + this.serverName + path, {
+        const response = (await fetch(this.apiUrl + "/servers/" + this.serverName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
             body: JSON.stringify(body)
@@ -135,7 +146,7 @@ export class StorageClient {
     }
 
     private async requestWithTextBody(method: string, path: string, body: string, successStatuses: Array<number>) {
-        const response = (await fetch(this.url + "/servers/" + this.serverName + path, {
+        const response = (await fetch(this.apiUrl + "/servers/" + this.serverName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
             body: body

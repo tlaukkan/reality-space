@@ -13,7 +13,7 @@ describe('Test Messaging', () => {
 
     before(async () => {
         server = await startTestServer(server);
-        client = new Client("ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/repository");
+        client = new Client("test", "ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/repository", "");
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
     });
@@ -33,9 +33,9 @@ describe('Test Messaging', () => {
                 client.describe("1", "<a-dog/>");
                 client.onReceive = async function (message) {
                     expect(message).equals("d|0||");
-                    client.act("1", "a");
+                    client.act("1", "a", "b");
                     client.onReceive = async function (message) {
-                        expect(message).equals("c|0|a|");
+                        expect(message).equals("c|0|a|b|");
                         client.remove("1");
                         client.onReceive = async function (message) {
                             expect(message).equals("r|0|1|");
@@ -56,7 +56,7 @@ describe('Test Messaging', () => {
 
         const startMillis = new Date().getTime();
         for (let i = 0; i < n; i++) {
-            const client = new Client("ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/repository");
+            const client = new Client("test", "ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/repository", "");
             client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
 
             clients.push(client);

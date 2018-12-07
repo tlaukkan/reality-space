@@ -24,32 +24,32 @@ describe('Storage test.', () => {
 
         const principal = new Principal("", "", "", "1", "test-user-1");
 
-        storage.addUser(principal, principal.userId, principal.userName);
+        await storage.addUser(principal, principal.userId, principal.userName);
         const addedFragment = sceneController.parseFragment(
-            storage.saveSceneFragment(principal, '<a-entities><a-box text="a" invalid="2"></a-box></a-entities>'));
+            await storage.saveSceneFragment(principal, '<a-entities><a-box text="a" invalid="2"></a-box></a-entities>'));
 
         expect(addedFragment.entities.length).equal(1);
         expect(addedFragment.entities[0].name).equal('a-box');
         expect((addedFragment.entities[0].attributes as any).text).equal('a');
         expect((addedFragment.entities[0].attributes as any).sid.length).to.be.greaterThan(0);
 
-        expect(sceneController.parseFragment(storage.getScene(principal)).entities.length).equal(1);
+        expect(sceneController.parseFragment(await storage.getScene(principal)).entities.length).equal(1);
 
         const addedFragment2 = sceneController.parseFragment(
-            storage.saveSceneFragment(principal, '<a-entities><a-box text="b" invalid="2"></a-box></a-entities>'));
+            await storage.saveSceneFragment(principal, '<a-entities><a-box text="b" invalid="2"></a-box></a-entities>'));
 
         expect(addedFragment2.entities.length).equal(1);
         expect(addedFragment2.entities[0].name).equal('a-box');
         expect((addedFragment2.entities[0].attributes as any).text).equal('b');
         expect((addedFragment2.entities[0].attributes as any).sid.length).to.be.greaterThan(0);
 
-        expect(sceneController.parseFragment(storage.getScene(principal)).entities.length).equal(2);
+        expect(sceneController.parseFragment(await storage.getScene(principal)).entities.length).equal(2);
 
         const addedFragment2Xml = js2xml(addedFragment2.container);
         console.log(addedFragment2Xml);
-        storage.removeSceneFragment(principal, addedFragment2Xml);
+        await storage.removeSceneFragment(principal, addedFragment2Xml);
 
-        expect(sceneController.parseFragment(storage.getScene(principal)).entities.length).equal(1);
+        expect(sceneController.parseFragment(await storage.getScene(principal)).entities.length).equal(1);
 
         await repository.save(sceneFileName, '');
         await repository.save(accessFileName, '');

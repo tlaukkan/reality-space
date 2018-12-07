@@ -89,23 +89,26 @@ describe('Test Encode', () => {
     });
 
     it('should encode and decode act', () => {
-        const encoded = Encode.act("0", "1");
-        const decoded: [string, string] = Decode.act(encoded.split(Encode.SEPARATOR));
+        const encoded = Encode.act("0", "1", "2");
+        const decoded: [string, string, string] = Decode.act(encoded.split(Encode.SEPARATOR));
         expect(decoded[0]).to.equal("0");
         expect(decoded[1]).to.equal("1");
+        expect(decoded[2]).to.equal("2");
     });
 
     it('should encode and decode acted', () => {
-        const encoded = Encode.acted(0, "1");
-        const decoded: [number, string] = Decode.acted(encoded.split(Encode.SEPARATOR));
+        const encoded = Encode.acted(0, "1", "2");
+        const decoded: [number, string, string] = Decode.acted(encoded.split(Encode.SEPARATOR));
         expect(decoded[0]).to.equal(0);
         expect(decoded[1]).to.equal("1");
+        expect(decoded[2]).to.equal("2");
     });
 
     it('should encode and decode acted with separator in action', () => {
-        const encoded = Encode.acted(0, "a|b\\2");
-        const decoded: [number, string] = Decode.acted(encoded.split(Encode.SEPARATOR));
+        const encoded = Encode.acted(0, "1", "a|b\\2");
+        const decoded: [number, string, string] = Decode.acted(encoded.split(Encode.SEPARATOR));
         expect(decoded[0]).to.equal(0);
-        expect(decoded[1]).to.equal("a\\\\2b\\\\12");
+        expect(decoded[1]).to.equal("1");
+        expect(decoded[2]).to.equal("a\\\\2b\\\\12");
     });
 });

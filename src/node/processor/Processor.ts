@@ -140,12 +140,13 @@ export class Processor {
                     const decoded = Decode.act(parts);
                     const entityId = decoded[0];
                     const action = decoded[1];
+                    const description = decoded[2];
 
                     if (!connection.entityIds.has(entityId)) {
                         throw new Error("Connection does not own: " + entityId);
                     }
 
-                    this.grid.act(entityId, action);
+                    this.grid.act(entityId, action, description);
                     return;
                 }
             } catch (error) {

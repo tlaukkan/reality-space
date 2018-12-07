@@ -101,18 +101,20 @@ export class Encode {
             se(description);
     }
 
-    static act(id: string, action: string) : string {
+    static act(id: string, action: string, description: string) : string {
         return "" +
             s(this.ACT) +
             s(id) +
-            se(action);
+            s(action) +
+            se(description);
     }
 
-    static acted(index: number, action: string) : string {
+    static acted(index: number, action: string, description: string) : string {
         return "" +
             s(this.ACTED) +
             i(index) +
-            se(action);
+            s(action) +
+            se(description);
     }
 
 }

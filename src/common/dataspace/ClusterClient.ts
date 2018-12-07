@@ -1,6 +1,7 @@
 import {ClusterConfiguration, getClusterConfiguration, ServerConfig} from "./Configuration";
 import {Client} from "./Client";
 import {Encode} from "./Encode";
+import {id} from "aws-sdk/clients/datapipeline";
 
 interface OnReceive { (serverUrl: string, type: string, message: string[]): void }
 interface OnConnect { (serverUrl: string): void }
@@ -10,6 +11,7 @@ interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 export class ClusterClient {
 
     clusterConfigurationUrl: string;
+    idToken: string;
     avatarId: string;
     x: number;
     y: number;
@@ -26,8 +28,9 @@ export class ClusterClient {
 
     clients: Map<String, Client> = new Map();
 
-    constructor(clusterConfigurationUrl: string, avatarId: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, avatarDescription: string) {
+    constructor(clusterConfigurationUrl: string, idToken: string, avatarId: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, avatarDescription: string) {
         this.clusterConfigurationUrl = clusterConfigurationUrl;
+        this.idToken = idToken;
         this.avatarId = avatarId;
         this.x = x;
         this.y = y;
@@ -97,7 +100,7 @@ export class ClusterClient {
 
         for (let server of newServers) {
             if (!this.clients.has(server.url)) {
-                let client = new Client(server.url, server.apiUrl, server.assetUrl);
+                let client = new Client(server.name, server.url, server.apiUrl, server.assetUrl, this.idToken);
                 this.clients.set(server.url, client);
                 client.newWebSocket = this.newWebSocket;
                 client.onClose = () => {
@@ -198,9 +201,9 @@ export class ClusterClient {
         }
     }
 
-    async act(id: string, action: string) {
+    async act(id: string, action: string, description: string) {
         if (this.isConnected()) {
-            await this.getClient()!!.act(id, action);
+            await this.getClient()!!.act(id, action, description);
         }
     }
 

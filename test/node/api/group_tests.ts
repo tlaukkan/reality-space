@@ -3,13 +3,12 @@ import {expect} from 'chai';
 import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
 import {createTestIdToken, resetStorage, startTestServer} from "../util/util";
 import {StorageClient} from "../../../src/common/dataspace/api/StorageClient";
-import {User} from "../../../src/common/dataspace/api/User";
 import {Group} from "../../../src/common/dataspace/api/Group";
 
 describe('Storage API / Testing groups resource ...', () => {
     let server: DataSpaceServer;
     const idToken = createTestIdToken();
-    const client = new StorageClient("http://127.0.0.1:8889/api", "test", idToken);
+    const client = new StorageClient("test", "http://127.0.0.1:8889/api", "http://localhost:8889/repository", idToken);
 
     before(async () => {
         server = await startTestServer(server);

@@ -1,4 +1,6 @@
 import {Encode} from "./Encode";
+import {StorageClient} from "./api/StorageClient";
+import {Decode} from "./Decode";
 
 interface OnReceive { (message: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
@@ -6,16 +8,22 @@ interface OnClose { (): void }
 
 export class Client {
 
+    serverName: string;
     url: string;
     apiUrl: string;
     assetUrl: string;
     ws: WebSocket = undefined as any as WebSocket;
+    storageClient: StorageClient;
     connected: boolean = false;
+    idToken: string;
 
-    constructor(url: string, apiUrl: string, assetUrl: string) {
+    constructor(serverName: string, url: string, apiUrl: string, assetUrl: string, idToken: string) {
+        this.serverName = serverName;
         this.url = url;
         this.apiUrl = apiUrl;
         this.assetUrl = assetUrl;
+        this.idToken = idToken;
+        this.storageClient = new StorageClient(serverName, apiUrl, assetUrl, idToken);
     }
 
     newWebSocket: WebSocketConstruct = (url:string, protocol:string) => { return new WebSocket(url, protocol)};
@@ -63,7 +71,8 @@ export class Client {
 
     onClose: OnClose = () => {};
 
-    onReceive: OnReceive = (message:string) => {};
+    onReceive: OnReceive = (message: string) => {
+    };
 
     send(message:string) {
         this.ws.send(message);
@@ -85,8 +94,18 @@ export class Client {
         await this.send(Encode.describe(id, description));
     }
 
-    async act(id: string, action: string) {
-        await this.send(Encode.act(id, action));
+    async act(id: string, action: string, description: string) {
+        await this.send(Encode.act(id, action, description));
+    }
+
+
+
+    onReceiveStoredEntities: OnReceive = (entitiesXml:string) => {};
+    onRemoveStoredEntity: OnReceive = (sid:string) => {};
+
+    async loadStoredEntities() {
+        const scene = await this.storageClient.getSceneFromAssets();
+        this.onReceiveStoredEntities(scene);
     }
 
 }

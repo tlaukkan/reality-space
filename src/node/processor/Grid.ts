@@ -206,14 +206,14 @@ export class Grid {
         }
     }
 
-    act(id: string, action: string) : void {
+    act(id: string, action: string, description: string) : void {
         const entity = this.entities.get(id);
         if (entity === undefined) {
             throw Error("Entity does not exist in grid: " + id);
         }
 
         if (entity.visible) { // Do not broadcast entities which are not visible (probes).
-            this.queueToEntitiesInRange(entity, Encode.ACTED, Encode.acted(entity.index, action));
+            this.queueToEntitiesInRange(entity, Encode.ACTED, Encode.acted(entity.index, action, description));
         }
 
     }

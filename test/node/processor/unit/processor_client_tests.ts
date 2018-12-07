@@ -15,7 +15,7 @@ describe('Test Client', () => {
     let server: DataSpaceServer;
 
     before(async () => {
-        server = await startTestServer(server);
+        server = await startTestServer();
     });
 
     after(async () => {

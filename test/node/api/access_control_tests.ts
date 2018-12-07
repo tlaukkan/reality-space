@@ -9,7 +9,7 @@ describe('Storage API / Testing access control ...', () => {
     const idToken = createTestIdToken();
 
     before(async () => {
-        server = await startTestServer(server);
+        server = await startTestServer();
     });
 
     beforeEach(async () => {

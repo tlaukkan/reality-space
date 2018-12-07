@@ -1,6 +1,6 @@
 import 'mocha';
+require('isomorphic-fetch');
 import { expect } from 'chai';
-
 import {ClusterClient} from "../../../../src/common/dataspace/ClusterClient";
 import {w3cwebsocket} from "websocket";
 

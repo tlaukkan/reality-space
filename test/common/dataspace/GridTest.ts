@@ -178,6 +178,21 @@ describe('Test Grid', () => {
         expect(c.outQueue.size()).equal(0);
     });
 
+    it('should notify connections', () => {
+        const c = new Connection("");
+
+        const grid = new Grid(1500, 1500, 1500, 1000, 100, 200);
+        expect(grid.add(c, "0", 1000, 1000, 1000, 1, 2, 3, 4, "d", Encode.AVATAR)).to.equal(true);
+        grid.notify("a", "1");
+        expect(c.outQueue.size()).equal(2);
+        grid.notify("b", "2");
+        expect(c.outQueue.size()).equal(3);
+        expect(c.outQueue.dequeue()!![1]).equal("a|0|0|1000.00|1000.00|1000.00|1.00|2.00|3.00|4.00|d|a|");
+        expect(c.outQueue.dequeue()!![1]).equal("n|a|1|");
+        expect(c.outQueue.dequeue()!![1]).equal("n|b|2|");
+        expect(c.outQueue.size()).equal(0);
+    });
+
     it('should add object and probe', () => {
         const c = new Connection("");
 

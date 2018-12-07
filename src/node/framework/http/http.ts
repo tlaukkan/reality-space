@@ -51,7 +51,7 @@ function serveStaticFiles(request: IncomingMessage, response: ServerResponse): P
 
         const filePath = '.' + request.url;
 
-        console.log('serving: ' + filePath);
+        //console.log('serving: ' + filePath);
 
         if (filePath.indexOf('..') != -1) {
             response.writeHead(404);

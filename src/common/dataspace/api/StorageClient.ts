@@ -5,6 +5,7 @@ import {GroupMember} from "./GroupMember";
 import {GroupPrivilege} from "./GroupPrivilege";
 import {UserPrivilege} from "./UserPrivilege";
 import {PrivilegeType} from "./PrivilegeType";
+import {SceneController} from "../../../node/storage/SceneController";
 
 export class StorageClient {
 
@@ -20,13 +21,15 @@ export class StorageClient {
         this.idToken = idToken;
     }
 
-    async getSceneFromAssets(): Promise<string> {
-        const response = (await fetch(this.assetUrl + "/servers/" + this.serverName + "/entities.xml", {
+    async getEntitiesXml(): Promise<string> {
+        const entitiesXmlUrl = this.assetUrl + "/servers/" + this.serverName + "/entities.xml";
+        const response = (await fetch(entitiesXmlUrl, {
             method: "GET",
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()}
         }));
         if (response.status != 200) {
-            throw new Error(response.status.toString());
+            console.log("Error loading stored entities from assets " + entitiesXmlUrl + " : " + response.status.toString());
+            return SceneController.EMPTY_FRAGMENT;
         }
         return await response.text();
     }

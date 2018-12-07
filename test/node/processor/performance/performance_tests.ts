@@ -21,7 +21,7 @@ describe('Performance Test Server', () => {
         const entityIds: Array<string> = [];
 
         for (let i = 0; i < numberOfClients; i++) {
-            const client = new Client(url, apiUrl, assetUrl);
+            const client = new Client("0_0_0", url, apiUrl, assetUrl, "");
             client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
             clients.push(client);
             entityIds.push(uuid.v4());

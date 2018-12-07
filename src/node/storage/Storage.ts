@@ -44,14 +44,14 @@ export class Storage {
         if (sceneContent.length > 0) {
             this.sceneController.deserialize(sceneContent);
         } else {
-            // Lets save empty file.
-            //console.log("INITIALIZING entities.xml");
             await this.repository.save(this.sceneFileName, this.sceneController.serialize());
         }
         const accessContent = await this.repository.load(this.accessFileName);
         if (accessContent.length > 0) {
+            console.log('dataspace server - storage access control state loaded from repository.');
             this.accessController.deserialize(accessContent);
         } else {
+            console.log('dataspace server - storage access control started for the first time.');
             this.accessController.init();
             await this.save();
         }
@@ -84,7 +84,7 @@ export class Storage {
     async saveSceneFragment(context: Principal, sceneFragment: string): Promise<string> {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
         const savedSceneFragment = this.sceneController.saveSceneFragment(sceneFragment);
-        info(context, "saved scene fragment: " + sceneFragment);
+        info(context, "saved scene fragment: " + savedSceneFragment);
         await this.saveScene();
         return savedSceneFragment;
     }

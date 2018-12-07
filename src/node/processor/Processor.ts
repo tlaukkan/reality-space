@@ -149,6 +149,13 @@ export class Processor {
                     this.grid.act(entityId, action, description);
                     return;
                 }
+                if (type === Encode.NOTIFY) {
+                    const decoded = Decode.notify(parts);
+                    const notification = decoded[0];
+                    const description = decoded[1];
+                    this.grid.notify(notification, description);
+                    return;
+                }
             } catch (error) {
                 console.warn("Message processing failed: " + message, error);
             }

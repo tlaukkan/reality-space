@@ -96,4 +96,18 @@ export class Decode {
         ];
     }
 
+    static notify(parts: string[]) : [string, string] {
+        return [
+            parts[1],
+            parts[2]
+        ];
+    }
+
+    static notified(parts: string[]) : [string, string] {
+        return [
+            parts[1],
+            parts[2]
+        ];
+    }
+
 }

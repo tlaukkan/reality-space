@@ -1,17 +1,15 @@
 import 'mocha';
 import {expect} from 'chai';
 import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
-import {createTestIdToken, resetStorage, startTestServer} from "../util/util";
-import {StorageClient} from "../../../src/common/dataspace/api/StorageClient";
+import {newStorageClient, resetStorage, startTestServer} from "../util/util";
 import {User} from "../../../src/common/dataspace/api/User";
 
 describe('Storage API / Testing users resource ...', () => {
     let server: DataSpaceServer;
-    const idToken = createTestIdToken();
-    const client = new StorageClient("test", "http://127.0.0.1:8889/api", "http://localhost:8889/repository", idToken);
+    const client = newStorageClient();
 
     before(async () => {
-        server = await startTestServer(server);
+        server = await startTestServer();
     });
 
     beforeEach(async () => {

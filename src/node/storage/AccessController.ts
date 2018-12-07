@@ -17,6 +17,8 @@ export class AccessController {
     }
 
     init(): void {
+        console.log('dataspace server - storage access control started for the first time.')
+
         this.addUser("anonymous", "anonymous");
         this.setUserPrivilege("anonymous", PrivilegeType.VIEW, "");
 

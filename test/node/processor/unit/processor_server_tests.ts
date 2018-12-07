@@ -17,7 +17,7 @@ describe('Test Server', () => {
     });
 
     it('Should listen and close server.', async () => {
-        server = await startTestServer(server);
+        server = await startTestServer();
     });
 
 });

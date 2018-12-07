@@ -29,7 +29,7 @@ export class DataSpaceServer {
         })
     }
 
-    startup() {
+    async startup() {
         this.httpServer = http.createServer(async (request, response) => {
             if (this.storageApi) {
                 await processRequest(request, response, [
@@ -37,6 +37,11 @@ export class DataSpaceServer {
                 ], this.issuers);
             }
         });
+
+
+        if (this.storageApi) {
+            await this.storageApi.startup();
+        }
 
         if (this.processor) {
             console.log('dataspace server - started processor.')

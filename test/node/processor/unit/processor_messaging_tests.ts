@@ -12,7 +12,7 @@ describe('Test Messaging', () => {
     let client: Client;
 
     before(async () => {
-        server = await startTestServer(server);
+        server = await startTestServer();
         client = new Client("test", "ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/repository", "");
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
@@ -36,10 +36,14 @@ describe('Test Messaging', () => {
                     client.act("1", "a", "b");
                     client.onReceive = async function (message) {
                         expect(message).equals("c|0|a|b|");
-                        client.remove("1");
+                        client.notify("x", "y");
                         client.onReceive = async function (message) {
-                            expect(message).equals("r|0|1|");
-                            done();
+                            expect(message).equals("n|x|y|");
+                            client.remove("1");
+                            client.onReceive = async function (message) {
+                                expect(message).equals("r|0|1|");
+                                done();
+                            }
                         }
                     }
                 }

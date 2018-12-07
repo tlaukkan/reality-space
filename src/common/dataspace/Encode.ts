@@ -12,6 +12,10 @@ export class Encode {
     static readonly DESCRIBED: string = 'd';
     static readonly ACT: string = 'C';
     static readonly ACTED: string = 'c';
+    static readonly NOTIFY: string = 'N';
+    static readonly NOTIFIED: string = 'n';
+
+    static readonly NOTIFICATION_STORAGE_UPDATE: string = 'su';
 
     static readonly OBJECT: string = 'o'; // Visible
     static readonly PROBE: string = 'p';  // Observing
@@ -114,6 +118,20 @@ export class Encode {
             s(this.ACTED) +
             i(index) +
             s(action) +
+            se(description);
+    }
+
+    static notify(notification: string, description: string) : string {
+        return "" +
+            s(this.NOTIFY) +
+            s(notification) +
+            se(description);
+    }
+
+    static notified(notification: string, description: string) : string {
+        return "" +
+            s(this.NOTIFIED) +
+            s(notification) +
             se(description);
     }
 

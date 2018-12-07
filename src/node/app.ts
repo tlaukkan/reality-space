@@ -51,7 +51,7 @@ async function start() {
         idTokenIssuers);
 
     // Start listening.
-    server.startup();
+    await server.startup();
 
     // Start server avatar client.
     if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL) {

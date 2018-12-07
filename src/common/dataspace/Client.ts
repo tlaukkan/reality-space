@@ -1,8 +1,11 @@
 import {Encode} from "./Encode";
 import {StorageClient} from "./api/StorageClient";
 import {Decode} from "./Decode";
+import {parseEntitySids} from "../../node/util/parser";
 
 interface OnReceive { (message: string): void }
+interface OnStoredEntitiesLoaded { (entitiesXml: string): void }
+interface OnStoredEntitiesChanged { (sids: Array<string>, entitiesXml: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 interface OnClose { (): void }
 
@@ -49,11 +52,18 @@ export class Client {
                     this.connected = false;
                     this.onClose();
                 };
-                this.ws.onopen = () => {
+                this.ws.onopen = async () => {
                     this.connected = true;
+                    await this.loadEntities();
                     resolve();
                 };
-                this.ws.onmessage = (message) => {
+                this.ws.onmessage = async (message) => {
+                    // Process storage notifications internally.
+                    if ((message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORAGE_UPDATE + "|")) {
+                        if (await this.handleActions(message.data)) {
+                            return;
+                        }
+                    }
                     this.onReceive(message.data);
                 };
             } catch (error) {
@@ -98,14 +108,51 @@ export class Client {
         await this.send(Encode.act(id, action, description));
     }
 
-
-
-    onReceiveStoredEntities: OnReceive = (entitiesXml:string) => {};
-    onRemoveStoredEntity: OnReceive = (sid:string) => {};
-
-    async loadStoredEntities() {
-        const scene = await this.storageClient.getSceneFromAssets();
-        this.onReceiveStoredEntities(scene);
+    async notify(notification: string, description: string) {
+        await this.send(Encode.notify(notification, description));
     }
 
+    async saveEntities(entitiesXml: string) {
+        const savedEntitiesXml = await this.storageClient.saveSceneFragment(entitiesXml);
+        const sids = parseEntitySids(savedEntitiesXml);
+        this.notify(Encode.NOTIFICATION_STORAGE_UPDATE, sids.toString());
+    }
+
+    async removeEntities(entitiesXml: string) {
+        await this.storageClient.removeSceneFragment(entitiesXml);
+        const sids = parseEntitySids(entitiesXml);
+        this.notify(Encode.NOTIFICATION_STORAGE_UPDATE, sids.toString());
+    }
+
+    onStoredEntitiesLoaded: OnStoredEntitiesLoaded = (entitiesXml:string) => {};
+    onStoredEntitiesChanged: OnStoredEntitiesChanged = (sid:Array<string>, entitiesXml:string) => {};
+
+    private async handleActions(message: string): Promise<boolean> {
+        const parts = message.split(Encode.SEPARATOR);
+        const m = Decode.notified(parts);
+        const notification = m[0];
+        const description = m[1];
+
+        const sids = description.split(',');
+        if (notification == Encode.NOTIFICATION_STORAGE_UPDATE) {
+            await this.handleStorageUpdate(sids);
+            return true;
+        }
+
+        return false;
+    }
+
+    private async handleStorageUpdate(sids: Array<string>) {
+        await this.loadChangedEntities(sids);
+    }
+
+    private async loadEntities() {
+        const entitiesXml = await this.storageClient.getEntitiesXml();
+        this.onStoredEntitiesLoaded(entitiesXml);
+    }
+
+    private async loadChangedEntities(sids: Array<string>) {
+        const entitiesXml = await this.storageClient.getEntitiesXml();
+        this.onStoredEntitiesChanged(sids, entitiesXml);
+    }
 }

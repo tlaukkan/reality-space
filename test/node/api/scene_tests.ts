@@ -1,18 +1,16 @@
 import 'mocha';
 import {expect} from 'chai';
 import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
-import {createTestIdToken, resetStorage, startTestServer} from "../util/util";
-import {StorageClient} from "../../../src/common/dataspace/api/StorageClient";
 import {SceneController} from "../../../src/node/storage/SceneController";
+import {newStorageClient, resetStorage, startTestServer} from "../util/util";
 
 describe('Storage API / Testing users resource ...', () => {
+    const client = newStorageClient();
     let server: DataSpaceServer;
-    const idToken = createTestIdToken();
-    const client = new StorageClient("test", "http://127.0.0.1:8889/api", "http://localhost:8889/repository", idToken);
     let parser: SceneController;
 
     before(async () => {
-        server = await startTestServer(server);
+        server = await startTestServer();
         parser = server.storageApi!!.storages.get("test")!!.sceneController;
     });
 
@@ -39,7 +37,7 @@ describe('Storage API / Testing users resource ...', () => {
         expect((addedFragment.entities[0].attributes as any).text).equal('a');
         expect((addedFragment.entities[0].attributes as any).sid.length).to.be.greaterThan(0);
 
-        const loadedFragmentXml = await client.getSceneFromAssets();
+        const loadedFragmentXml = await client.getEntitiesXml();
         const loadedFragment = parser.parseFragment(loadedFragmentXml);
         expect(loadedFragment.entities.length).equal(1);
         expect(loadedFragment.entities[0].name).equal('a-box');
@@ -58,7 +56,7 @@ describe('Storage API / Testing users resource ...', () => {
         expect((addedFragment.entities[0].attributes as any).text).equal('a');
         expect((addedFragment.entities[0].attributes as any).sid.length).to.be.greaterThan(0);
 
-        const loadedFragmentXml = await client.getSceneFromAssets();
+        const loadedFragmentXml = await client.getEntitiesXml();
         const loadedFragment = parser.parseFragment(loadedFragmentXml);
         expect(loadedFragment.entities.length).equal(1);
         expect(loadedFragment.entities[0].name).equal('a-box');
@@ -67,7 +65,7 @@ describe('Storage API / Testing users resource ...', () => {
 
         await client.removeSceneFragment(addedFragmentXml);
 
-        const loadedFragmentXml2 = await client.getSceneFromAssets();
+        const loadedFragmentXml2 = await client.getEntitiesXml();
         const loadedFragment2 = parser.parseFragment(loadedFragmentXml2);
         expect(loadedFragment2.entities.length).equal(0);
 

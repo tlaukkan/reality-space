@@ -111,4 +111,18 @@ describe('Test Encode', () => {
         expect(decoded[1]).to.equal("1");
         expect(decoded[2]).to.equal("a\\\\2b\\\\12");
     });
+
+    it('should encode and decode notify', () => {
+        const encoded = Encode.notify("0", "1");
+        const decoded: [string, string] = Decode.notify(encoded.split(Encode.SEPARATOR));
+        expect(decoded[0]).to.equal("0");
+        expect(decoded[1]).to.equal("1");
+    });
+
+    it('should encode and decode notified', () => {
+        const encoded = Encode.notified("1", "2");
+        const decoded: [string, string] = Decode.notified(encoded.split(Encode.SEPARATOR));
+        expect(decoded[0]).to.equal("1");
+        expect(decoded[1]).to.equal("2");
+    });
 });

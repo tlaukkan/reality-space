@@ -1,4 +1,5 @@
 import 'mocha';
+require('isomorphic-fetch');
 import { expect } from 'chai';
 import {Encode} from "../../../../src/common/dataspace/Encode";
 import {Client} from "../../../../src/common/dataspace/Client";

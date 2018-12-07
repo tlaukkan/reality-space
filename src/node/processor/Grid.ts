@@ -211,11 +211,15 @@ export class Grid {
         if (entity === undefined) {
             throw Error("Entity does not exist in grid: " + id);
         }
-
         if (entity.visible) { // Do not broadcast entities which are not visible (probes).
             this.queueToEntitiesInRange(entity, Encode.ACTED, Encode.acted(entity.index, action, description));
         }
+    }
 
+    notify(notification: string, description: string) : void {
+        this.entities.forEach(entity => {
+            this.queueToEntity(entity, Encode.NOTIFIED, Encode.notified(notification, description));
+        })
     }
 
     remove(id: string) : void {

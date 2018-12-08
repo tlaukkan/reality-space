@@ -11,7 +11,7 @@ import {
 
 export async function loadConfiguration(): Promise<[SanitizerConfig, ProcessorConfiguration | undefined, StorageConfiguration | undefined, Array<IdTokenIssuer>]> {
     const clusterConfigurationUrl = config.get('Cluster.configurationUrl') as string;
-    console.log("Cluster configuration URL: " + clusterConfigurationUrl);
+    console.log("Cluster configuration URL: " + JSON.stringify(clusterConfigurationUrl, null, 2));
     const processorWsUrl = config.get('Processor.wsUrl');
     console.log("Processor WS URL: " + processorWsUrl);
     const storageApiUrl = config.get('Storage.apiUrl');

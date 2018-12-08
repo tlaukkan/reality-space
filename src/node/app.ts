@@ -23,7 +23,7 @@ async function start() {
     // Load configuration.
     const gridConfiguration = await loadConfiguration();
 
-    console.log("Loaded configuration: " + JSON.stringify(gridConfiguration, null, ' '));
+    console.log("Loaded configuration: " + JSON.stringify(gridConfiguration, null, 2));
 
     const sanitizerConfiguration = gridConfiguration[0];
     const processorConfiguration = gridConfiguration[1];

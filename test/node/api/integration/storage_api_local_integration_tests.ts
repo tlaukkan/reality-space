@@ -14,10 +14,10 @@ describe('Storage API / Local integration testing', () => {
     after(async () => {
     });
 
-    it('It should get users.', async () => {
+    /*it('It should get users.', async () => {
         const users = await client.getUsers();
         expect(users[0].id).eq("anonymous");
         expect(users[0].name).eq("anonymous");
-    });
+    });*/
 
 });

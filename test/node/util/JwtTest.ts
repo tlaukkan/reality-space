@@ -1,4 +1,3 @@
-import 'mocha';
 const { generateKeyPairSync } = require('crypto');
 const jwt = require('jsonwebtoken');
 import { expect } from 'chai';

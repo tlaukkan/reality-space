@@ -4,6 +4,12 @@ This library implements client server library for a-frame networking.
 
 ## Usage
 
+# Testing
+
+## Karma
+
+karma start karma.config.js  --browsers ChromeHeadless
+
 # Publish package
 
 ## First publish

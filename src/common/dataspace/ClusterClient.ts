@@ -1,9 +1,11 @@
 import {ClusterConfiguration, getClusterConfiguration, ServerConfig} from "./Configuration";
 import {Client} from "./Client";
 import {Encode} from "./Encode";
-import {id} from "aws-sdk/clients/datapipeline";
+import {parseRootSids} from "../../node/util/parser";
 
 interface OnReceive { (serverUrl: string, type: string, message: string[]): void }
+interface OnStoredEntityReceived { (serverUrl: string, entityXml: string): void }
+interface OnStoredEntityRemoved { (serverUrl: string, sids: string): void }
 interface OnConnect { (serverUrl: string): void }
 interface OnDisconnect { (serverUrl: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
@@ -28,7 +30,7 @@ export class ClusterClient {
 
     clients: Map<String, Client> = new Map();
 
-    constructor(clusterConfigurationUrl: string, idToken: string, avatarId: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, avatarDescription: string) {
+    constructor(clusterConfigurationUrl: string, avatarId: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, avatarDescription: string, idToken: string) {
         this.clusterConfigurationUrl = clusterConfigurationUrl;
         this.idToken = idToken;
         this.avatarId = avatarId;
@@ -116,6 +118,12 @@ export class ClusterClient {
                     const parts = message.split(Encode.SEPARATOR);
                     this.onReceive(client.url, parts[0], parts);
                 };
+                client.onStoredEntityReceived = (entityXml: string) => {
+                    this.onStoredEntityReceived(client.url, entityXml);
+                };
+                client.onStoredEntityRemoved = (sid: string) => {
+                    this.onStoredEntityRemoved(client.url, sid);
+                };
                 try {
                     await client.connect();
                     this.onConnect(client.url);
@@ -177,6 +185,10 @@ export class ClusterClient {
 
     onReceive: OnReceive = (serverUrl: string, type: string, message: string[]) => {};
 
+    onStoredEntityReceived: OnStoredEntityReceived = (serverUrl: string, entityXml:string) => {};
+    onStoredEntityRemoved: OnStoredEntityRemoved = (serverUrl: string, sid: string) => {};
+
+
     async add(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string) {
         if (this.isConnected()) {
             await this.getClient()!!.add(id, x, y, z, rx, ry, rz, rw, description, Encode.OBJECT);
@@ -204,6 +216,30 @@ export class ClusterClient {
     async act(id: string, action: string, description: string) {
         if (this.isConnected()) {
             await this.getClient()!!.act(id, action, description);
+        }
+    }
+
+    async storeEntities(serverUrl: string, entitiesXml: string) {
+        if (this.clients.has(serverUrl)) {
+            await this.clients.get(serverUrl)!!.storeEntities(entitiesXml);
+        } else {
+            throw new Error("Server not connected: " + serverUrl);
+        }
+    }
+
+    async storeChildEntities(serverUrl: string, parentSid: string, entitiesXml: string) {
+        if (this.clients.has(serverUrl)) {
+            await this.clients.get(serverUrl)!!.storeChildEntities(parentSid, entitiesXml);
+        } else {
+            throw new Error("Server not connected: " + serverUrl);
+        }
+    }
+
+    async removeStoredEntities(serverUrl: string, sids: Array<string>) {
+        if (this.clients.has(serverUrl)) {
+            await this.clients.get(serverUrl)!!.removeStoredEntities(sids);
+        } else {
+            throw new Error("Server not connected: " + serverUrl);
         }
     }
 

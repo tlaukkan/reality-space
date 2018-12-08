@@ -55,8 +55,8 @@ export class Client {
                 };
                 this.ws.onopen = async () => {
                     this.connected = true;
-                    await this.loadStoredEntities();
                     resolve();
+                    await this.loadStoredEntities();
                 };
                 this.ws.onmessage = async (message) => {
                     // Process storage notifications internally.
@@ -161,9 +161,11 @@ export class Client {
 
     private async loadStoredEntities() {
         const entitiesXml = await this.storageClient.getRootEntitiesFromCdn();
-        const entities = parseFragment(entitiesXml);
-        for (let element of entities.elements) {
-            this.onStoredEntityReceived(js2xml({ elements: [ element ] }));
+        if (entitiesXml) {
+            const entities = parseFragment(entitiesXml);
+            for (let element of entities.elements) {
+                this.onStoredEntityReceived(js2xml({elements: [element]}));
+            }
         }
     }
 

@@ -68,12 +68,13 @@ To setup processor cluster configuration
 
 ---
  
-To setup storage cluster configuration 
+To setup storage cluster configuration with AWS S3
 ---
     heroku info -s
     heroku create aframe-dataspace-storage-eu
     heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace/defaul-configuration.json   
     heroku config:set STORAGE_API_URL=https://aframe-dataspace-storage-eu.herokuapp.com/api    
+    heroku config:set STORAGE_TYPE=S3
     heroku config:set AWS_ACCESS_KEY_ID=
     heroku config:set AWS_SECRET_ACCESS_KEY=
     heroku config:set AWS_REGION=eu-central-1

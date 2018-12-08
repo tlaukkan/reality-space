@@ -2,10 +2,7 @@ import {Grid} from "./processor/Grid";
 import {Processor} from "./processor/Processor";
 import {DataSpaceServer} from "./server/DataSpaceServer";
 import {
-    getProcessorConfiguration,
-    getStorageConfiguration,
-    getClusterConfiguration, IdTokenIssuer,
-    ProcessorConfiguration, StorageConfiguration, SanitizerConfig
+    ProcessorConfiguration, StorageConfiguration
 } from "../common/dataspace/Configuration";
 import {Sanitizer} from "../common/dataspace/Sanitizer";
 import {ServerAvatarClient} from "./server/ServerAvatarClient";
@@ -80,8 +77,9 @@ function newProcessor(serverConfiguration: ProcessorConfiguration, sanitizer: Sa
 }
 
 async function newRepository(): Promise<Repository> {
-    const storageType = config.get('Storage.type');
-    if (storageType == "S3") {
+    const storageType = config.get('Storage.type').trim().toLocaleLowerCase();
+    console.log("dataspace server - storage repository type set to '" + storageType + "'");
+    if (storageType == "s3") {
         console.log("dataspace server - storage repository type is S3.");
         const bucket = config.get('AWS.publicBucket');
         const repository = new S3Repository(bucket);

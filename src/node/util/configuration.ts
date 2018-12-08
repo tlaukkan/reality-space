@@ -1,6 +1,7 @@
 const config = require('config');
 
 import {
+    fetchConfiguration,
     getProcessorConfiguration, getStorageConfiguration,
     IdTokenIssuer,
     ProcessorConfiguration,
@@ -9,13 +10,17 @@ import {
 } from "../../common/dataspace/Configuration";
 
 export async function loadConfiguration(): Promise<[SanitizerConfig, ProcessorConfiguration | undefined, StorageConfiguration | undefined, Array<IdTokenIssuer>]> {
-    const clusterConfiguration = config.get('Cluster.configurationUrl');
+    const clusterConfigurationUrl = config.get('Cluster.configurationUrl') as string;
+    console.log("Cluster configuration URL: " + clusterConfigurationUrl);
+    const processorWsUrl = config.get('Processor.wsUrl');
+    console.log("Processor WS URL: " + processorWsUrl);
+    const storageApiUrl = config.get('Storage.apiUrl');
+    console.log("Storage API URL: " + storageApiUrl);
+
+    const clusterConfiguration = await fetchConfiguration(clusterConfigurationUrl);
     if (clusterConfiguration) {
+
         console.log("Cluster configuration URL: " + clusterConfiguration);
-        const processorWsUrl = config.get('Processor.wsUrl');
-        console.log("Processor WS URL: " + processorWsUrl);
-        const storageApiUrl = config.get('Storage.apiUrl');
-        console.log("Storage API URL: " + storageApiUrl);
 
         const serverConfiguration = processorWsUrl ? getProcessorConfiguration(clusterConfiguration, processorWsUrl) : undefined;
         const storageConfiguration = storageApiUrl ? getStorageConfiguration(clusterConfiguration, storageApiUrl!!) : undefined;

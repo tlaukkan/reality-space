@@ -21,7 +21,7 @@ export class StorageClient {
         this.idToken = idToken;
     }
 
-    async getPublicRootElements(): Promise<string> {
+    async getRootEntitiesFromCdn(): Promise<string> {
         const entitiesXmlUrl = this.assetUrl + "/servers/" + this.serverName + "/entities.xml";
         const response = (await fetch(entitiesXmlUrl, {
             method: "GET",
@@ -34,24 +34,24 @@ export class StorageClient {
         return await response.text();
     }
 
-    async getRootElement(): Promise<String> {
-        return this.getText(await this.request("GET", "/elements", [200]));
+    async getRootEntities(): Promise<String> {
+        return this.getText(await this.request("GET", "/entities", [200]));
     };
 
-    async getElement(sid: string): Promise<string> {
-        return this.getText(await this.request("GET", "/elements/" + sid, [200, 404]));
+    async getEntity(sid: string): Promise<string> {
+        return this.getText(await this.request("GET", "/entities/" + sid, [200, 404]));
     }
 
-    async saveRootElements(fragmentXml: string): Promise<string> {
-        return this.getText(await this.requestWithTextBody("POST", "/elements", fragmentXml, [200]));
+    async saveRootEntities(fragmentXml: string): Promise<string> {
+        return this.getText(await this.requestWithTextBody("POST", "/entities", fragmentXml, [200]));
     }
 
-    async saveChildElements(parentSid: string,  fragmentXml: string): Promise<string> {
-        return this.getText(await this.requestWithTextBody("POST", "/elements/" + parentSid + "/elements", fragmentXml, [200]));
+    async saveChildEntities(parentSid: string, fragmentXml: string): Promise<string> {
+        return this.getText(await this.requestWithTextBody("POST", "/entities/" + parentSid + "/entities", fragmentXml, [200]));
     }
 
-    async removeElement(sid: string): Promise<void> {
-        await this.request("DELETE", "/elements/" + sid, [200]);
+    async removeEntity(sid: string): Promise<void> {
+        await this.request("DELETE", "/entities/" + sid, [200]);
     }
 
 

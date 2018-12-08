@@ -55,13 +55,13 @@ export class Client {
                 };
                 this.ws.onopen = async () => {
                     this.connected = true;
-                    await this.loadEntities();
+                    await this.loadStoredEntities();
                     resolve();
                 };
                 this.ws.onmessage = async (message) => {
                     // Process storage notifications internally.
-                    if ((message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORAGE_UPDATE + "|") ||
-                        (message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORAGE_REMOVE + "|")) {
+                    if ((message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORED_ENTITY_CHANGED + "|") ||
+                        (message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORED_ENTITY_REMOVED + "|")) {
                         if (await this.handleActions(message.data)) {
                             return;
                         }
@@ -115,17 +115,17 @@ export class Client {
     }
 
     async saveEntities(entitiesXml: string) {
-        const savedEntitiesXml = await this.storageClient.saveRootElements(entitiesXml);
+        const savedEntitiesXml = await this.storageClient.saveRootEntities(entitiesXml);
         const sids = parseRootSids(savedEntitiesXml);
-        await this.notify(Encode.NOTIFICATION_STORAGE_UPDATE, sids.toString());
+        await this.notify(Encode.NOTIFICATION_STORED_ENTITY_CHANGED, sids.toString());
     }
 
     async removeEntities(entitiesXml: string) {
         const sids = parseRootSids(entitiesXml);
         for (let sid of sids) {
-            await this.storageClient.removeElement(sid);
+            await this.storageClient.removeEntity(sid);
         }
-        await this.notify(Encode.NOTIFICATION_STORAGE_REMOVE, sids.toString());
+        await this.notify(Encode.NOTIFICATION_STORED_ENTITY_REMOVED, sids.toString());
     }
 
     onStoredEntityReceived: OnStoredEntityReceived = (entityXml:string) => {};
@@ -139,12 +139,12 @@ export class Client {
 
         const sids = description.split(',');
 
-        if (notification == Encode.NOTIFICATION_STORAGE_UPDATE) {
-            await this.handleStorageUpdate(sids);
+        if (notification == Encode.NOTIFICATION_STORED_ENTITY_CHANGED) {
+            await this.handleStoredEntityChanged(sids);
             return true;
         }
-        if (notification == Encode.NOTIFICATION_STORAGE_REMOVE) {
-            await this.handleStorageRemove(sids);
+        if (notification == Encode.NOTIFICATION_STORED_ENTITY_REMOVED) {
+            await this.handleStoredEntityRemoved(sids);
             return true;
         }
 
@@ -152,26 +152,26 @@ export class Client {
         return false;
     }
 
-    private async loadEntities() {
-        const entitiesXml = await this.storageClient.getPublicRootElements();
+    private async loadStoredEntities() {
+        const entitiesXml = await this.storageClient.getRootEntitiesFromCdn();
         const entities = parseFragment(entitiesXml);
         for (let element of entities.elements) {
             this.onStoredEntityReceived(js2xml({ elements: [ element ] }));
         }
     }
 
-    private async handleStorageUpdate(sids: Array<string>) {
+    private async handleStoredEntityChanged(sids: Array<string>) {
         for (let sid of sids) {
-            const entityXml = await this.storageClient.getElement(sid);
+            const entityXml = await this.storageClient.getEntity(sid);
             if (entityXml) {
                 this.onStoredEntityReceived(entityXml);
             }
         }
     }
 
-    private async handleStorageRemove(sids: Array<string>) {
+    private async handleStoredEntityRemoved(sids: Array<string>) {
         for (let sid of sids) {
-            if (!await this.storageClient.getElement(sid)) {
+            if (!await this.storageClient.getEntity(sid)) {
                 this.onStoredEntityRemoved(sid)
             }
         }

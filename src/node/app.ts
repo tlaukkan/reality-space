@@ -15,6 +15,7 @@ import {loadConfiguration} from "./util/configuration";
 import {S3Repository} from "./storage/S3Repository";
 import {Repository} from "./storage/Repository";
 const config = require('config');
+require('isomorphic-fetch');
 
 start().then().catch(e => console.log('dataspace server - startup error: ', e));
 

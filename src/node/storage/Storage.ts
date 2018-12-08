@@ -7,7 +7,6 @@ import {User} from "./model/User";
 import {Group} from "./model/Group";
 import {Principal} from "../framework/rest/Principal";
 import {info} from "../util/log";
-import undefinedError = Mocha.utils.undefinedError;
 
 export class Storage {
 

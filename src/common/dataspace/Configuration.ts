@@ -105,6 +105,8 @@ export function getProcessorConfiguration(clusterConfiguration: ClusterConfigura
 }
 
 export function getStorageConfiguration(clusterConfiguration: ClusterConfiguration, storageApiUrl: string) {
+    console.log("Servers: " + JSON.stringify(clusterConfiguration.servers));
+    console.log("Storage API url: '" + storageApiUrl.trim().toLocaleLowerCase() + "'");
     const matchingServerNames = clusterConfiguration.servers.filter(s => s.apiUrl.trim().toLocaleLowerCase() == storageApiUrl.trim().toLocaleLowerCase()).map(s => s.name);
     return new StorageConfiguration(storageApiUrl, matchingServerNames);
 }

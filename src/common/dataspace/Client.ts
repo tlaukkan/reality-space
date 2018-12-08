@@ -81,10 +81,15 @@ export class Client {
         }
     }
 
-    onClose: OnClose = () => {};
 
-    onReceive: OnReceive = (message: string) => {
-    };
+
+    // Events.
+
+    onClose: OnClose = () => {};
+    onReceive: OnReceive = (message: string) => {};
+    onStoredEntityReceived: OnStoredEntityReceived = (entityXml:string) => {};
+    onStoredEntityRemoved: OnStoredEntityRemoved = (sid: string) => {};
+
 
     send(message:string) {
         this.ws.send(message);
@@ -114,22 +119,24 @@ export class Client {
         await this.send(Encode.notify(notification, description));
     }
 
-    async saveEntities(entitiesXml: string) {
+    async storeEntities(entitiesXml: string) {
         const savedEntitiesXml = await this.storageClient.saveRootEntities(entitiesXml);
         const sids = parseRootSids(savedEntitiesXml);
         await this.notify(Encode.NOTIFICATION_STORED_ENTITY_CHANGED, sids.toString());
     }
 
-    async removeEntities(entitiesXml: string) {
-        const sids = parseRootSids(entitiesXml);
+    async storeChildEntities(parentSid: string, entitiesXml: string) {
+        const savedEntitiesXml = await this.storageClient.saveChildEntities(parentSid, entitiesXml);
+        const sids = parseRootSids(savedEntitiesXml);
+        await this.notify(Encode.NOTIFICATION_STORED_ENTITY_CHANGED, sids.toString());
+    }
+
+    async removeStoredEntities(sids: Array<string>) {
         for (let sid of sids) {
             await this.storageClient.removeEntity(sid);
         }
         await this.notify(Encode.NOTIFICATION_STORED_ENTITY_REMOVED, sids.toString());
     }
-
-    onStoredEntityReceived: OnStoredEntityReceived = (entityXml:string) => {};
-    onStoredEntityRemoved: OnStoredEntityRemoved = (sid: string) => {};
 
     private async handleActions(message: string): Promise<boolean> {
         const parts = message.split(Encode.SEPARATOR);

@@ -89,6 +89,10 @@ export class DocumentController {
         return js2xml(this.document.container);
     }
 
+    hasElement(sid: string): boolean {
+        return this.elements.has(sid);
+    }
+
     getElement(sid: string): string {
         if (!sid) {
             throw new Error("Element sid is undefined.");

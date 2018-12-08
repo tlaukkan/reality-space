@@ -7,6 +7,7 @@ import {User} from "./model/User";
 import {Group} from "./model/Group";
 import {Principal} from "../framework/rest/Principal";
 import {info} from "../util/log";
+import undefinedError = Mocha.utils.undefinedError;
 
 export class Storage {
 
@@ -83,9 +84,13 @@ export class Storage {
         return this.documentController.getDocument();
     }
 
-    async getElement(context: Principal, sid: string): Promise<string> {
+    async getElement(context: Principal, sid: string): Promise<string | undefined> {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.VIEW);
-        return this.documentController.getElement(sid);
+        if (this.documentController.hasElement(sid)) {
+            return this.documentController.getElement(sid);
+        } else {
+            return undefined;
+        }
     }
 
     async saveRootElements(context: Principal, fragmentXml: string): Promise<string> {

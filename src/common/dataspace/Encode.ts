@@ -16,6 +16,7 @@ export class Encode {
     static readonly NOTIFIED: string = 'n';
 
     static readonly NOTIFICATION_STORAGE_UPDATE: string = 'su';
+    static readonly NOTIFICATION_STORAGE_REMOVE: string = 'sr';
 
     static readonly OBJECT: string = 'o'; // Visible
     static readonly PROBE: string = 'p';  // Observing

@@ -39,7 +39,7 @@ export class StorageClient {
     };
 
     async getElement(sid: string): Promise<string> {
-        return this.getText(await this.request("GET", "/elements/" + sid, [200]));
+        return this.getText(await this.request("GET", "/elements/" + sid, [200, 404]));
     }
 
     async saveRootElements(fragmentXml: string): Promise<string> {

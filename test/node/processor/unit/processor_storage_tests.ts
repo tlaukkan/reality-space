@@ -6,6 +6,7 @@ import {Client} from "../../../../src/common/dataspace/Client";
 import {createTestIdToken, resetStorage, startTestServer} from "../../util/util";
 import {w3cwebsocket} from "websocket";
 import {parseFragment} from "../../../../src/node/util/parser";
+import {xml2js} from "xml-js";
 
 describe('Test Messaging', () => {
     let server: DataSpaceServer;
@@ -31,16 +32,11 @@ describe('Test Messaging', () => {
         client.onReceive = async function (message) {
             expect(message).equals('a|0|1|1.00|2.00|3.00|4.00|5.00|6.00|7.00|<a-image src="dog.img"/>|a|');
             client.saveEntities("<a-entities><a-box>test</a-box></a-entities>");
-            client.onStoredEntitiesChanged = (sids, entitiesXml) => {
-                const entitiesFragment = parseFragment(entitiesXml);
-                expect(sids.length).eq(1);
-                expect(entitiesFragment.elements.length).eq(1);
-
-                client.removeEntities(entitiesXml);
-                client.onStoredEntitiesChanged = (sids2, entitiesXml2) => {
-                    const entitiesFragment2 = parseFragment(entitiesXml2);
-                    expect(sids2.length).eq(1);
-                    expect(entitiesFragment2.elements.length).eq(0);
+            client.onStoredEntityReceived = (entityXml) => {
+                const entity = xml2js(entityXml);
+                expect(entity.elements.length).eq(1);
+                client.removeEntities('<a-entities>' + entityXml + '</a-entities>');
+                client.onStoredEntityRemoved = (sid) => {
                     done();
                 }
             };

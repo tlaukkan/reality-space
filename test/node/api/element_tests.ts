@@ -6,7 +6,7 @@ import {newStorageClient, resetStorage, startTestServer} from "../util/util";
 import {parseRootSids} from "../../../src/node/util/parser";
 import {xml2js} from "xml-js";
 
-describe('Storage API / Testing users resource ...', () => {
+describe('Storage API / Testing element resource ...', () => {
     const client = newStorageClient();
     let server: DataSpaceServer;
     let parser: DocumentController;
@@ -24,11 +24,12 @@ describe('Storage API / Testing users resource ...', () => {
         await server.close();
     });
 
-    it('It should get scene.', async () => {
+    it('It should get element.', async () => {
         expect(await client.getRootElement()).eq('<a-entities/>');
+        expect(await client.getElement('non-existent')).eq('');
     });
 
-    it('It should add scene fragment.', async () => {
+    it('It should add element.', async () => {
         expect(await client.getRootElement()).eq(DocumentController.EMPTY_FRAGMENT);
         const addedFragmentXml = await client.saveRootElements('<a-entities><a-box text="a" invalid="2"></a-box></a-entities>');
         const rootSids = parseRootSids(addedFragmentXml);
@@ -65,7 +66,7 @@ describe('Storage API / Testing users resource ...', () => {
 
     });
 
-    it('It should remove scene fragment.', async () => {
+    it('It should remove element.', async () => {
         expect(await client.getRootElement()).eq(DocumentController.EMPTY_FRAGMENT);
         const addedFragmentXml = await client.saveRootElements('<a-entities><a-box text="a" invalid="2"></a-box></a-entities>');
         const rootSids = parseRootSids(addedFragmentXml);

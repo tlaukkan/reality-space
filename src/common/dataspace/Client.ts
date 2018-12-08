@@ -1,11 +1,12 @@
 import {Encode} from "./Encode";
 import {StorageClient} from "./api/StorageClient";
 import {Decode} from "./Decode";
-import {parseRootSids} from "../../node/util/parser";
+import {parseFragment, parseRootSids} from "../../node/util/parser";
+import {js2xml} from "xml-js";
 
 interface OnReceive { (message: string): void }
-interface OnStoredEntitiesLoaded { (entitiesXml: string): void }
-interface OnStoredEntitiesChanged { (sids: Array<string>, entitiesXml: string): void }
+interface OnStoredEntityReceived { (entityXml: string): void }
+interface OnStoredEntityRemoved { (sids: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 interface OnClose { (): void }
 
@@ -59,7 +60,8 @@ export class Client {
                 };
                 this.ws.onmessage = async (message) => {
                     // Process storage notifications internally.
-                    if ((message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORAGE_UPDATE + "|")) {
+                    if ((message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORAGE_UPDATE + "|") ||
+                        (message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORAGE_REMOVE + "|")) {
                         if (await this.handleActions(message.data)) {
                             return;
                         }
@@ -115,7 +117,7 @@ export class Client {
     async saveEntities(entitiesXml: string) {
         const savedEntitiesXml = await this.storageClient.saveRootElements(entitiesXml);
         const sids = parseRootSids(savedEntitiesXml);
-        this.notify(Encode.NOTIFICATION_STORAGE_UPDATE, sids.toString());
+        await this.notify(Encode.NOTIFICATION_STORAGE_UPDATE, sids.toString());
     }
 
     async removeEntities(entitiesXml: string) {
@@ -123,11 +125,11 @@ export class Client {
         for (let sid of sids) {
             await this.storageClient.removeElement(sid);
         }
-        await this.notify(Encode.NOTIFICATION_STORAGE_UPDATE, sids.toString());
+        await this.notify(Encode.NOTIFICATION_STORAGE_REMOVE, sids.toString());
     }
 
-    onStoredEntitiesLoaded: OnStoredEntitiesLoaded = (entitiesXml:string) => {};
-    onStoredEntitiesChanged: OnStoredEntitiesChanged = (sid:Array<string>, entitiesXml:string) => {};
+    onStoredEntityReceived: OnStoredEntityReceived = (entityXml:string) => {};
+    onStoredEntityRemoved: OnStoredEntityRemoved = (sid: string) => {};
 
     private async handleActions(message: string): Promise<boolean> {
         const parts = message.split(Encode.SEPARATOR);
@@ -136,25 +138,43 @@ export class Client {
         const description = m[1];
 
         const sids = description.split(',');
+
         if (notification == Encode.NOTIFICATION_STORAGE_UPDATE) {
             await this.handleStorageUpdate(sids);
             return true;
         }
+        if (notification == Encode.NOTIFICATION_STORAGE_REMOVE) {
+            await this.handleStorageRemove(sids);
+            return true;
+        }
+
 
         return false;
     }
 
-    private async handleStorageUpdate(sids: Array<string>) {
-        await this.loadChangedEntities(sids);
-    }
-
     private async loadEntities() {
         const entitiesXml = await this.storageClient.getPublicRootElements();
-        this.onStoredEntitiesLoaded(entitiesXml);
+        const entities = parseFragment(entitiesXml);
+        for (let element of entities.elements) {
+            this.onStoredEntityReceived(js2xml({ elements: [ element ] }));
+        }
     }
 
-    private async loadChangedEntities(sids: Array<string>) {
-        const entitiesXml = await this.storageClient.getPublicRootElements();
-        this.onStoredEntitiesChanged(sids, entitiesXml);
+    private async handleStorageUpdate(sids: Array<string>) {
+        for (let sid of sids) {
+            const entityXml = await this.storageClient.getElement(sid);
+            if (entityXml) {
+                this.onStoredEntityReceived(entityXml);
+            }
+        }
     }
+
+    private async handleStorageRemove(sids: Array<string>) {
+        for (let sid of sids) {
+            if (!await this.storageClient.getElement(sid)) {
+                this.onStoredEntityRemoved(sid)
+            }
+        }
+    }
+
 }

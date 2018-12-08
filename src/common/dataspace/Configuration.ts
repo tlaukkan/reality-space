@@ -86,7 +86,7 @@ export class StorageConfiguration {
 export function getProcessorConfiguration(clusterConfiguration: ClusterConfiguration, serverUrl: string) : ProcessorConfiguration {
     for (let serverInfo of clusterConfiguration.servers) {
         const normalizedServerUrl = serverInfo.url.trim().toLowerCase();
-        if (normalizedServerUrl === serverUrl.trim().toLowerCase()) {
+        if (normalizedServerUrl == serverUrl.trim().toLowerCase()) {
             const gridConfiguration = new ProcessorConfiguration(
                 serverInfo.name,
                 serverUrl,

@@ -5,7 +5,7 @@
   "step": 10,
   "range": 20,
   "sanitizer": {
-    "allowedElements": "a-box,a-circle,a-collada-model,a-cone,a-curvedimage,a-cylinder,a-dodecahedron,a-gltf-model,a-icosahedron,a-image,a-obj-model,a-octahedron,a-plane,a-ring,a-sound,a-sphere,a-tetrahedron,a-text,a-torus-knot,a-torus,a-triangle",
+    "allowedElements": "a-entities,a-box,a-circle,a-collada-model,a-cone,a-curvedimage,a-cylinder,a-dodecahedron,a-gltf-model,a-icosahedron,a-image,a-obj-model,a-octahedron,a-plane,a-ring,a-sound,a-sphere,a-tetrahedron,a-text,a-torus-knot,a-torus,a-triangle",
     "allowedAttributes": "scale,src,geometry,material,position,rotation,sound,text,sid",
     "attributeValueRegex": "[^\\w\\s\\.:;-]"
   },

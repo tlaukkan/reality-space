@@ -78,7 +78,6 @@ function newProcessor(serverConfiguration: ProcessorConfiguration, sanitizer: Sa
 
 async function newRepository(): Promise<Repository> {
     const storageType = config.get('Storage.type').trim().toLocaleLowerCase();
-    console.log("dataspace server - storage repository type set to '" + storageType + "'");
     if (storageType == "s3") {
         console.log("dataspace server - storage repository type is S3.");
         const bucket = config.get('AWS.publicBucket');

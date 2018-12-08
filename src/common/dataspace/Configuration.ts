@@ -84,9 +84,10 @@ export class StorageConfiguration {
 }
 
 export function getProcessorConfiguration(clusterConfiguration: ClusterConfiguration, serverUrl: string) : ProcessorConfiguration {
+    const normalizedServerUrl = serverUrl.trim().toLocaleLowerCase();
     for (let serverInfo of clusterConfiguration.servers) {
-        const normalizedServerUrl = serverInfo.url.trim().toLowerCase();
-        if (normalizedServerUrl == serverUrl.trim().toLowerCase()) {
+        const normalizedServerUrlCandidate = serverUrl.trim().toLowerCase();
+        if (normalizedServerUrl == normalizedServerUrlCandidate) {
             const gridConfiguration = new ProcessorConfiguration(
                 serverInfo.name,
                 serverUrl,
@@ -104,7 +105,7 @@ export function getProcessorConfiguration(clusterConfiguration: ClusterConfigura
 }
 
 export function getStorageConfiguration(clusterConfiguration: ClusterConfiguration, storageApiUrl: string) {
-    const matchingServerNames = clusterConfiguration.servers.filter(s => s.apiUrl.toLocaleLowerCase() === storageApiUrl.trim().toLocaleLowerCase()).map(s => s.name);
+    const matchingServerNames = clusterConfiguration.servers.filter(s => s.apiUrl.trim().toLocaleLowerCase() == storageApiUrl.trim().toLocaleLowerCase()).map(s => s.name);
     return new StorageConfiguration(storageApiUrl, matchingServerNames);
 }
 

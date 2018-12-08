@@ -34,13 +34,13 @@ describe('Test Messaging', () => {
             client.onStoredEntitiesChanged = (sids, entitiesXml) => {
                 const entitiesFragment = parseFragment(entitiesXml);
                 expect(sids.length).eq(1);
-                expect(entitiesFragment.entities.length).eq(1);
+                expect(entitiesFragment.elements.length).eq(1);
 
                 client.removeEntities(entitiesXml);
                 client.onStoredEntitiesChanged = (sids2, entitiesXml2) => {
                     const entitiesFragment2 = parseFragment(entitiesXml2);
                     expect(sids2.length).eq(1);
-                    expect(entitiesFragment2.entities.length).eq(0);
+                    expect(entitiesFragment2.elements.length).eq(0);
                     done();
                 }
             };

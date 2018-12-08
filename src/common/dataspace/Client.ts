@@ -1,7 +1,7 @@
 import {Encode} from "./Encode";
 import {StorageClient} from "./api/StorageClient";
 import {Decode} from "./Decode";
-import {parseEntitySids} from "../../node/util/parser";
+import {parseRootSids} from "../../node/util/parser";
 
 interface OnReceive { (message: string): void }
 interface OnStoredEntitiesLoaded { (entitiesXml: string): void }
@@ -113,15 +113,17 @@ export class Client {
     }
 
     async saveEntities(entitiesXml: string) {
-        const savedEntitiesXml = await this.storageClient.saveSceneFragment(entitiesXml);
-        const sids = parseEntitySids(savedEntitiesXml);
+        const savedEntitiesXml = await this.storageClient.saveRootElements(entitiesXml);
+        const sids = parseRootSids(savedEntitiesXml);
         this.notify(Encode.NOTIFICATION_STORAGE_UPDATE, sids.toString());
     }
 
     async removeEntities(entitiesXml: string) {
-        await this.storageClient.removeSceneFragment(entitiesXml);
-        const sids = parseEntitySids(entitiesXml);
-        this.notify(Encode.NOTIFICATION_STORAGE_UPDATE, sids.toString());
+        const sids = parseRootSids(entitiesXml);
+        for (let sid of sids) {
+            await this.storageClient.removeElement(sid);
+        }
+        await this.notify(Encode.NOTIFICATION_STORAGE_UPDATE, sids.toString());
     }
 
     onStoredEntitiesLoaded: OnStoredEntitiesLoaded = (entitiesXml:string) => {};
@@ -147,12 +149,12 @@ export class Client {
     }
 
     private async loadEntities() {
-        const entitiesXml = await this.storageClient.getEntitiesXml();
+        const entitiesXml = await this.storageClient.getPublicRootElements();
         this.onStoredEntitiesLoaded(entitiesXml);
     }
 
     private async loadChangedEntities(sids: Array<string>) {
-        const entitiesXml = await this.storageClient.getEntitiesXml();
+        const entitiesXml = await this.storageClient.getPublicRootElements();
         this.onStoredEntitiesChanged(sids, entitiesXml);
     }
 }

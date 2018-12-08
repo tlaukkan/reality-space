@@ -5,7 +5,7 @@ import {GroupMember} from "./GroupMember";
 import {GroupPrivilege} from "./GroupPrivilege";
 import {UserPrivilege} from "./UserPrivilege";
 import {PrivilegeType} from "./PrivilegeType";
-import {SceneController} from "../../../node/storage/SceneController";
+import {DocumentController} from "../../../node/storage/DocumentController";
 
 export class StorageClient {
 
@@ -21,7 +21,7 @@ export class StorageClient {
         this.idToken = idToken;
     }
 
-    async getEntitiesXml(): Promise<string> {
+    async getPublicRootElements(): Promise<string> {
         const entitiesXmlUrl = this.assetUrl + "/servers/" + this.serverName + "/entities.xml";
         const response = (await fetch(entitiesXmlUrl, {
             method: "GET",
@@ -29,21 +29,29 @@ export class StorageClient {
         }));
         if (response.status != 200) {
             console.log("Error loading stored entities from assets " + entitiesXmlUrl + " : " + response.status.toString());
-            return SceneController.EMPTY_FRAGMENT;
+            return DocumentController.EMPTY_FRAGMENT;
         }
         return await response.text();
     }
 
-    async getScene(): Promise<String> {
-        return this.getText(await this.request("GET", "/scene", [200]));
+    async getRootElement(): Promise<String> {
+        return this.getText(await this.request("GET", "/elements", [200]));
     };
 
-    async saveSceneFragment(sceneFragment: string): Promise<string> {
-        return this.getText(await this.requestWithTextBody("POST", "/scene", sceneFragment, [200]));
+    async getElement(sid: string): Promise<string> {
+        return this.getText(await this.request("GET", "/elements/" + sid, [200]));
     }
 
-    async removeSceneFragment(sceneFragment: string): Promise<void> {
-        await this.requestWithTextBody("DELETE", "/scene", sceneFragment, [200]);
+    async saveRootElements(fragmentXml: string): Promise<string> {
+        return this.getText(await this.requestWithTextBody("POST", "/elements", fragmentXml, [200]));
+    }
+
+    async saveChildElements(parentSid: string,  fragmentXml: string): Promise<string> {
+        return this.getText(await this.requestWithTextBody("POST", "/elements/" + parentSid + "/elements", fragmentXml, [200]));
+    }
+
+    async removeElement(sid: string): Promise<void> {
+        await this.request("DELETE", "/elements/" + sid, [200]);
     }
 
 

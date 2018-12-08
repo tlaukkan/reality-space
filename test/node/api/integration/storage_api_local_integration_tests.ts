@@ -1,11 +1,9 @@
 import 'mocha';
 import {expect} from 'chai';
-import {createTestIdToken} from "../../util/util";
-import {StorageClient} from "../../../../src/common/dataspace/api/StorageClient";
+import {newStorageClient} from "../../util/util";
 
 describe('Storage API / Local integration testing', () => {
-    const idToken = createTestIdToken();
-    const client = new StorageClient("0_0_0", "http://127.0.0.1:8889/api", idToken);
+    const client = newStorageClient();
 
     before(async () => {
     });

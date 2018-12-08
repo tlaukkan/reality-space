@@ -22,32 +22,44 @@ export class StorageApi {
     }
 
     async startup() {
-        this.storages.forEach(async (storage) => {
+        for(let storage of this.storages.values()) {
             await storage.startup();
-        });
+        }
     }
 
     async shutdown() {
-        this.storages.forEach(async (storage) => {
+        for(let storage of this.storages.values()) {
             await storage.shutdown();
-        });
+        }
     }
 
     process(c: Context): Promise<Context> {
         return new Promise<Context>((resolve, reject) => {
             lift({pathParams: new Map(), body: undefined, ...c})
-                .then(c => match(c, '/api/servers/{server}/scene', BodyEncoding.TEXT, {
-                    GET: async c => await this.storage(c.pathParams.get('server')!!).getScene(c.principal),
-                    POST: async c => await this.storage(c.pathParams.get('server')!!).saveSceneFragment(c.principal, c.body),
+                .then(c => match(c, '/api/servers/{server}/elements', BodyEncoding.TEXT, {
+                    GET: async c => await this.storage(c.pathParams.get('server')!!).getDocument(c.principal),
+                    POST: async c => await this.storage(c.pathParams.get('server')!!).saveRootElements(c.principal, c.body),
                     PUT: undefined,
-                    DELETE: async c => await this.storage(c.pathParams.get('server')!!).removeSceneFragment(c.principal, c.body),
+                    DELETE: undefined,
+                }))
+                .then(c => match(c, '/api/servers/{server}/elements/{id}', BodyEncoding.TEXT, {
+                    GET: async c => await this.storage(c.pathParams.get('server')!!).getElement(c.principal, c.pathParams.get('id')!!),
+                    POST: undefined,
+                    PUT: undefined,
+                    DELETE: async c => await this.storage(c.pathParams.get('server')!!).removeElement(c.principal, c.pathParams.get('id')!!)
+                }))
+                .then(c => match(c, '/api/servers/{server}/elements/{id}/elements', BodyEncoding.TEXT, {
+                    GET: undefined,
+                    POST: async c => await this.storage(c.pathParams.get('server')!!).saveChildElements(c.principal, c.pathParams.get('id')!!, c.body),
+                    PUT: undefined,
+                    DELETE: undefined
                 }))
 
                 .then(c => match(c, '/api/servers/{server}/users', BodyEncoding.JSON, {
                     GET: async c => (await this.storage(c.pathParams.get('server')!!).getUsers(c.principal)).map(u => cu(u)),
                     POST: async c => cu(await this.storage(c.pathParams.get('server')!!).addUser(c.principal, c.body.id.toString(), c.body.name.toString())),
                     PUT: undefined,
-                    DELETE: undefined
+                    DELETE: async c => await this.storage(c.pathParams.get('server')!!).removeElement(c.principal, c.body),
                 }))
                 .then(c => match(c, '/api/servers/{server}/users/{id}', BodyEncoding.JSON, {
                     GET: async c => cu(await this.storage(c.pathParams.get('server')!!).getUser(c.principal, c.pathParams.get('id')!!)),

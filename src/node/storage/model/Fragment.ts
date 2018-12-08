@@ -4,12 +4,12 @@ export class Fragment {
 
     container: Element;
     rootElement: Element;
-    entities: Element[];
+    elements: Element[];
 
     constructor(container: Element, rootElement: Element, entities: Element[]) {
         this.container = container;
         this.rootElement = rootElement;
-        this.entities = entities;
+        this.elements = entities;
     }
 
 }

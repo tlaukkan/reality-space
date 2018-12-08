@@ -15,7 +15,7 @@ export function parseFragment(fragmentXml: string): Fragment {
     return new Fragment(container, rootElement, entities);
 }
 
-export function parseEntitySids(entitiesXml: string): Array<string> {
+export function parseRootSids(entitiesXml: string): Array<string> {
     let container = xml2js(entitiesXml) as Element;
     let rootElement = container.elements!![0];
     if (!rootElement.elements) {

@@ -1,5 +1,5 @@
 import {AccessController} from "./AccessController";
-import {SceneController} from "./SceneController";
+import {DocumentController} from "./DocumentController";
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
 import {Repository} from "./Repository";
 import {PrivilegeType} from "./model/PrivilegeType";
@@ -10,19 +10,19 @@ import {info} from "../util/log";
 
 export class Storage {
 
-    private readonly sceneFileName: string;
+    private readonly documentFileName: string;
     private readonly accessFileName: string;
 
     accessController: AccessController;
-    sceneController: SceneController;
+    documentController: DocumentController;
     repository: Repository;
 
     constructor(sceneFileName: string, accessFileName: string, repository: Repository, sanitizer: Sanitizer) {
-        this.sceneFileName = sceneFileName;
+        this.documentFileName = sceneFileName;
         this.accessFileName = accessFileName;
         this.repository = repository;
         this.accessController = new AccessController();
-        this.sceneController = new SceneController(sanitizer);
+        this.documentController = new DocumentController(sanitizer);
     }
 
     async startup() {
@@ -30,7 +30,7 @@ export class Storage {
     }
 
     clear() {
-        this.sceneController.clear();
+        this.documentController.clear();
         this.accessController.clear();
     }
 
@@ -39,19 +39,21 @@ export class Storage {
     }
 
     async load() {
-        const sceneContent = await this.repository.load(this.sceneFileName);
+        const sceneContent = await this.repository.load(this.documentFileName);
         //console.log("LOADING entities.xml: " + this.sceneFileName + " " + sceneContent);
         if (sceneContent.length > 0) {
-            this.sceneController.deserialize(sceneContent);
+            this.documentController.deserialize(sceneContent);
+            console.log("dataspace server - storage document controller state loaded from repository.");
         } else {
-            await this.repository.save(this.sceneFileName, this.sceneController.serialize());
+            await this.repository.save(this.documentFileName, this.documentController.serialize());
+            console.log("dataspace server - storage document controller started for the first time.");
         }
         const accessContent = await this.repository.load(this.accessFileName);
         if (accessContent.length > 0) {
-            console.log('dataspace server - storage access control state loaded from repository.');
+            console.log('dataspace server - storage access controller state loaded from repository.');
             this.accessController.deserialize(accessContent);
         } else {
-            console.log('dataspace server - storage access control started for the first time.');
+            console.log('dataspace server - storage access controller started for the first time.');
             this.accessController.init();
             await this.save();
         }
@@ -63,37 +65,50 @@ export class Storage {
 
     async save() {
         await this.saveAccess();
-        await this.saveScene();
+        await this.saveDocument();
     }
 
-    async saveScene() {
-        await this.repository.save(this.sceneFileName, await this.sceneController.serialize());
+    async saveDocument() {
+        await this.repository.save(this.documentFileName, await this.documentController.serialize());
     }
 
     async saveAccess() {
         await this.repository.save(this.accessFileName, await this.accessController.serialize());
     }
 
-    // Scene
+    // Document
 
-    async getScene(context: Principal): Promise<string> {
+    async getDocument(context: Principal): Promise<string> {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.VIEW);
-        return this.sceneController.getScene();
+        return this.documentController.getDocument();
     }
 
-    async saveSceneFragment(context: Principal, sceneFragment: string): Promise<string> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
-        const savedSceneFragment = this.sceneController.saveSceneFragment(sceneFragment);
-        info(context, "saved scene fragment: " + savedSceneFragment);
-        await this.saveScene();
-        return savedSceneFragment;
+    async getElement(context: Principal, sid: string): Promise<string> {
+        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.VIEW);
+        return this.documentController.getElement(sid);
     }
 
-    async removeSceneFragment(context: Principal, sceneFragment: string): Promise<void> {
+    async saveRootElements(context: Principal, fragmentXml: string): Promise<string> {
         this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
-        this.sceneController.removeSceneFragment(sceneFragment);
-        info(context, "removed scene fragment: " + sceneFragment);
-        await this.saveScene();
+        const fragment = this.documentController.putRootElements(fragmentXml);
+        info(context, "saved root elements: " + fragment);
+        await this.saveDocument();
+        return fragment;
+    }
+
+    async saveChildElements(context: Principal, parentSid: string, fragmentXml: string): Promise<string> {
+        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
+        const fragment = this.documentController.putChildElements(parentSid, fragmentXml);
+        info(context, "saved " + parentSid + " child elements: " + fragment);
+        await this.saveDocument();
+        return fragment;
+    }
+
+    async removeElement(context: Principal, sid: string): Promise<void> {
+        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
+        this.documentController.remove(sid);
+        info(context, "removed element fragment: " + sid);
+        await this.saveDocument();
     }
 
     // Users

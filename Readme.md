@@ -58,7 +58,7 @@ To setup standalone configuration
     heroku config:set GRID_RANGE=200 
 ---
  
-To setup cluster configuration 
+To setup processor cluster configuration 
 ---
     heroku info -s
     heroku config:set WS_URL=<the websocket URL for the server (wss://xxx.herokuapp.com)
@@ -68,6 +68,17 @@ To setup cluster configuration
     heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace/defaul-configuration.json
 ---
 
+---
+ 
+To setup storage cluster configuration 
+---
+    heroku info -s
+    heroku config:set WS_URL=<the websocket URL for the server (wss://xxx.herokuapp.com)
+    heroku config:set CLUSTER_CONFIGURATION_URL=<cluster-configuration-url (for example: https://rawgit.com/tlaukkan/aframe-dataspace/master/defaul-configuration.json)
+
+    # Example:
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace/defaul-configuration.json
+---
 
 ### Health check
 Storage server provides 200 OK healthcheck at URL path: /health-check.

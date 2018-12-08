@@ -35,6 +35,8 @@ export class DataSpaceServer {
                 await processRequest(request, response, [
                     async (c: Context) => this.storageApi!!.process(c)
                 ], this.issuers);
+            } else {
+                await processRequest(request, response, [], this.issuers);
             }
         });
 

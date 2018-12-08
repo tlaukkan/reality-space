@@ -63,9 +63,7 @@ To setup processor cluster configuration
     heroku info -s
     heroku config:set WS_URL=<the websocket URL for the server (wss://xxx.herokuapp.com)
     heroku config:set CLUSTER_CONFIGURATION_URL=<cluster-configuration-url (for example: https://rawgit.com/tlaukkan/aframe-dataspace/master/defaul-configuration.json)
-
-    # Example:
-    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace/defaul-configuration.json
+    heroku config:set WS_URL=<the websocket URL for the server (wss://xxx.herokuapp.com)
 ---
 
 ---
@@ -73,11 +71,13 @@ To setup processor cluster configuration
 To setup storage cluster configuration 
 ---
     heroku info -s
-    heroku config:set WS_URL=<the websocket URL for the server (wss://xxx.herokuapp.com)
-    heroku config:set CLUSTER_CONFIGURATION_URL=<cluster-configuration-url (for example: https://rawgit.com/tlaukkan/aframe-dataspace/master/defaul-configuration.json)
-
-    # Example:
-    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace/defaul-configuration.json
+    heroku create aframe-dataspace-storage-eu
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace/defaul-configuration.json   
+    heroku config:set STORAGE_API_URL=https://aframe-dataspace-storage-eu.herokuapp.com/api    
+    heroku config:set AWS_ACCESS_KEY_ID=
+    heroku config:set AWS_SECRET_ACCESS_KEY=
+    heroku config:set AWS_REGION=eu-central-1
+    heroku config:set AWS_PUBLIC_BUCKET=dataspace-eu
 ---
 
 ### Health check

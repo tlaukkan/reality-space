@@ -25,9 +25,16 @@ describe('Test Messaging', () => {
     beforeEach(async () => {
     });
 
-    /*
+
+/*
     it('Should add test admin as first user in new cluster.', async function () {
-        client.storageClient.addUser(new User("test-admin", "Test Admin", []));
+        await client.storageClient.addUser(new User("test-admin", "Test Admin", []));
+        await client.storageClient.addUser(new User("test-modifier", "Test Modifier", []));
+        await client.storageClient.addGroupMember("modifiers", "test-modifier");
+        await client.storageClient.addUser(new User("test-user", "Test User", []));
+        await client.storageClient.addGroupMember("users", "test-user");
+        await client.storageClient.addUser(new User("test-viewer", "Test Viewer", []));
+        await client.storageClient.addGroupMember("viewers", "test-viewer");
     });
 
     it('Should get users.', async function () {
@@ -50,6 +57,6 @@ describe('Test Messaging', () => {
             };
         }
     });
-    */
+*/
 
 });

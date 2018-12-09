@@ -1,5 +1,4 @@
 import {expect} from 'chai';
-import {S3Repository} from "../../../../src/node/storage/S3Repository";
 import {FileSystemRepository} from "../../../../src/node/storage/FileSystemRepository";
 
 describe('File System Repository Test.', () => {

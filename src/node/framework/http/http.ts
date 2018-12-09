@@ -10,7 +10,7 @@ const mime = require('mime-types');
 export async function processRequest(request: IncomingMessage, response: ServerResponse, handlers: Array<(c: Context) => Promise<Context>>, issuers: Map<string, IdTokenIssuer>): Promise<void> {
     try {
         if (request.url === '/health') {
-            response.writeHead(200, {'Content-Type': 'text/plain'});
+            response.writeHead(200, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, PUT, GET, DELETE'});
             response.end();
             return;
         }
@@ -22,7 +22,7 @@ export async function processRequest(request: IncomingMessage, response: ServerR
 
         let context = authorizeRequest(request, response, issuers);
         if (!context) {
-            response.writeHead(401, {'Content-Type': 'text/plain'});
+            response.writeHead(401, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, PUT, GET, DELETE'});
             response.end();
             return;
         }
@@ -34,13 +34,13 @@ export async function processRequest(request: IncomingMessage, response: ServerR
         }
 
         info(context.principal, "404 " + request.method + ": " + request.url + " not found");
-        response.writeHead(404, {'Content-Type': 'text/plain'});
+        response.writeHead(404, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, PUT, GET, DELETE'});
         response.end();
         return;
     } catch (error) {
         console.log("500 " + request.method + ": " + request.url + " error processing request.");
         console.warn(error);
-        response.writeHead(500, {'Content-Type': 'text/plain'});
+        response.writeHead(500, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, PUT, GET, DELETE'});
         response.end();
         return;
     }
@@ -78,7 +78,7 @@ function serveStaticFiles(request: IncomingMessage, response: ServerResponse): P
                     resolve();
                 }
             } else {
-                response.writeHead(200, {'Content-Type': contentType});
+                response.writeHead(200, {'Content-Type': contentType, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, PUT, GET, DELETE'});
                 response.end(content, 'utf-8');
                 resolve();
             }

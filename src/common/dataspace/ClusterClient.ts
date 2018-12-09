@@ -1,11 +1,10 @@
 import {ClusterConfiguration, getClusterConfiguration, ServerConfig} from "./Configuration";
 import {Client} from "./Client";
 import {Encode} from "./Encode";
-import {parseRootSids} from "../../node/util/parser";
 
 interface OnReceive { (serverUrl: string, type: string, message: string[]): void }
-interface OnStoredEntityReceived { (serverUrl: string, entityXml: string): void }
-interface OnStoredEntityRemoved { (serverUrl: string, sids: string): void }
+interface OnStoredEntityReceived { (serverUrl: string, sid: string, entityXml: string): void }
+interface OnStoredEntityRemoved { (serverUrl: string, sid: string): void }
 interface OnConnect { (serverUrl: string): void }
 interface OnDisconnect { (serverUrl: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
@@ -118,8 +117,8 @@ export class ClusterClient {
                     const parts = message.split(Encode.SEPARATOR);
                     this.onReceive(client.url, parts[0], parts);
                 };
-                client.onStoredEntityReceived = (entityXml: string) => {
-                    this.onStoredEntityReceived(client.url, entityXml);
+                client.onStoredEntityReceived = (sid, entityXml: string) => {
+                    this.onStoredEntityReceived(client.url, sid, entityXml);
                 };
                 client.onStoredEntityRemoved = (sid: string) => {
                     this.onStoredEntityRemoved(client.url, sid);

@@ -2,10 +2,10 @@ import {Encode} from "./Encode";
 import {StorageClient} from "./api/StorageClient";
 import {Decode} from "./Decode";
 import {parseFragment, parseRootSids} from "../../node/util/parser";
-import {js2xml} from "xml-js";
+import {Element, js2xml, xml2js} from "xml-js";
 
 interface OnReceive { (message: string): void }
-interface OnStoredEntityReceived { (entityXml: string): void }
+interface OnStoredEntityReceived { (sid: string, entityXml: string): void }
 interface OnStoredEntityRemoved { (sids: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 interface OnClose { (): void }
@@ -87,7 +87,7 @@ export class Client {
 
     onClose: OnClose = () => {};
     onReceive: OnReceive = (message: string) => {};
-    onStoredEntityReceived: OnStoredEntityReceived = (entityXml:string) => {};
+    onStoredEntityReceived: OnStoredEntityReceived = (sid: string, entityXml:string) => {};
     onStoredEntityRemoved: OnStoredEntityRemoved = (sid: string) => {};
 
 
@@ -164,7 +164,8 @@ export class Client {
         if (entitiesXml) {
             const entities = parseFragment(entitiesXml);
             for (let element of entities.elements) {
-                this.onStoredEntityReceived(js2xml({elements: [element]}));
+                const sid = (element.attributes as any).sid as string;
+                this.onStoredEntityReceived(sid, js2xml({elements: [element]}));
             }
         }
     }
@@ -173,7 +174,9 @@ export class Client {
         for (let sid of sids) {
             const entityXml = await this.storageClient.getEntity(sid);
             if (entityXml) {
-                this.onStoredEntityReceived(entityXml);
+                const elements = xml2js(entityXml)!!.elements as Array<Element>;
+                const sid = (elements[0].attributes as any).sid as string;
+                this.onStoredEntityReceived(sid, entityXml);
             }
         }
     }

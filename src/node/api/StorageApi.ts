@@ -36,19 +36,19 @@ export class StorageApi {
     process(c: Context): Promise<Context> {
         return new Promise<Context>((resolve, reject) => {
             lift({pathParams: new Map(), body: undefined, ...c})
-                .then(c => match(c, '/api/servers/{server}/entities', BodyEncoding.TEXT, {
+                .then(c => match(c, '/api/servers/{server}/entities', BodyEncoding.XML, {
                     GET: async c => await this.storage(c.pathParams.get('server')!!).getDocument(c.principal),
                     POST: async c => await this.storage(c.pathParams.get('server')!!).saveRootElements(c.principal, c.body),
                     PUT: undefined,
                     DELETE: undefined,
                 }))
-                .then(c => match(c, '/api/servers/{server}/entities/{id}', BodyEncoding.TEXT, {
+                .then(c => match(c, '/api/servers/{server}/entities/{id}', BodyEncoding.XML, {
                     GET: async c => await this.storage(c.pathParams.get('server')!!).getElement(c.principal, c.pathParams.get('id')!!),
                     POST: undefined,
                     PUT: undefined,
                     DELETE: async c => await this.storage(c.pathParams.get('server')!!).removeElement(c.principal, c.pathParams.get('id')!!)
                 }))
-                .then(c => match(c, '/api/servers/{server}/entities/{id}/entities', BodyEncoding.TEXT, {
+                .then(c => match(c, '/api/servers/{server}/entities/{id}/entities', BodyEncoding.XML, {
                     GET: undefined,
                     POST: async c => await this.storage(c.pathParams.get('server')!!).saveChildElements(c.principal, c.pathParams.get('id')!!, c.body),
                     PUT: undefined,

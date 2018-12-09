@@ -20,7 +20,7 @@ export class Processors {
 
 export enum BodyEncoding {
     JSON,
-    TEXT
+    XML
 }
 
 export async function match(context: RestApiContext,
@@ -80,12 +80,12 @@ export function processRequest(context: RestApiContext, bodyEncoding: BodyEncodi
 
 async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding, processor: (requestContext: RestApiContext) => Promise<any>, context: RestApiContext) {
     try {
-        const requestBodyJson = Buffer.concat(body).toString();
-        if (requestBodyJson) {
-            const requestBodyObj = bodyEncoding === BodyEncoding.JSON ? JSON.parse(requestBodyJson) : requestBodyJson;
-            const responseBody = await processor({...context, body: requestBodyObj});
+        const requestBodyString = Buffer.concat(body).toString();
+        if (requestBodyString) {
+            const requestBody = bodyEncoding === BodyEncoding.JSON ? JSON.parse(requestBodyString) : requestBodyString;
+            const responseBody = await processor({...context, body: requestBody});
             if (responseBody) {
-                startResponse(context, 200);
+                startResponse(context, 200, bodyEncoding);
                 context.response.write(bodyEncoding === BodyEncoding.JSON ? JSON.stringify(responseBody) : responseBody);
                 endResponse(context);
             } else {
@@ -98,7 +98,7 @@ async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding,
         } else {
             const responseBody = await processor(context);
             if (responseBody) {
-                startResponse(context, 200);
+                startResponse(context, 200, bodyEncoding);
                 context.response.write(bodyEncoding === BodyEncoding.JSON ? JSON.stringify(responseBody) : responseBody);
                 endResponse(context);
             } else {
@@ -114,9 +114,16 @@ async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding,
     }
 }
 
-function startResponse(context: RestApiContext, httpStatusCode: number) {
+function startResponse(context: RestApiContext, httpStatusCode: number, bodyEncoding: BodyEncoding) {
     info(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " ");
-    context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
+    context.response.statusCode = 200;
+    if (bodyEncoding == BodyEncoding.JSON) {
+        context.response.setHeader('Content-Type', 'application/json');
+    } else if (bodyEncoding == BodyEncoding.XML) {
+        context.response.setHeader('Content-Type', 'application/xml');
+    } else {
+        context.response.setHeader('Content-Type', 'text/plain');
+    }
 }
 
 function endResponse(context: RestApiContext) {

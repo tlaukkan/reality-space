@@ -54,14 +54,14 @@ export async function match(context: RestApiContext,
 
     if (!processor) {
         // Matching url pattern found but no processor implementation defined.
-        endResponse(context, 405);
+        setResponse(context, 405);
         return updatedContext;
     }
 
     try {
         await processRequest(updatedContext, bodyEncoding, processor);
     } catch (err) {
-        endResponseWithError(context, err, 500);
+        setResponseWithError(context, err, 500);
     }
 
     return updatedContext;
@@ -74,7 +74,7 @@ export function processRequest(context: RestApiContext, bodyEncoding: BodyEncodi
     }).on('end', async () => {
         await onRequestEnd(body, bodyEncoding, processor, context);
     }).on('error', (err) => {
-        endResponseWithError(context, err, 500);
+        setResponseWithError(context, err, 500);
     });
 }
 
@@ -85,40 +85,51 @@ async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding,
             const requestBodyObj = bodyEncoding === BodyEncoding.JSON ? JSON.parse(requestBodyJson) : requestBodyJson;
             const responseBody = await processor({...context, body: requestBodyObj});
             if (responseBody) {
+                startResponse(context, 200);
                 context.response.write(bodyEncoding === BodyEncoding.JSON ? JSON.stringify(responseBody) : responseBody);
-                endResponse(context, 200);
+                endResponse(context);
             } else {
                 if (context.request.method === "DELETE") {
-                    endResponse(context, 200);
+                    setResponse(context, 200);
                 } else {
-                    endResponse(context, 404);
+                    setResponse(context, 404);
                 }
             }
         } else {
             const responseBody = await processor(context);
             if (responseBody) {
+                startResponse(context, 200);
                 context.response.write(bodyEncoding === BodyEncoding.JSON ? JSON.stringify(responseBody) : responseBody);
-                endResponse(context, 200);
+                endResponse(context);
             } else {
                 if (context.request.method === "DELETE") {
-                    endResponse(context, 200);
+                    setResponse(context, 200);
                 } else {
-                    endResponse(context, 404);
+                    setResponse(context, 404);
                 }
             }
         }
     } catch (err) {
-        endResponseWithError(context, err, 500);
+        setResponseWithError(context, err, 500);
     }
 }
 
-function endResponse(context: RestApiContext, httpStatusCode: number) {
+function startResponse(context: RestApiContext, httpStatusCode: number) {
+    info(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " ");
+    context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
+}
+
+function endResponse(context: RestApiContext) {
+    context.response.end();
+}
+
+function setResponse(context: RestApiContext, httpStatusCode: number) {
     info(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " ");
     context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
     context.response.end();
 }
 
-function endResponseWithError(context: RestApiContext, err: Error, httpStatusCode: number) {
+function setResponseWithError(context: RestApiContext, err: Error, httpStatusCode: number) {
     error(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " ", err);
     context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
     context.response.end();

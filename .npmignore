@@ -12,3 +12,4 @@ src
 static
 test
 defaul-configuration.json
+config/local-development.json

@@ -24,7 +24,7 @@ describe('Test Messaging', () => {
         await storageClient.saveRootEntities('<a-entities><a-box>test</a-box></a-entities>')
 
         client = new Client("test", "ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/repository", createTestIdToken());
-        client.onStoredEntityReceived = (sid: string, entityXml) => {
+        client.onStoredRootEntityReceived = (sid: string, entityXml) => {
             console.log(sid, entityXml);
         };
 
@@ -37,26 +37,25 @@ describe('Test Messaging', () => {
     });
 
     it('Should save and remove entity.', function (done) {
-
-        let removeCounter = 0;
         client.add("1", 1, 2, 3, 4, 5, 6, 7, '<a-image src="dog.img"/>', Encode.AVATAR);
         client.onReceive = async function (message) {
             expect(message).equals('a|0|1|1.00|2.00|3.00|4.00|5.00|6.00|7.00|<a-image src="dog.img"/>|a|');
-            client.storeEntities("<a-entities><a-box>test</a-box></a-entities>");
-            client.onStoredEntityReceived = (sid: string, entityXml) => {
-                console.log(sid, entityXml);
-                const entity = xml2js(entityXml);
-                const sid2 = (entity.elements[0].attributes as any).sid as string;
-                expect(entity.elements.length).eq(1);
-                expect(sid).eq(sid2);
-                client.removeStoredEntities([sid]);
-                client.onStoredEntityRemoved = (sid) => {
-                    removeCounter++;
-                    if (removeCounter == 2) {
-                        done();
+            client.onStoredRootEntityReceived = (sid: string, entityXml) => {
+                //console.log(sid, entityXml);
+                expect(sid).eq(((xml2js(entityXml).elements[0].attributes as any).sid as string));
+                client.storeChildEntities(sid, "<a-entities><a-box>test</a-box></a-entities>");
+
+                client.onStoredChildEntityReceived = (parentSid, childSid, entityXml) => {
+                    expect(parentSid).eq(sid);
+                    //console.log(childSid, entityXml);
+                    expect(childSid).eq((xml2js(entityXml).elements[0].attributes as any).sid as string);
+                    client.removeStoredEntities([childSid]);
+                    client.onStoredEntityRemoved = (childSid2) => {
+                        expect(childSid2).eq(childSid);
+                         done();
                     }
-                }
-            };
+                };
+            }
         }
     });
 

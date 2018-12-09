@@ -15,8 +15,9 @@ export class Encode {
     static readonly NOTIFY: string = 'N';
     static readonly NOTIFIED: string = 'n';
 
-    static readonly NOTIFICATION_STORED_ENTITY_CHANGED: string = 'su';
-    static readonly NOTIFICATION_STORED_ENTITY_REMOVED: string = 'sr';
+    static readonly NOTIFICATION_STORED_ROOT_ENTITIES_CHANGED: string = 'srec';
+    static readonly NOTIFICATION_STORED_CHILD_ENTITIES_CHANGED: string = 'scec';
+    static readonly NOTIFICATION_STORED_ENTITIES_REMOVED: string = 'ser';
 
     static readonly OBJECT: string = 'o'; // Visible
     static readonly PROBE: string = 'p';  // Observing

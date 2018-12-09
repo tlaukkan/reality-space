@@ -5,7 +5,8 @@ import {parseFragment, parseRootSids} from "../../node/util/parser";
 import {Element, js2xml, xml2js} from "xml-js";
 
 interface OnReceive { (message: string): void }
-interface OnStoredEntityReceived { (sid: string, entityXml: string): void }
+interface OnStoredRootEntityReceived { (sid: string, entityXml: string): void }
+interface OnStoredChildEntityReceived { (parentSid: string, sid: string, entityXml: string): void }
 interface OnStoredEntityRemoved { (sids: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 interface OnClose { (): void }
@@ -60,8 +61,9 @@ export class Client {
                 };
                 this.ws.onmessage = async (message) => {
                     // Process storage notifications internally.
-                    if ((message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORED_ENTITY_CHANGED + "|") ||
-                        (message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORED_ENTITY_REMOVED + "|")) {
+                    if ((message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORED_ROOT_ENTITIES_CHANGED + "|") ||
+                        (message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORED_CHILD_ENTITIES_CHANGED + "|") ||
+                        (message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORED_ENTITIES_REMOVED + "|")) {
                         if (await this.handleActions(message.data)) {
                             return;
                         }
@@ -87,7 +89,8 @@ export class Client {
 
     onClose: OnClose = () => {};
     onReceive: OnReceive = (message: string) => {};
-    onStoredEntityReceived: OnStoredEntityReceived = (sid: string, entityXml:string) => {};
+    onStoredRootEntityReceived: OnStoredRootEntityReceived = (sid: string, entityXml:string) => {};
+    onStoredChildEntityReceived: OnStoredChildEntityReceived = (parentSid: string, sid: string, entityXml:string) => {};
     onStoredEntityRemoved: OnStoredEntityRemoved = (sid: string) => {};
 
 
@@ -122,20 +125,20 @@ export class Client {
     async storeEntities(entitiesXml: string) {
         const savedEntitiesXml = await this.storageClient.saveRootEntities(entitiesXml);
         const sids = parseRootSids(savedEntitiesXml);
-        await this.notify(Encode.NOTIFICATION_STORED_ENTITY_CHANGED, sids.toString());
+        await this.notify(Encode.NOTIFICATION_STORED_ROOT_ENTITIES_CHANGED, sids.toString());
     }
 
     async storeChildEntities(parentSid: string, entitiesXml: string) {
         const savedEntitiesXml = await this.storageClient.saveChildEntities(parentSid, entitiesXml);
         const sids = parseRootSids(savedEntitiesXml);
-        await this.notify(Encode.NOTIFICATION_STORED_ENTITY_CHANGED, sids.toString());
+        await this.notify(Encode.NOTIFICATION_STORED_CHILD_ENTITIES_CHANGED, [parentSid].concat(sids).toString());
     }
 
     async removeStoredEntities(sids: Array<string>) {
         for (let sid of sids) {
             await this.storageClient.removeEntity(sid);
         }
-        await this.notify(Encode.NOTIFICATION_STORED_ENTITY_REMOVED, sids.toString());
+        await this.notify(Encode.NOTIFICATION_STORED_ENTITIES_REMOVED, sids.toString());
     }
 
     private async handleActions(message: string): Promise<boolean> {
@@ -146,15 +149,18 @@ export class Client {
 
         const sids = description.split(',');
 
-        if (notification == Encode.NOTIFICATION_STORED_ENTITY_CHANGED) {
-            await this.handleStoredEntityChanged(sids);
+        if (notification == Encode.NOTIFICATION_STORED_ROOT_ENTITIES_CHANGED) {
+            await this.handleStoredRootEntityChanged(sids);
             return true;
         }
-        if (notification == Encode.NOTIFICATION_STORED_ENTITY_REMOVED) {
+        if (notification == Encode.NOTIFICATION_STORED_CHILD_ENTITIES_CHANGED) {
+            await this.handleStoredChildEntityChanged(sids[0], sids.splice(1));
+            return true;
+        }
+        if (notification == Encode.NOTIFICATION_STORED_ENTITIES_REMOVED) {
             await this.handleStoredEntityRemoved(sids);
             return true;
         }
-
 
         return false;
     }
@@ -165,18 +171,29 @@ export class Client {
             const entities = parseFragment(entitiesXml);
             for (let element of entities.elements) {
                 const sid = (element.attributes as any).sid as string;
-                this.onStoredEntityReceived(sid, js2xml({elements: [element]}));
+                this.onStoredRootEntityReceived(sid, js2xml({elements: [element]}));
             }
         }
     }
 
-    private async handleStoredEntityChanged(sids: Array<string>) {
+    private async handleStoredRootEntityChanged(sids: Array<string>) {
         for (let sid of sids) {
             const entityXml = await this.storageClient.getEntity(sid);
             if (entityXml) {
                 const elements = xml2js(entityXml)!!.elements as Array<Element>;
                 const sid = (elements[0].attributes as any).sid as string;
-                this.onStoredEntityReceived(sid, entityXml);
+                this.onStoredRootEntityReceived(sid, entityXml);
+            }
+        }
+    }
+
+    private async handleStoredChildEntityChanged(parentSid: string, sids: Array<string>) {
+        for (let sid of sids) {
+            const entityXml = await this.storageClient.getEntity(sid);
+            if (entityXml) {
+                const elements = xml2js(entityXml)!!.elements as Array<Element>;
+                const sid = (elements[0].attributes as any).sid as string;
+                this.onStoredChildEntityReceived(parentSid, sid, entityXml);
             }
         }
     }

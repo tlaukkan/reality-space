@@ -3,7 +3,8 @@ import {Client} from "./Client";
 import {Encode} from "./Encode";
 
 interface OnReceive { (serverUrl: string, type: string, message: string[]): void }
-interface OnStoredEntityReceived { (serverUrl: string, sid: string, entityXml: string): void }
+interface OnStoredRootEntityReceived { (serverUrl: string, sid: string, entityXml: string): void }
+interface OnStoredChildEntityReceived { (serverUrl: string, parentSid: string, sid: string, entityXml: string): void }
 interface OnStoredEntityRemoved { (serverUrl: string, sid: string): void }
 interface OnConnect { (serverUrl: string): void }
 interface OnDisconnect { (serverUrl: string): void }
@@ -117,8 +118,11 @@ export class ClusterClient {
                     const parts = message.split(Encode.SEPARATOR);
                     this.onReceive(client.url, parts[0], parts);
                 };
-                client.onStoredEntityReceived = (sid, entityXml: string) => {
-                    this.onStoredEntityReceived(client.url, sid, entityXml);
+                client.onStoredRootEntityReceived = (sid, entityXml: string) => {
+                    this.onStoredRootEntityReceived(client.url, sid, entityXml);
+                };
+                client.onStoredChildEntityReceived = (parentSid, sid, entityXml: string) => {
+                    this.onStoredChildEntityReceived(client.url, parentSid, sid, entityXml);
                 };
                 client.onStoredEntityRemoved = (sid: string) => {
                     this.onStoredEntityRemoved(client.url, sid);
@@ -184,7 +188,8 @@ export class ClusterClient {
 
     onReceive: OnReceive = (serverUrl: string, type: string, message: string[]) => {};
 
-    onStoredEntityReceived: OnStoredEntityReceived = (serverUrl: string, entityXml:string) => {};
+    onStoredRootEntityReceived: OnStoredRootEntityReceived = (serverUrl: string, sid: string, entityXml:string) => {};
+    onStoredChildEntityReceived: OnStoredChildEntityReceived = (serverUrl: string, parentSid: string, sid: string, entityXml:string) => {};
     onStoredEntityRemoved: OnStoredEntityRemoved = (serverUrl: string, sid: string) => {};
 
 

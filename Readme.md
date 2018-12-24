@@ -1,6 +1,10 @@
-# A-Frame Dataspace
+# A-Frame Dataspace Readme
 
-This library implements client server library for a-frame networking.
+This is work in progress...
+
+aframe-reality framework enables building networked extended reality (XR) experiences with A-Frame.
+
+aframe-dataspace servers provide a shared space to store and transmit scene data between browsers.
 
 ## Usage
 
@@ -136,7 +140,7 @@ To setup storage cluster configuration with AWS S3
 ---
     heroku info -s
     heroku create aframe-dataspace-storage-eu
-    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace@0.0.17/defaul-configuration.json  
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace@0.0.21/defaul-configuration.json  
     heroku config:set STORAGE_API_URL=https://aframe-dataspace-storage-eu.herokuapp.com/api    
     heroku config:set STORAGE_TYPE=S3
     heroku config:set AWS_ACCESS_KEY_ID=

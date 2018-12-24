@@ -6,7 +6,7 @@ import uuid = require("uuid");
 
 start()
     .then()
-    .catch(e => console.log('error starting storage server: ', e));
+    .catch(e => console.log('error starting test agent: ', e));
 
 async function start() {
     const id = uuid.v4();

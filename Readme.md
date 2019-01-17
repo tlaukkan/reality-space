@@ -2,9 +2,9 @@
 
 This is work in progress...
 
-aframe-reality framework enables building networked extended reality (XR) experiences with A-Frame.
+code-reality framework enables building networked extended reality (XR) experiences with A-Frame.
 
-aframe-dataspace servers provide a shared space to store and transmit scene data between browsers.
+reality-space servers provide a shared space to store and transmit scene data between code-reality clients.
 
 ## Usage
 
@@ -103,9 +103,9 @@ karma start karma.config.js  --browsers ChromeHeadless
 ### Commands
 
 ---
-    git clone https://github.com/tlaukkan/aframe-dataspace.git
-    cd aframe-dataspace
-    heroku create <your-heroku-account>-aframe-dataspace
+    git clone https://github.com/tlaukkan/reality-space.git
+    cd reality-space
+    heroku create --region eu <your-heroku-account>-reality-space
 
     git push heroku master
     heroku logs -t

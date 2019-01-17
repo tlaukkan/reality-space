@@ -1,7 +1,7 @@
 {
-  "name": "@tlaukkan/aframe-dataspace",
-  "version": "0.0.13",
-  "description": "A-Frame Dataspace",
+  "name": "reality-space",
+  "version": "0.0.1",
+  "description": "Reality Space",
   "main": "lib/src/index.js",
   "types": "lib/src/index.d.ts",
   "scripts": {
@@ -19,18 +19,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tlaukkan/aframe-dataspace.git"
+    "url": "git+https://github.com/tlaukkan/reality-space.git"
   },
   "keywords": [
     "aframe",
-    "dataspace"
+    "reality",
+    "space",
+    "reality-space"
   ],
   "author": "Tommi Laukkanen",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/tlaukkan/aframe-dataspace/issues"
+    "url": "https://github.com/tlaukkan/reality-space/issues"
   },
-  "homepage": "https://github.com/tlaukkan/aframe-dataspace#readme",
+  "homepage": "https://github.com/tlaukkan/reality-space#readme",
   "devDependencies": {
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",

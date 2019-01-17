@@ -1,6 +1,6 @@
 .idea
 .gitignore
-aframe-dataspace.iml
+*.iml
 karma.config.js
 Procfile
 Readme.md

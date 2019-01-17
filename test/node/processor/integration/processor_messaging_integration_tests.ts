@@ -9,7 +9,7 @@ describe('Integration Test Messaging', () => {
     let client: Client;
 
     before(async () => {
-        client = new Client("test", "wws://aframe-dataspace-0-0-0.herokuapp.com/", "https://aframe-dataspace-storage-eu.herokuapp.com/api", "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com/", "");
+        client = new Client("0_0_0", "wws://aframe-dataspace-0-0-0.herokuapp.com/", "https://aframe-dataspace-storage-eu.herokuapp.com/api", "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com/", "");
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
     });
@@ -21,18 +21,28 @@ describe('Integration Test Messaging', () => {
     it('Should send add and receive messages.', function (done) {
         client.add("1", 1, 2, 3, 4, 5, 6, 7, "<a-box/>", Encode.AVATAR);
         client.onReceive = async function (message) {
+            const id = message.split(Encode.SEPARATOR)[2];
+            if (id!="1") {
+                return;
+            }
+
+            const index = message.split(Encode.SEPARATOR)[1];
             expect(message.split(Encode.SEPARATOR)[0]).equals(Encode.ADDED);
             client.update("1", 1, 2, 3, 4, 5, 6, 7);
             client.onReceive = async function (message) {
+                if (message.split(Encode.SEPARATOR)[1] != index) { return; }
                 expect(message.split(Encode.SEPARATOR)[0]).equals(Encode.UPDATED);
                 client.describe("1", "<a-box/>");
                 client.onReceive = async function (message) {
+                    if (message.split(Encode.SEPARATOR)[1] != index) { return; }
                     expect(message.split(Encode.SEPARATOR)[0]).equals(Encode.DESCRIBED);
                     client.act("1", "a", "b");
                     client.onReceive = async function (message) {
+                        if (message.split(Encode.SEPARATOR)[1] != index) { return; }
                         expect(message.split(Encode.SEPARATOR)[0]).equals(Encode.ACTED);
                         client.remove("1");
                         client.onReceive = async function (message) {
+                            if (message.split(Encode.SEPARATOR)[1] != index) { return; }
                             expect(message.split(Encode.SEPARATOR)[0]).equals(Encode.REMOVED);
                             done();
                         }

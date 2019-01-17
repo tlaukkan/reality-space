@@ -25,14 +25,14 @@ describe('Test Configuration', () => {
         expect(serialized2).to.equal(serialized);
     });
 
-    it('should get and deserialize default configuration from rawgit.', async() => {
+    it('should get and deserialize default configuration from network.', async() => {
         const configuration = await getClusterConfiguration("https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace@0.0.15/defaul-configuration.json");
         console.log(JSON.stringify(configuration));
         expect(configuration.servers.length).to.be.greaterThan(0);
         expect(configuration.servers[0].assetUrl).eq("http://dataspace-eu.s3-website.eu-central-1.amazonaws.com/");
 
         const processorConfiguration = getProcessorConfiguration(configuration, "wss://aframe-dataspace-0-0-100.herokuapp.com/");
-        const storageApiConfiguration = getStorageConfiguration(configuration, "https://aframe-dataspace-storage.herokuapp.com/api");
+        const storageApiConfiguration = getStorageConfiguration(configuration, "https://aframe-dataspace-storage-eu.herokuapp.com/api");
 
         expect(processorConfiguration.name).equals("0-0-100");
         expect(processorConfiguration.cx).equals(0);

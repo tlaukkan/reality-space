@@ -38,7 +38,7 @@ export async function loadConfiguration(): Promise<[SanitizerConfig, ProcessorCo
         return [
             sanitizeConfig,
             new ProcessorConfiguration(
-                "0_0_0",
+                "0-0-0",
                 "ws://localhost:8889/",
                 process.env.GRID_CX as any || 0,
                 process.env.GRID_CY as any || 0,
@@ -49,7 +49,7 @@ export async function loadConfiguration(): Promise<[SanitizerConfig, ProcessorCo
             new StorageConfiguration(
                 "http://localhost:8889/api",
                 [
-                    "0_0_0"
+                    "0-0-0"
                 ]),
             [
                 new IdTokenIssuer(

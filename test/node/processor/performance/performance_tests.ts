@@ -10,8 +10,8 @@ describe('Performance Test Server', () => {
 
     it('Should performance test server.', async () => {
         const url = "wss://aframe-dataspace-0-0-0.herokuapp.com/";
-        const apiUrl = "https://aframe-dataspace-0-0-0.herokuapp.com/";
-        const assetUrl = "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com/";
+        const apiUrl = "https://aframe-dataspace-storage-eu.herokuapp.com/api";
+        const assetUrl = "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com";
 
         //const url = "ws://127.0.0.1:8889/";
         const numberOfClients = 30;
@@ -21,7 +21,7 @@ describe('Performance Test Server', () => {
         const entityIds: Array<string> = [];
 
         for (let i = 0; i < numberOfClients; i++) {
-            const client = new Client("0_0_0", url, apiUrl, assetUrl, "");
+            const client = new Client("0-0-0", url, apiUrl, assetUrl, "");
             client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
             clients.push(client);
             entityIds.push(uuid.v4());

@@ -55,6 +55,12 @@ export class StorageApi {
     process(c: Context): Promise<Context> {
         return new Promise<Context>((resolve, reject) => {
             lift({pathParams: new Map(), body: undefined, ...c})
+                .then(c => match(c, '/api/dimensions/{dimension}/processors/{processor}/entities.xml', BodyEncoding.XML, {
+                    GET: async c => await (await this.storage(c.pathParams.get('dimension')!!, c.pathParams.get('processor')!!)).getDocument(c.principal),
+                    POST: undefined,
+                    PUT: undefined,
+                    DELETE: undefined,
+                }))
                 .then(c => match(c, '/api/dimensions/{dimension}/processors/{processor}/entities', BodyEncoding.XML, {
                     GET: async c => await (await this.storage(c.pathParams.get('dimension')!!, c.pathParams.get('processor')!!)).getDocument(c.principal),
                     POST: async c => await (await this.storage(c.pathParams.get('dimension')!!, c.pathParams.get('processor')!!)).saveRootElements(c.principal, c.body),

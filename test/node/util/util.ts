@@ -36,11 +36,11 @@ export async function startTestServer(): Promise<DataSpaceServer> {
 }
 
 export function newStorageClient() {
-    return new StorageClient("default", "test", "http://127.0.0.1:8889/api/", "http://localhost:8889/repository/", createTestIdToken());
+    return new StorageClient("default", "test", "http://127.0.0.1:8889/api/", "http://localhost:8889/api/", createTestIdToken());
 }
 
 export function newStorageClientDynamicDimension() {
-    return new StorageClient("dynamic-1", "test", "http://127.0.0.1:8889/api/", "http://localhost:8889/repository/", createTestIdToken());
+    return new StorageClient("dynamic-1", "test", "http://127.0.0.1:8889/api/", "http://localhost:8889/api/", createTestIdToken());
 }
 
 export function resetStorage(server: DataSpaceServer) {

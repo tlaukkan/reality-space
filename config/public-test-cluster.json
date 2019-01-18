@@ -7,7 +7,7 @@
     "attributeValueRegex": "[^\\w\\s\\.:;-#/]"
   },
   "storageUrl": "https://reality-space-eu-storage.herokuapp.com/api",
-  "cdnUrl": "https://reality-space-storage-eu.herokuapp.com/assets",
+  "cdnUrl": "https://reality-space-eu-storage.herokuapp.com/api",
   "edge": 140,
   "step": 10,
   "range": 20,

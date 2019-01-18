@@ -22,10 +22,10 @@ export async function processRequest(request: IncomingMessage, response: ServerR
             return;
         }
 
-        if (request.url!!.startsWith('/repository')) {
+        /*if (request.url!!.startsWith('/repository')) {
             await serveStaticFiles(request, response);
             return;
-        }
+        }*/
 
         for (const handler of handlers) {
             if ((await handler(context)).processed) {

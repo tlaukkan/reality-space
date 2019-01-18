@@ -12,7 +12,7 @@ export class S3Repository implements Repository {
 
     s3: AWS.S3;
     bucketName: string;
-    repositoryPath = 'servers/';
+    repositoryPath = '/';
 
     constructor(bucketName: string) {
         this.bucketName = bucketName;

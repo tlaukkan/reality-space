@@ -4,7 +4,7 @@ import {PathLike} from "fs";
 const fs = require('fs');
 
 export class FileSystemRepository implements Repository {
-    repositoryPath = 'repository/servers/';
+    repositoryPath = 'repository/';
 
     async startup(): Promise<void> {
         return new Promise<void>((resolve, reject) => {

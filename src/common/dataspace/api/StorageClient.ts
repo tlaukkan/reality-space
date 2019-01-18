@@ -11,18 +11,20 @@ export class StorageClient {
 
     apiUrl: string;
     assetUrl: string;
-    serverName: string;
+    dimensionName: string;
+    processorName: string;
     idToken: string;
 
-    constructor(serverName: string, apiUrl: string, assetUrl: string, idToken: string) {
-        this.serverName = serverName;
+    constructor(dimensionName: string, processorName: string, apiUrl: string, assetUrl: string, idToken: string) {
+        this.dimensionName = dimensionName;
+        this.processorName = processorName;
         this.apiUrl = apiUrl;
         this.assetUrl = assetUrl;
         this.idToken = idToken;
     }
 
     async getRootEntitiesFromCdn(): Promise<string> {
-        const entitiesXmlUrl = this.assetUrl + "/servers/" + this.serverName + "/entities.xml";
+        const entitiesXmlUrl = this.assetUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + "/entities.xml";
         const response = (await fetch(entitiesXmlUrl, {
             method: "GET"
         }));
@@ -133,7 +135,7 @@ export class StorageClient {
 
 
     private async request(method: string, path: string, successStatuses: Array<number>) {
-        const response = (await fetch(this.apiUrl + "/servers/" + this.serverName + path, {
+        const response = (await fetch(this.apiUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()}
         }));
@@ -144,7 +146,7 @@ export class StorageClient {
     }
 
     private async requestWithBody(method: string, path: string, body: any, successStatuses: Array<number>) {
-        const response = (await fetch(this.apiUrl + "/servers/" + this.serverName + path, {
+        const response = (await fetch(this.apiUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
             body: JSON.stringify(body)
@@ -156,7 +158,7 @@ export class StorageClient {
     }
 
     private async requestWithTextBody(method: string, path: string, body: string, successStatuses: Array<number>) {
-        const response = (await fetch(this.apiUrl + "/servers/" + this.serverName + path, {
+        const response = (await fetch(this.apiUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
             body: body

@@ -11,7 +11,7 @@
   "edge": 140,
   "step": 10,
   "range": 20,
-  "dimensions": ["default"],
+  "dimensions": ["default", "private-*"],
   "maxDimensions": 20,
   "processors": [
     {
@@ -19,8 +19,7 @@
       "x": 0,
       "y": 0,
       "z": 0,
-      "processorUrl": "wss://reality-space-eu-processor-0-0-0.herokuapp.com/",
-      "dimensions": ["default", "private-*"]
+      "processorUrl": "wss://reality-space-eu-processor-0-0-0.herokuapp.com/"
     },
     {
       "name": "0-0-100",

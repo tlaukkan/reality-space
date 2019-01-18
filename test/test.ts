@@ -9,3 +9,5 @@ export const PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_URL = "wss://reality-space-eu-p
 
 export const PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME = "0-0-100";
 export const PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_URL = "wss://reality-space-eu-processor-0-0-100.herokuapp.com/";
+
+export const DEFAULT_DIMENSION = "default";

@@ -9,22 +9,22 @@ import {DocumentController} from "../../../node/storage/DocumentController";
 
 export class StorageClient {
 
-    apiUrl: string;
-    assetUrl: string;
+    storageUrl: string;
+    cdnUrl: string;
     dimensionName: string;
     processorName: string;
     idToken: string;
 
-    constructor(dimensionName: string, processorName: string, apiUrl: string, assetUrl: string, idToken: string) {
+    constructor(dimensionName: string, processorName: string, storageUrl: string, cdnUrl: string, idToken: string) {
         this.dimensionName = dimensionName;
         this.processorName = processorName;
-        this.apiUrl = apiUrl;
-        this.assetUrl = assetUrl;
+        this.storageUrl = storageUrl;
+        this.cdnUrl = cdnUrl;
         this.idToken = idToken;
     }
 
     async getRootEntitiesFromCdn(): Promise<string> {
-        const entitiesXmlUrl = this.assetUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + "/entities.xml";
+        const entitiesXmlUrl = this.cdnUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + "/entities.xml";
         const response = (await fetch(entitiesXmlUrl, {
             method: "GET",
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()}
@@ -136,7 +136,7 @@ export class StorageClient {
 
 
     private async request(method: string, path: string, successStatuses: Array<number>) {
-        const response = (await fetch(this.apiUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + path, {
+        const response = (await fetch(this.storageUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()}
         }));
@@ -147,7 +147,7 @@ export class StorageClient {
     }
 
     private async requestWithBody(method: string, path: string, body: any, successStatuses: Array<number>) {
-        const response = (await fetch(this.apiUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + path, {
+        const response = (await fetch(this.storageUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
             body: JSON.stringify(body)
@@ -159,7 +159,7 @@ export class StorageClient {
     }
 
     private async requestWithTextBody(method: string, path: string, body: string, successStatuses: Array<number>) {
-        const response = (await fetch(this.apiUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + path, {
+        const response = (await fetch(this.storageUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
             body: body

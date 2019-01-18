@@ -2,6 +2,11 @@ import 'mocha';
 import {expect} from 'chai';
 import {createTestIdToken, newStorageClient} from "../../util/util";
 import {StorageClient} from "../../../../src/common/dataspace/api/StorageClient";
+import {
+    DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_CDN_URL,
+    PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME,
+    PUBLIC_TEST_CLUSTER_STORAGE_URL
+} from "../../../test";
 
 describe('Storage API / Local integration testing', () => {
 
@@ -22,7 +27,7 @@ describe('Storage API / Local integration testing', () => {
     });*/
 
     it('It should get users from aframe-dataspace-storage-eu.herokuapp.com.', async () => {
-        const client = new StorageClient("0-0-0", "https://aframe-dataspace-storage-eu.herokuapp.com/api", "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com/", createTestIdToken());;
+        const client = new StorageClient(DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME, PUBLIC_TEST_CLUSTER_STORAGE_URL, PUBLIC_TEST_CLUSTER_CDN_URL, createTestIdToken());;
         const users = await client.getUsers();
         expect(users[0].id).eq("anonymous");
         expect(users[0].name).eq("anonymous");

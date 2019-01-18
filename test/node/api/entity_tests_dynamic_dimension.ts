@@ -2,10 +2,9 @@ import 'mocha';
 import {expect} from 'chai';
 import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
 import {DocumentController} from "../../../src/node/storage/DocumentController";
-import {newStorageClient, newStorageClientDynamicDimension, resetStorage, startTestServer} from "../util/util";
+import {newStorageClientDynamicDimension, resetStorage, startTestServer} from "../util/util";
 import {parseRootSids} from "../../../src/node/util/parser";
 import {xml2js} from "xml-js";
-import {Principal} from "../../../src/node/framework/rest/Principal";
 import {User} from "../../../src/common/dataspace/api/User";
 import * as fs from "fs";
 

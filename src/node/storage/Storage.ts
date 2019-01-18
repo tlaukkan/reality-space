@@ -76,15 +76,60 @@ export class Storage {
         await this.repository.save(this.accessFileName, await this.accessController.serialize());
     }
 
+    private async provisionUser(principal: Principal) {
+        if (principal.groups === undefined) {
+            return;
+        }
+
+        let changes = false;
+
+        if (!this.accessController.hasUser(principal.userId)) {
+            this.accessController.addUser(principal.userId, principal.userName);
+            info(principal, "user provisioning added " + principal.userId + " : '" + principal.userName + "'");
+            changes = true;
+        }
+
+        const existingUser = this.accessController.getUser(principal.userId);
+        if (existingUser.name != principal.userName) {
+            this.accessController.updateUser(principal.userId, principal.userName);
+            info(principal, "user provisioning updated username " + principal.userId + " : '" + principal.userName + "'");
+            changes = true;
+        }
+
+        for (let groupName of principal.groups) {
+            if (!existingUser.groupNames.has(groupName)) {
+                if (this.accessController.model.groups.has(groupName)) {
+                    this.accessController.addGroupMember(groupName, principal.userId);
+                    info(principal, "user provisioning added user to group " + principal.userId + " : '" + groupName + "'");
+                    changes = true;
+                }
+            }
+        }
+
+        for (let existingGroupName of existingUser.groupNames) {
+            if (principal.groups.indexOf(existingGroupName) == -1) {
+                this.accessController.removeGroupMember(existingGroupName, principal.userId);
+                info(principal, "user provisioning removed user from group " + principal.userId + " : '" + existingGroupName + "'");
+                changes = true;
+            }
+        }
+
+        if (changes) {
+            await this.saveAccess();
+        }
+    }
+
     // Document
 
-    async getDocument(context: Principal): Promise<string> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.VIEW);
+    async getDocument(principal: Principal): Promise<string> {
+        this.provisionUser(principal);
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.VIEW);
         return this.documentController.getDocument();
     }
 
-    async getElement(context: Principal, sid: string): Promise<string | undefined> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.VIEW);
+    async getElement(principal: Principal, sid: string): Promise<string | undefined> {
+        this.provisionUser(principal);
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.VIEW);
         if (this.documentController.hasElement(sid)) {
             return this.documentController.getElement(sid);
         } else {
@@ -92,37 +137,42 @@ export class Storage {
         }
     }
 
-    async saveRootElements(context: Principal, fragmentXml: string): Promise<string> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
+    async saveRootElements(principal: Principal, fragmentXml: string): Promise<string> {
+        this.provisionUser(principal);
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.MODIFY);
         const fragment = this.documentController.putRootElements(fragmentXml);
-        info(context, "saved root elements: " + fragment);
+        info(principal, "saved root elements: " + fragment);
         await this.saveDocument();
         return fragment;
     }
 
-    async saveChildElements(context: Principal, parentSid: string, fragmentXml: string): Promise<string> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
+    async saveChildElements(principal: Principal, parentSid: string, fragmentXml: string): Promise<string> {
+        this.provisionUser(principal);
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.MODIFY);
         const fragment = this.documentController.putChildElements(parentSid, fragmentXml);
-        info(context, "saved " + parentSid + " child elements: " + fragment);
+        info(principal, "saved " + parentSid + " child elements: " + fragment);
         await this.saveDocument();
         return fragment;
     }
 
-    async removeElement(context: Principal, sid: string): Promise<void> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.MODIFY);
+    async removeElement(principal: Principal, sid: string): Promise<void> {
+        this.provisionUser(principal);
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.MODIFY);
         this.documentController.remove(sid);
-        info(context, "removed element fragment: " + sid);
+        info(principal, "removed element fragment: " + sid);
         await this.saveDocument();
     }
 
     // Users
 
-    async getUsers(context: Principal) : Promise<Array<User>> {
+    async getUsers(principal: Principal) : Promise<Array<User>> {
+        this.provisionUser(principal);
         return Array.from(this.accessController.model.users.values());
     }
 
-    async getUser(context: Principal, id: string): Promise<User | undefined> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async getUser(principal: Principal, id: string): Promise<User | undefined> {
+        this.provisionUser(principal);
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         if (this.accessController.hasUser(id)) {
             return this.accessController.getUser(id);
         } else {
@@ -130,56 +180,54 @@ export class Storage {
         }
     }
 
-    async addUser(context: Principal, id: string, userName: string): Promise<User> {
-        if (this.accessController.getGroup("administrators").userIds.size > 0) {
-            // Omit admin check if no admins exist in admin group.
-            this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async addUser(principal: Principal, id: string, userName: string): Promise<User> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
+
+        if (!this.accessController.hasUser(id)) {
+            this.accessController.addUser(id, userName);
+            info(principal, "user " + id + " added with name : '" + userName + "'");
+            await this.saveAccess();
+        } else {
+            info(principal, "user " + id + " already added.");
         }
 
-        this.accessController.addUser(id, userName);
-        info(context, "user " + id + " added with name : '" + userName + "'");
-        // Add user as viewer if viewers group exists.
-        if (this.accessController.hasGroup("viewers")) {
-            this.accessController.addGroupMember("viewers", id);
-            info(context, "user " + id + " added to viewers group.");
-        }
-
-        // Add user as administrator if no administrators exist in administrator group.
-        if (this.accessController.hasGroup("administrators")) {
-            if (this.accessController.getGroup("administrators").userIds.size == 0) {
-                this.accessController.addGroupMember("administrators", id);
-                info(context, "user " + id + " added as first administrator to administrators group.");
-            }
-        }
-
-        await this.saveAccess();
         return this.accessController.getUser(id);
     }
 
-    async updateUser(context: Principal, id: string, userName: string): Promise<User> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async updateUser(principal: Principal, id: string, userName: string): Promise<User> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.updateUser(id, userName);
-        info(context, "user " + id + " updated with name : '" + userName + "'");
+        info(principal, "user " + id + " updated with name : '" + userName + "'");
         await this.saveAccess();
         return this.accessController.getUser(id);
     }
 
-    async removeUser(context: Principal, userId: string): Promise<void> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async removeUser(principal: Principal, userId: string): Promise<void> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeUser(userId);
-        info(context, "user " + userId + " removed.");
+        info(principal, "user " + userId + " removed.");
         await this.saveAccess();
     }
 
     // Groups
 
-    async getGroups(context: Principal): Promise<Array<Group>> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async getGroups(principal: Principal): Promise<Array<Group>> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         return Array.from(this.accessController.model.groups.values());
     }
 
-    async getGroup(context: Principal, name: string): Promise<Group | undefined> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async getGroup(principal: Principal, name: string): Promise<Group | undefined> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         if (this.accessController.hasGroup(name)) {
             return this.accessController.getGroup(name);
         } else {
@@ -187,74 +235,94 @@ export class Storage {
         }
     }
 
-    async addGroup(context: Principal, groupName: string): Promise<Group> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async addGroup(principal: Principal, groupName: string): Promise<Group> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.addGroup(groupName);
-        info(context, "group '" + groupName + "' added.");
+        info(principal, "group '" + groupName + "' added.");
         await this.saveAccess();
         return this.accessController.getGroup(groupName);
     }
 
-    async removeGroup(context: Principal, groupName: string): Promise<void> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async removeGroup(principal: Principal, groupName: string): Promise<void> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroup(groupName);
-        info(context, "group '" + groupName + "' removed.");
+        info(principal, "group '" + groupName + "' removed.");
         await this.saveAccess();
     }
 
     // Group members
 
-    async addGroupMember(context: Principal, groupName: string, userId: string): Promise<void> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async addGroupMember(principal: Principal, groupName: string, userId: string): Promise<void> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.addGroupMember(groupName, userId);
-        info(context, "user " + userId + " added to " + groupName + " group.");
+        info(principal, "user " + userId + " added to " + groupName + " group.");
         await this.saveAccess();
     }
 
-    async removeGroupMember(context: Principal, groupName: string, userId: string): Promise<void> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async removeGroupMember(principal: Principal, groupName: string, userId: string): Promise<void> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroupMember(groupName, userId);
-        info(context, "user " + userId + " removed from " + groupName + " group.");
+        info(principal, "user " + userId + " removed from " + groupName + " group.");
         await this.saveAccess();
     }
 
     // Privileges
 
-    async getGroupPrivileges(context: Principal, groupName: string): Promise<Array<[string, PrivilegeType]>> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async getGroupPrivileges(principal: Principal, groupName: string): Promise<Array<[string, PrivilegeType]>> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getGroupPrivileges(groupName);
     }
 
-    async getUserPrivileges(context: Principal, userId: string): Promise<Array<[string, PrivilegeType]>> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async getUserPrivileges(principal: Principal, userId: string): Promise<Array<[string, PrivilegeType]>> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getUserPrivileges(userId);
     }
 
-    async setGroupPrivilege(context: Principal, groupName: string, type: PrivilegeType, sid: string): Promise<void> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async setGroupPrivilege(principal: Principal, groupName: string, type: PrivilegeType, sid: string): Promise<void> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.setGroupPrivilege(groupName, type, sid);
-        info(context, "group '" + groupName + "' privilege for '" + sid + "' set to  : '" + type);
+        info(principal, "group '" + groupName + "' privilege for '" + sid + "' set to  : '" + type);
         await this.saveAccess();
     }
 
-    async setUserPrivilege(context: Principal, userId: string, type: PrivilegeType, sid: string): Promise<void> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async setUserPrivilege(principal: Principal, userId: string, type: PrivilegeType, sid: string): Promise<void> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.setUserPrivilege(userId, type, sid);
-        info(context, "user '" + userId + "' privilege for '" + sid + "' set to  : '" + type);
+        info(principal, "user '" + userId + "' privilege for '" + sid + "' set to  : '" + type);
         await this.saveAccess();
     }
 
-    async removeGroupPrivilege(context: Principal, groupName: string, sid: string): Promise<void> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async removeGroupPrivilege(principal: Principal, groupName: string, sid: string): Promise<void> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroupPrivilege(groupName, sid);
-        info(context, "group '" + groupName + "' privilege for '" + sid + "' removed.");
+        info(principal, "group '" + groupName + "' privilege for '" + sid + "' removed.");
         await this.saveAccess();
     }
 
-    async removeUserPrivilege(context: Principal, userId: string, sid: string): Promise<void> {
-        this.accessController.checkPrivilege(context.userId, "", PrivilegeType.ADMIN);
+    async removeUserPrivilege(principal: Principal, userId: string, sid: string): Promise<void> {
+        this.provisionUser(principal);
+
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeUserPrivilege(userId, sid);
-        info(context, "user '" + userId + "' privilege for '" + sid + "' removed.");
+        info(principal, "user '" + userId + "' privilege for '" + sid + "' removed.");
         await this.saveAccess();
     }
 

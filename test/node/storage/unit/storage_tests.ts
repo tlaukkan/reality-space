@@ -23,7 +23,7 @@ describe('Storage test.', () => {
         const storage = new Storage(sceneFileName, accessFileName, repository, sanitizer);
         await storage.startup();
 
-        const principal = new Principal("", "", "", "1", "test-user-1");
+        const principal = new Principal("", "", "", "1", "test-user-1", ["administrators", "modifiers"]);
 
         await storage.addUser(principal, principal.userId, principal.userName);
         const addedFragmentXml = await storage.saveRootElements(principal, '<a-entities><a-box text="a" invalid="2"></a-box></a-entities>');

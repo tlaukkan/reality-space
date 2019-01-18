@@ -3,6 +3,7 @@ import {expect} from 'chai';
 import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
 import {createTestIdToken, newStorageClient, resetStorage, startTestServer} from "../util/util";
 import {Group} from "../../../src/common/dataspace/api/Group";
+import {User} from "../../../src/common/dataspace/api/User";
 
 describe('Storage API / Testing groups resource ...', () => {
     let server: DataSpaceServer;
@@ -54,36 +55,40 @@ describe('Storage API / Testing groups resource ...', () => {
     });
 
     it('It should add member to group.', async () => {
-        const group = await client.addGroup(new Group("test", []));
-        expect(group.name).eq("test");
+        const user = await client.addUser(new User("2", "test-2", []));
+
+        const group = await client.addGroup(new Group("test2", []));
+        expect(group.name).eq("test2");
         expect(group.userIds.length).eq(0);
 
-        const groupMember = await client.addGroupMember("test", "1");
-        expect(groupMember.groupName, "test");
-        expect(groupMember.userId, "1");
+        const groupMember = await client.addGroupMember("test2", "2");
+        expect(groupMember.groupName, "test2");
+        expect(groupMember.userId, "2");
 
-        const updatedGroup = await client.getGroup("test");
-        expect(group.name).eq("test");
+        const updatedGroup = await client.getGroup("test2");
+        expect(group.name).eq("test2");
         expect(updatedGroup!!.userIds.length).eq(1);
-        expect(updatedGroup!!.userIds[0]).eq("1");
+        expect(updatedGroup!!.userIds[0]).eq("2");
     });
 
     it('It should remove member from group.', async () => {
-        const group = await client.addGroup(new Group("test", []));
-        expect(group.name).eq("test");
+        const user = await client.addUser(new User("2", "test-2", []));
+
+        const group = await client.addGroup(new Group("test2", []));
+        expect(group.name).eq("test2");
         expect(group.userIds.length).eq(0);
 
-        const groupMember = await client.addGroupMember("test", "1");
-        expect(groupMember.groupName, "test");
-        expect(groupMember.userId, "1");
-        expect(group.name).eq("test");
+        const groupMember = await client.addGroupMember("test2", "2");
+        expect(groupMember.groupName, "test2");
+        expect(groupMember.userId, "2");
+        expect(group.name).eq("test2");
 
-        expect((await client.getGroup("test"))!!.userIds.length).eq(1);
+        expect((await client.getGroup("test2"))!!.userIds.length).eq(1);
 
-        await client.removeGroupMember("test", "1");
-        expect(group.name).eq("test");
+        await client.removeGroupMember("test2", "2");
+        expect(group.name).eq("test2");
 
-        expect((await client.getGroup("test"))!!.userIds.length).eq(0);
+        expect((await client.getGroup("test2"))!!.userIds.length).eq(0);
     });
 
 

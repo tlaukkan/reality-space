@@ -119,7 +119,9 @@ function authorizeRequest(request: IncomingMessage, response: ServerResponse, is
             warnWithRequestId(requestId, "Missing mandatory claims.");
             return undefined;
         }
-        const principal = new Principal(issuer, claims.get("jti") as string, requestId, claims.get("id")!! as string, claims.get("name")!!  as string);
+        const groupsString = claims.get("groups");
+        const groups = groupsString ? groupsString.split(",") : undefined;
+        const principal = new Principal(issuer, claims.get("jti") as string, requestId, claims.get("id")!! as string, claims.get("name")!!  as string, groups);
         return new Context(principal, request, response, false);
     } catch (error) {
         warnWithRequestId(requestId, "Error decoding authorization token.");
@@ -128,7 +130,7 @@ function authorizeRequest(request: IncomingMessage, response: ServerResponse, is
 }
 
 export function endResponseWithError(request: IncomingMessage, response: ServerResponse, err: Error, httpStatusCode: number) {
-    error(new Principal("", "", "", "", ""), httpStatusCode.toString() + " " + request.method + ": " + request.url + " ", err);
+    error(new Principal("", "", "", "", "", undefined), httpStatusCode.toString() + " " + request.method + ": " + request.url + " ", err);
     response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
     response.end();
 }

@@ -94,7 +94,7 @@ async function newRepository(): Promise<Repository> {
 
 async function newStorageApi(storageConfiguration: StorageConfiguration, sanitizer: Sanitizer) {
     const repository = await newRepository();
-    const storageRestService = new StorageApi(repository, sanitizer, storageConfiguration.processorNames);
+    const storageRestService = new StorageApi(repository, sanitizer, storageConfiguration.processorNames, storageConfiguration.dimensions, storageConfiguration.maxDimensions);
     await storageRestService.startup();
     return storageRestService;
 }

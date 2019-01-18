@@ -7,6 +7,7 @@ import {parseRootSids} from "../../../src/node/util/parser";
 import {xml2js} from "xml-js";
 import {Principal} from "../../../src/node/framework/rest/Principal";
 import {User} from "../../../src/common/dataspace/api/User";
+import * as fs from "fs";
 
 describe('Storage API / Testing entity resource ...', () => {
     const client = newStorageClientDynamicDimension();
@@ -28,6 +29,8 @@ describe('Storage API / Testing entity resource ...', () => {
 
 
     it('It should add entity.', async () => {
+
+        fs.unlinkSync("repository/dimensions/dynamic-1/processors/test/entities.xml");
 
         if (!await client.getUser("1")) {
             await client.addUser(new User("1", "test", []));

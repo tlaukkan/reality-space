@@ -16,11 +16,13 @@ export class StorageApi {
     repository: Repository;
     sanitizer: Sanitizer;
     dimensionNameRegexs: Array<RegExp> = new Array<RegExp>();
+    maxDimenions: number;
     storages: Map<string, Map<string, Storage>> = new Map();
 
-    constructor(repository: Repository, sanitizer: Sanitizer, processorNames: Array<string>, dimensionNames: Array<string>) {
+    constructor(repository: Repository, sanitizer: Sanitizer, processorNames: Array<string>, dimensionNames: Array<string>, maxDimensions: number) {
         this.repository = repository;
         this.sanitizer = sanitizer;
+        this.maxDimenions = maxDimensions;
         processorNames.forEach((processorName: string) => {
             dimensionNames.forEach((dimensionName: string) => {
                 if (dimensionName.indexOf("*") > -1) {
@@ -161,6 +163,9 @@ export class StorageApi {
 
     private createStorage(dimensionName: string, processorName: string): Storage {
         if (!this.storages.has(dimensionName)) {
+            if (this.storages.size >= this.maxDimenions) {
+                throw new Error("Maximum number of dimensions exist. Can not add new: " + dimensionName);
+            }
             this.storages.set(dimensionName, new Map());
         }
         const storage = new Storage("dimensions/" + dimensionName + "/processors/" + processorName + "/entities.xml", "dimensions/" + dimensionName + "/processors/" + processorName + "/access.json", this.repository, this.sanitizer);

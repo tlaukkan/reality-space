@@ -100,10 +100,15 @@ export class ProcessorConfiguration {
 export class StorageConfiguration {
     url: string;
     processorNames: Array<string>;
+    dimensions: Array<string> = new Array<string>();
+    maxDimensions: number;
 
-    constructor(url: string, serverNames: Array<string>) {
+    constructor(url: string, processorNames: Array<string>, dimensions: Array<string>, maxDimensions: number) {
         this.url = url;
-        this.processorNames = serverNames;
+        this.processorNames = processorNames;
+        this.dimensions = dimensions;
+        this.maxDimensions = maxDimensions;
+
     }
 }
 
@@ -137,7 +142,7 @@ export function getStorageConfiguration(clusterConfiguration: ClusterConfigurati
         const processorStorageUrl = s.storageUrl && s.storageUrl.length > 0 ? s.storageUrl : clusterConfiguration.storageUrl;
         return processorStorageUrl.trim().toLocaleLowerCase() == storageUrl.trim().toLocaleLowerCase()
     }).map(s => s.name);
-    return new StorageConfiguration(storageUrl, matchingServerNames);
+    return new StorageConfiguration(storageUrl, matchingServerNames, clusterConfiguration.dimensions, clusterConfiguration.maxDimensions);
 }
 
 export function findItTokenIssuerConfiguration(clusterConfiguration: ClusterConfiguration, issuer: string) : IdTokenIssuer | null {

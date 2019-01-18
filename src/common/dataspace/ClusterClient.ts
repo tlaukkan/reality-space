@@ -1,4 +1,4 @@
-import {ClusterConfiguration, getClusterConfiguration, ServerConfig} from "./Configuration";
+import {ClusterConfiguration, getClusterConfiguration, ProcessorConfig} from "./Configuration";
 import {Client} from "./Client";
 import {Encode} from "./Encode";
 
@@ -85,33 +85,33 @@ export class ClusterClient {
         if (newServers.length === 0) {
             this.primaryServerUrl = undefined;
         } else {
-            if (this.primaryServerUrl!==newServers[0].url) {
+            if (this.primaryServerUrl!==newServers[0].processorUrl) {
                 if (this.primaryServerUrl && this.clients.has(this.primaryServerUrl)) {
                     console.log("cluster client - switching primary server...");
                     this.closeClient(this.clients.get(this.primaryServerUrl)!!)
                     console.log("cluster client - disconnected old primary server: " + this.primaryServerUrl);
                 }
-                if (this.clients.has(newServers[0].url)) {
-                    this.closeClient(this.clients.get(newServers[0].url)!!)
-                    console.log("cluster client - disconnected secondary server as it is promoted to primary server: " + newServers[0].url);
+                if (this.clients.has(newServers[0].processorUrl)) {
+                    this.closeClient(this.clients.get(newServers[0].processorUrl)!!)
+                    console.log("cluster client - disconnected secondary server as it is promoted to primary server: " + newServers[0].processorUrl);
                 }
-                this.primaryServerUrl = newServers[0].url;
-                console.log("cluster client - new primary server set to: " + newServers[0].url);
+                this.primaryServerUrl = newServers[0].processorUrl;
+                console.log("cluster client - new primary server set to: " + newServers[0].processorUrl);
             }
         }
 
         for (let server of newServers) {
-            if (!this.clients.has(server.url)) {
-                let client = new Client(server.name, server.url, server.apiUrl, server.assetUrl, this.idToken);
-                this.clients.set(server.url, client);
+            if (!this.clients.has(server.processorUrl)) {
+                let client = new Client(server.name, server.processorUrl, server.storageUrl, server.cdnUrl, this.idToken);
+                this.clients.set(server.processorUrl, client);
                 client.newWebSocket = this.newWebSocket;
                 client.onClose = () => {
                     console.log('cluster client - server disconnected: ' + client.url);
                     if (this.primaryServerUrl === client.url) {
                         this.onDisconnect(client.url);
                     }
-                    if (this.clients.get(server.url) === client) {
-                        this.clients.delete(server.url);
+                    if (this.clients.get(server.processorUrl) === client) {
+                        this.clients.delete(server.processorUrl);
                     }
                 };
                 client.onReceive = (message: string) => {
@@ -146,8 +146,8 @@ export class ClusterClient {
                 }
             } else {
                 // Update avatars and probes for servers in range..
-                if (this.clients.get(server.url)!!.isConnected()) {
-                    await this.clients.get(server.url)!!.update(this.avatarId, x, y, z, rx, ry, rz, rw);
+                if (this.clients.get(server.processorUrl)!!.isConnected()) {
+                    await this.clients.get(server.processorUrl)!!.update(this.avatarId, x, y, z, rx, ry, rz, rw);
                 }
             }
         }
@@ -155,7 +155,7 @@ export class ClusterClient {
         // Close clients for servers which are not in range.
         this.clients.forEach((client) => {
             for (let server of newServers) {
-                if (server.url === client.url) {
+                if (server.processorUrl === client.url) {
                     return;
                 }
             }
@@ -254,11 +254,11 @@ export class ClusterClient {
      * @param z the connection avatar z coordinate
      * @return array of ServerInfo with closest server as first.
      */
-    getServers(x: number, y: number, z: number): Array<ServerConfig> {
+    getServers(x: number, y: number, z: number): Array<ProcessorConfig> {
         const edge = this.clusterConfiguration!!.edge;
-        const servers = Array<ServerConfig>();
+        const servers = Array<ProcessorConfig>();
         let lastD2 = edge * 2;
-        for (let serverInfo of this.clusterConfiguration!!.servers) {
+        for (let serverInfo of this.clusterConfiguration!!.processors) {
 
             if (x >= serverInfo.x - edge / 2 && x <= serverInfo.x + edge / 2 &&
                 y >= serverInfo.y - edge / 2 && y <= serverInfo.y + edge / 2 &&

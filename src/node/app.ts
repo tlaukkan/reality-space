@@ -34,7 +34,7 @@ async function start() {
     const storageApi = storageConfiguration ? await newStorageApi(storageConfiguration, sanitizer) : undefined;
 
     if (processor) {
-        console.log("dataspace server - started processor at public URL: " + processorConfiguration!!.url);
+        console.log("dataspace server - started processor at public URL: " + processorConfiguration!!.processorUrl);
     }
     if (storageApi) {
         console.log("dataspace server - started storage at public URL: " + storageConfiguration!!.url);
@@ -94,7 +94,7 @@ async function newRepository(): Promise<Repository> {
 
 async function newStorageApi(storageConfiguration: StorageConfiguration, sanitizer: Sanitizer) {
     const repository = await newRepository();
-    const storageRestService = new StorageApi(repository, sanitizer, storageConfiguration.serverNames);
+    const storageRestService = new StorageApi(repository, sanitizer, storageConfiguration.processorNames);
     await storageRestService.startup();
     return storageRestService;
 }

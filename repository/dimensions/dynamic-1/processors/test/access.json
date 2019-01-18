@@ -1,0 +1,68 @@
+{
+  "users": [
+    {
+      "id": "anonymous",
+      "name": "anonymous",
+      "groupNames": []
+    },
+    {
+      "id": "1",
+      "name": "test",
+      "groupNames": [
+        "viewers",
+        "administrators"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "administrators",
+      "userIds": [
+        "1"
+      ]
+    },
+    {
+      "name": "modifiers",
+      "userIds": []
+    },
+    {
+      "name": "users",
+      "userIds": []
+    },
+    {
+      "name": "viewers",
+      "userIds": [
+        "1"
+      ]
+    }
+  ],
+  "groupPrivileges": [
+    {
+      "type": "ADMIN",
+      "name": "administrators",
+      "sid": ""
+    },
+    {
+      "type": "MODIFY",
+      "name": "modifiers",
+      "sid": ""
+    },
+    {
+      "type": "USE",
+      "name": "users",
+      "sid": ""
+    },
+    {
+      "type": "VIEW",
+      "name": "viewers",
+      "sid": ""
+    }
+  ],
+  "userPrivileges": [
+    {
+      "type": "VIEW",
+      "userId": "anonymous",
+      "sid": ""
+    }
+  ]
+}

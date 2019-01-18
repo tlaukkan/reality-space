@@ -146,9 +146,11 @@ export class StorageApi {
         if (!this.storages.has(dimensionName) || !this.storages.get(dimensionName)!!.has(processorName) ) {
             for (let regExp of this.dimensionNameRegexs) {
                 if (regExp.test(dimensionName)) {
+                    console.log("dataspace server - processor storage creating on demand: " + dimensionName + "/" + processorName);
                     const newStorage = this.createStorage(dimensionName, processorName);
+                    console.log("dataspace server - processor storage starting on demand: " + dimensionName + "/" + processorName);
                     await newStorage.startup();
-                    console.log("dataspace server - processor storage added on demand: " + dimensionName + "/" + processorName);
+                    console.log("dataspace server - processor storage started on demand: " + dimensionName + "/" + processorName);
                     return newStorage;
                 }
             };

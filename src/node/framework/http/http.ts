@@ -15,15 +15,15 @@ export async function processRequest(request: IncomingMessage, response: ServerR
             return;
         }
 
-        if (request.url!!.startsWith('/repository')) {
-            await serveStaticFiles(request, response);
-            return;
-        }
-
         let context = authorizeRequest(request, response, issuers);
         if (!context) {
             response.writeHead(401, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, PUT, GET, DELETE'});
             response.end();
+            return;
+        }
+
+        if (request.url!!.startsWith('/repository')) {
+            await serveStaticFiles(request, response);
             return;
         }
 

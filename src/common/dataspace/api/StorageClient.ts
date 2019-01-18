@@ -26,7 +26,8 @@ export class StorageClient {
     async getRootEntitiesFromCdn(): Promise<string> {
         const entitiesXmlUrl = this.assetUrl + "dimensions/" + this.dimensionName + "/processors/" + this.processorName + "/entities.xml";
         const response = (await fetch(entitiesXmlUrl, {
-            method: "GET"
+            method: "GET",
+            headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()}
         }));
         if (response.status != 200) {
             console.log("Error loading stored entities from assets " + entitiesXmlUrl + " : " + response.status.toString());

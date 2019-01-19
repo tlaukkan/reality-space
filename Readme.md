@@ -102,7 +102,6 @@ karma start karma.config.js  --browsers ChromeHeadless
 
 ### Commands
 
----
     git clone https://github.com/tlaukkan/reality-space.git
     cd reality-space
     heroku create --region eu <your-heroku-account>-reality-space
@@ -110,43 +109,23 @@ karma start karma.config.js  --browsers ChromeHeadless
     git push heroku master
     heroku logs -t
     heroku logs -t --dyno=web
----
-
-To setup standalone configuration 
----
-    # Center coordinate of the managed data space.
-    heroku config:set GRID_CX=0
-    heroku config:set GRID_CY=0
-    heroku config:set GRID_CZ=0
-    # Width, height and depth of the managed data space.
-    heroku config:set GRID_EDGE=1000
-    # Grid step for optimizing visibility searches.
-    heroku config:set GRID_STEP=100
-    # Visibility range.
-    heroku config:set GRID_RANGE=200 
----
  
 To setup processor cluster configuration 
----
-    heroku info -s
+
+    heroku create --region eu rs-test-processor
     heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json
     heroku config:set PROCESSOR_URL=wss://rs-test-processor.herokuapp.com/
----
 
----
- 
 To setup storage cluster configuration with AWS S3
----
-    heroku info -s
-    heroku create aframe-dataspace-storage-eu
+
+    heroku create --region eu rs-test-storage
     heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json 
     heroku config:set STORAGE_URL=https://rs-test-storage.herokuapp.com/api/ 
     heroku config:set STORAGE_TYPE=S3
-    heroku config:set AWS_ACCESS_KEY_ID=
-    heroku config:set AWS_SECRET_ACCESS_KEY=
     heroku config:set AWS_REGION=eu-central-1
     heroku config:set AWS_PUBLIC_BUCKET=dataspace-eu
----
+    heroku config:set AWS_ACCESS_KEY_ID=
+    heroku config:set AWS_SECRET_ACCESS_KEY=
 
 ### Health check
 Storage server provides 200 OK healthcheck at URL path: /health-check.

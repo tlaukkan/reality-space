@@ -27,7 +27,7 @@ async function start() {
 
     // Load configuration.
     const clusterConfiguration = await loadConfiguration(clusterConfigurationUrl);
-    console.log("Loaded configuration: " + JSON.stringify(clusterConfiguration, null, 2));
+    console.log("Loaded configuration: " + JSON.stringify(clusterConfiguration));
 
     const server = newRealityServer(clusterConfiguration, processorUrl, storageUrl, storageType, listenIp, listenPort);
 

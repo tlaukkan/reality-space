@@ -1,5 +1,4 @@
 import {Repository} from "./Repository";
-import {PathLike} from "fs";
 
 const fs = require('fs');
 const path = require('path');
@@ -72,7 +71,7 @@ export class FileSystemRepository implements Repository {
         if (lastSepIndex > -1) {
             const directoryPath = filePath.substring(0, lastSepIndex);
             if (!this.existingDirectories.has(directoryPath)) {
-                console.log("dataspace server: ensuring directory exists: " + filePath);
+                console.log("dataspace server: ensuring directory exists - " + filePath);
                 this.mkDirByPathSync(directoryPath);
                 this.existingDirectories.add(directoryPath);
             }
@@ -94,7 +93,7 @@ export class FileSystemRepository implements Repository {
                 }
 
                 if (err.code === 'ENOENT') {
-                    throw new Error(`EACCES: permission denied, mkdir '${parentDir}'`);
+                    throw new Error("EACCES: permission denied, mkdir '${parentDir}'");
                 }
 
                 const caughtErr = ['EACCES', 'EPERM', 'EISDIR'].indexOf(err.code) > -1;

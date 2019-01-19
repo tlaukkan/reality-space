@@ -13,7 +13,7 @@ export class ServerAvatarClient {
 
     async start() {
         const id = uuid.v4();
-        const client: ClusterClient = new ClusterClient(this.clusterConfigurationUrl, id, 0, 0, 0, 0, 0, 0, 1, "<a-dodecahedron scale='0.5 0.5 0.5'></a-dodecahedron>", id);
+        const client: ClusterClient = new ClusterClient(this.clusterConfigurationUrl, "default", id, 0, 0, 0, 0, 0, 0, 1, "<a-dodecahedron scale='0.5 0.5 0.5'></a-dodecahedron>", id);
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
 

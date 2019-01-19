@@ -3,6 +3,7 @@ import {StorageClient} from "./api/StorageClient";
 import {Decode} from "./Decode";
 import {parseFragment, parseRootSids} from "../../node/util/parser";
 import {Element, js2xml, xml2js} from "xml-js";
+import uuid = require("uuid");
 
 interface OnReceive { (message: string): void }
 interface OnStoredRootEntityReceived { (sid: string, entityXml: string): void }
@@ -11,9 +12,10 @@ interface OnStoredEntityRemoved { (sids: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 interface OnClose { (): void }
 
-export class Client {
+export class RealityClient {
 
-    serverName: string;
+    dimensionName: string;
+    processorName: string;
     url: string;
     apiUrl: string;
     assetUrl: string;
@@ -22,13 +24,14 @@ export class Client {
     connected: boolean = false;
     idToken: string;
 
-    constructor(serverName: string, url: string, apiUrl: string, assetUrl: string, idToken: string) {
-        this.serverName = serverName;
+    constructor(dimensionName: string, processorName: string, url: string, apiUrl: string, assetUrl: string, idToken: string) {
+        this.dimensionName = dimensionName;
+        this.processorName = processorName;
         this.url = url;
         this.apiUrl = apiUrl;
         this.assetUrl = assetUrl;
         this.idToken = idToken;
-        this.storageClient = new StorageClient(serverName, apiUrl, assetUrl, idToken);
+        this.storageClient = new StorageClient(dimensionName, processorName, apiUrl, assetUrl, idToken);
     }
 
     newWebSocket: WebSocketConstruct = (url:string, protocol:string) => { return new WebSocket(url, protocol)};
@@ -39,7 +42,7 @@ export class Client {
 
     connect() : Promise<void>  {
         if (this.connected) {
-            throw new Error("Error already connected.");
+            throw new Error("reality client - error already connected.");
         }
         this.connected = false;
         return new Promise((resolve, reject) => {
@@ -47,7 +50,7 @@ export class Client {
                 this.ws = this.newWebSocket(this.url, 'ds-v1.0');
                 this.ws.onerror = (error) => {
                     this.connected = false;
-                    console.warn("Error in client ws connection", error);
+                    console.warn("reality client - error in client ws connection", error);
                     reject(error);
                 };
                 this.ws.onclose = () => {
@@ -55,11 +58,26 @@ export class Client {
                     this.onClose();
                 };
                 this.ws.onopen = async () => {
-                    this.connected = true;
-                    resolve();
-                    await this.loadStoredEntities();
+                    await this.send(Encode.login(uuid.v4().toString(), this.idToken, this.dimensionName, this.processorName));
                 };
                 this.ws.onmessage = async (message) => {
+                    if ((message.data as string).startsWith(Encode.LOGIN_RESPONSE + "|" )) {
+                        const parts = message.data.split(Encode.SEPARATOR);
+                        const m = Decode.loginResponse(parts);
+                        const loginRequestId = m[0];
+                        const error = m[1];
+                        if (error) {
+                            console.warn("reality client - processor login failed to " + this.dimensionName + "/" + this.processorName + " login request ID: " + loginRequestId + " error: " + error);
+                            reject(error);
+                            return;
+                        } else {
+                            console.log("reality client - processor login success to " + this.dimensionName + "/" + this.processorName + " login request ID: " + loginRequestId);
+                            this.connected = true;
+                            resolve();
+                            await this.loadStoredEntities();
+                            return;
+                        }
+                    }
                     // Process storage notifications internally.
                     if ((message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORED_ROOT_ENTITIES_CHANGED + "|") ||
                         (message.data as string).startsWith(Encode.NOTIFIED + "|" + Encode.NOTIFICATION_STORED_CHILD_ENTITIES_CHANGED + "|") ||
@@ -71,7 +89,7 @@ export class Client {
                     this.onReceive(message.data);
                 };
             } catch (error) {
-                console.warn("Error in client ws connect", error);
+                console.warn("reality client - error in client ws connect", error);
                 reject(error);
             }
         });

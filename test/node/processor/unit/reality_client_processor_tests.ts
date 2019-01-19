@@ -2,18 +2,18 @@ import 'mocha';
 import { expect } from 'chai';
 import {Encode} from "../../../../src/common/dataspace/Encode";
 import {DataSpaceServer} from "../../../../src/node/server/DataSpaceServer";
-import {Client} from "../../../../src/common/dataspace/Client";
-import {startTestServer, waitOnCondition} from "../../util/util";
+import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
+import {createTestIdToken, startLocalTestServer, waitOnCondition} from "../../util/util";
 import uuid = require("uuid");
 import {w3cwebsocket} from "websocket";
 
 describe('Test Messaging', () => {
     let server: DataSpaceServer;
-    let client: Client;
+    let client: RealityClient;
 
     before(async () => {
-        server = await startTestServer();
-        client = new Client("test", "ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/repository", "");
+        server = await startLocalTestServer();
+        client = new RealityClient("default", "test", "ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/api/", createTestIdToken());
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
     });
@@ -53,14 +53,14 @@ describe('Test Messaging', () => {
 
     it('Should send add and receive messages for multiple clients.', async () => {
         const n = 3;
-        const clients: Array<Client> = [];
+        const clients: Array<RealityClient> = [];
         const entityIds: Array<string> = [];
         let c = 0;
         let a = 0;
 
         const startMillis = new Date().getTime();
         for (let i = 0; i < n; i++) {
-            const client = new Client("test", "ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/repository", "");
+            const client = new RealityClient("default", "test", "ws://127.0.0.1:8889/", "http://localhost:8889/api", "http://localhost:8889/api/", createTestIdToken());
             client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
 
             clients.push(client);

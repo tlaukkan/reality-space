@@ -1,6 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
-import {createTestIdToken, newStorageClient} from "../../util/util";
+import {createTestIdToken, newLocalTestStorageClient} from "../../util/util";
 import {StorageClient} from "../../../../src/common/dataspace/api/StorageClient";
 import {
     DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_CDN_URL,

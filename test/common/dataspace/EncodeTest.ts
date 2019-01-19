@@ -4,6 +4,22 @@ import {Decode} from "../../../src/common/dataspace/Decode";
 
 describe('Test Encode', () => {
 
+    it('should encode and decode login', () => {
+        const encoded = Encode.login("1", "jwt|\\", "default", "0-0-0");
+        const decoded: [string, string, string, string] = Decode.login(encoded.split(Encode.SEPARATOR));
+        expect(decoded[0]).to.equal("1");
+        expect(decoded[1]).to.equal("jwt|\\");
+        expect(decoded[2]).to.equal("default");
+        expect(decoded[3]).to.equal("0-0-0");
+    });
+
+    it('should encode and decode login response', () => {
+        const encoded = Encode.loginResponse("1", "error");
+        const decoded: [string, string] = Decode.loginResponse(encoded.split(Encode.SEPARATOR));
+        expect(decoded[0]).to.equal("1");
+        expect(decoded[1]).to.equal("error");
+    });
+
     it('should encode and decode add', () => {
         const encoded = Encode.add("0", 1.011, 2.011, 3.011, 4.011, 5.011, 6.011, 7.011, "d", "a");
         const decoded: [string, number, number, number, number, number, number, number, string, string] = Decode.add(encoded.split(Encode.SEPARATOR));

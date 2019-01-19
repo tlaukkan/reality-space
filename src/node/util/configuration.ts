@@ -40,6 +40,8 @@ export async function loadConfiguration(): Promise<[SanitizerConfig, ProcessorCo
             new ProcessorConfiguration(
                 "0-0-0",
                 "ws://localhost:8889/",
+                ["default"],
+                10,
                 process.env.GRID_CX as any || 0,
                 process.env.GRID_CY as any || 0,
                 process.env.GRID_CZ as any || 0,
@@ -48,9 +50,9 @@ export async function loadConfiguration(): Promise<[SanitizerConfig, ProcessorCo
                 process.env.GRID_RANGE as any || 20),
             new StorageConfiguration(
                 "http://localhost:8889/api",
-                [
-                    "0-0-0"
-                ]),
+                ["0-0-0"],
+                ["default"],
+                10),
             [
                 new IdTokenIssuer(
                     "test-issuer",

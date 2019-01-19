@@ -9,8 +9,8 @@
       "id": "1",
       "name": "test",
       "groupNames": [
-        "viewers",
-        "administrators"
+        "administrators",
+        "viewers"
       ]
     }
   ],

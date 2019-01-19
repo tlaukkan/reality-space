@@ -1,18 +1,19 @@
 import {ClusterConfiguration, getClusterConfiguration, ProcessorConfig} from "./Configuration";
-import {Client} from "./Client";
+import {RealityClient} from "./RealityClient";
 import {Encode} from "./Encode";
 
-interface OnReceive { (serverUrl: string, type: string, message: string[]): void }
-interface OnStoredRootEntityReceived { (serverUrl: string, sid: string, entityXml: string): void }
-interface OnStoredChildEntityReceived { (serverUrl: string, parentSid: string, sid: string, entityXml: string): void }
-interface OnStoredEntityRemoved { (serverUrl: string, sid: string): void }
-interface OnConnect { (serverUrl: string): void }
-interface OnDisconnect { (serverUrl: string): void }
+interface OnReceive { (processorUrl: string, type: string, message: string[]): void }
+interface OnStoredRootEntityReceived { (processorUrl: string, sid: string, entityXml: string): void }
+interface OnStoredChildEntityReceived { (processorUrl: string, parentSid: string, sid: string, entityXml: string): void }
+interface OnStoredEntityRemoved { (processorUrl: string, sid: string): void }
+interface OnConnect { (processorUrl: string): void }
+interface OnDisconnect { (processorUrl: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 
 export class ClusterClient {
 
     clusterConfigurationUrl: string;
+    dimensionName: string;
     idToken: string;
     avatarId: string;
     x: number;
@@ -26,12 +27,13 @@ export class ClusterClient {
 
     clusterConfiguration: ClusterConfiguration | undefined;
 
-    primaryServerUrl: String | undefined = undefined;
+    primaryProcessorUrl: String | undefined = undefined;
 
-    clients: Map<String, Client> = new Map();
+    clients: Map<String, RealityClient> = new Map();
 
-    constructor(clusterConfigurationUrl: string, avatarId: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, avatarDescription: string, idToken: string) {
+    constructor(clusterConfigurationUrl: string, dimensionName: string, avatarId: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, avatarDescription: string, idToken: string) {
         this.clusterConfigurationUrl = clusterConfigurationUrl;
+        this.dimensionName = dimensionName;
         this.idToken = idToken;
         this.avatarId = avatarId;
         this.x = x;
@@ -80,38 +82,38 @@ export class ClusterClient {
         this.rz = rz;
         this.rw = rw;
 
-        const newServers = this.getServers(x, y, z);
+        const processors = this.getProcessors(x, y, z);
 
-        if (newServers.length === 0) {
-            this.primaryServerUrl = undefined;
+        if (processors.length === 0) {
+            this.primaryProcessorUrl = undefined;
         } else {
-            if (this.primaryServerUrl!==newServers[0].processorUrl) {
-                if (this.primaryServerUrl && this.clients.has(this.primaryServerUrl)) {
-                    console.log("cluster client - switching primary server...");
-                    this.closeClient(this.clients.get(this.primaryServerUrl)!!)
-                    console.log("cluster client - disconnected old primary server: " + this.primaryServerUrl);
+            if (this.primaryProcessorUrl!==processors[0].processorUrl) {
+                if (this.primaryProcessorUrl && this.clients.has(this.primaryProcessorUrl)) {
+                    console.log("cluster client - switching primary processor...");
+                    this.closeClient(this.clients.get(this.primaryProcessorUrl)!!)
+                    console.log("cluster client - disconnected old primary processor: " + this.primaryProcessorUrl);
                 }
-                if (this.clients.has(newServers[0].processorUrl)) {
-                    this.closeClient(this.clients.get(newServers[0].processorUrl)!!)
-                    console.log("cluster client - disconnected secondary server as it is promoted to primary server: " + newServers[0].processorUrl);
+                if (this.clients.has(processors[0].processorUrl)) {
+                    this.closeClient(this.clients.get(processors[0].processorUrl)!!)
+                    console.log("cluster client - disconnected secondary processor as it is promoted to primary processor: " + processors[0].processorUrl);
                 }
-                this.primaryServerUrl = newServers[0].processorUrl;
-                console.log("cluster client - new primary server set to: " + newServers[0].processorUrl);
+                this.primaryProcessorUrl = processors[0].processorUrl;
+                console.log("cluster client - new primary processor set to: " + processors[0].processorUrl);
             }
         }
 
-        for (let server of newServers) {
-            if (!this.clients.has(server.processorUrl)) {
-                let client = new Client(server.name, server.processorUrl, server.storageUrl, server.cdnUrl, this.idToken);
-                this.clients.set(server.processorUrl, client);
+        for (let processor of processors) {
+            if (!this.clients.has(processor.processorUrl)) {
+                let client = new RealityClient(this.dimensionName, processor.name, processor.processorUrl, processor.storageUrl, processor.cdnUrl, this.idToken);
+                this.clients.set(processor.processorUrl, client);
                 client.newWebSocket = this.newWebSocket;
                 client.onClose = () => {
-                    console.log('cluster client - server disconnected: ' + client.url);
-                    if (this.primaryServerUrl === client.url) {
+                    console.log('cluster client - processor disconnected: ' + client.url);
+                    if (this.primaryProcessorUrl === client.url) {
                         this.onDisconnect(client.url);
                     }
-                    if (this.clients.get(server.processorUrl) === client) {
-                        this.clients.delete(server.processorUrl);
+                    if (this.clients.get(processor.processorUrl) === client) {
+                        this.clients.delete(processor.processorUrl);
                     }
                 };
                 client.onReceive = (message: string) => {
@@ -131,66 +133,66 @@ export class ClusterClient {
                     await client.connect();
                     this.onConnect(client.url);
                 } catch (error) {
-                    console.log("cluster client - error connecting to server.");
+                    console.log("cluster client - error connecting to processor.");
                     continue;
                 }
-                // Add clients for servers which are in range and not connected yet.
-                if (client.url === this.primaryServerUrl) {
+                // Add clients for processors which are in range and not connected yet.
+                if (client.url === this.primaryProcessorUrl) {
                     // Add avatar
-                    console.log("cluster client - connected to primary server: " + client.url);
+                    console.log("cluster client - connected to primary processor: " + client.url);
                     await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, this.avatarDescription, Encode.AVATAR);
                 } else {
                     // Add probe
-                    console.log("cluster client - connected to secondary server: " + client.url);
+                    console.log("cluster client - connected to secondary processor: " + client.url);
                     await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, "", Encode.PROBE);
                 }
             } else {
-                // Update avatars and probes for servers in range..
-                if (this.clients.get(server.processorUrl)!!.isConnected()) {
-                    await this.clients.get(server.processorUrl)!!.update(this.avatarId, x, y, z, rx, ry, rz, rw);
+                // Update avatars and probes for processors in range..
+                if (this.clients.get(processor.processorUrl)!!.isConnected()) {
+                    await this.clients.get(processor.processorUrl)!!.update(this.avatarId, x, y, z, rx, ry, rz, rw);
                 }
             }
         }
 
-        // Close clients for servers which are not in range.
+        // Close clients for processors which are not in range.
         this.clients.forEach((client) => {
-            for (let server of newServers) {
-                if (server.processorUrl === client.url) {
+            for (let processor of processors) {
+                if (processor.processorUrl === client.url) {
                     return;
                 }
             }
-            console.log("cluster client - closing client to server not in range: " + client.url);
+            console.log("cluster client - closing client to processor not in range: " + client.url);
             this.closeClient(client);
         });
 
     }
 
-    private closeClient(client: Client) {
+    private closeClient(client: RealityClient) {
         this.clients.delete(client.url);
         client.close();
         this.onDisconnect(client.url);
     }
 
-    getClient() : Client | undefined {
-        if (!this.primaryServerUrl) {
+    getClient() : RealityClient | undefined {
+        if (!this.primaryProcessorUrl) {
             return undefined;
         }
-        return this.clients.get(this.primaryServerUrl);
+        return this.clients.get(this.primaryProcessorUrl);
     }
 
     isConnected() : boolean {
-        return this.primaryServerUrl !== undefined && this.clients.has(this.primaryServerUrl) && this.clients.get(this.primaryServerUrl)!!.isConnected();
+        return this.primaryProcessorUrl !== undefined && this.clients.has(this.primaryProcessorUrl) && this.clients.get(this.primaryProcessorUrl)!!.isConnected();
     }
 
-    onConnect: OnConnect = (serverUrl: string) => {};
+    onConnect: OnConnect = (processorUrl: string) => {};
 
-    onDisconnect: OnDisconnect = (serverUrl: string) => {};
+    onDisconnect: OnDisconnect = (processorUrl: string) => {};
 
-    onReceive: OnReceive = (serverUrl: string, type: string, message: string[]) => {};
+    onReceive: OnReceive = (processorUrl: string, type: string, message: string[]) => {};
 
-    onStoredRootEntityReceived: OnStoredRootEntityReceived = (serverUrl: string, sid: string, entityXml:string) => {};
-    onStoredChildEntityReceived: OnStoredChildEntityReceived = (serverUrl: string, parentSid: string, sid: string, entityXml:string) => {};
-    onStoredEntityRemoved: OnStoredEntityRemoved = (serverUrl: string, sid: string) => {};
+    onStoredRootEntityReceived: OnStoredRootEntityReceived = (processorUrl: string, sid: string, entityXml:string) => {};
+    onStoredChildEntityReceived: OnStoredChildEntityReceived = (processorUrl: string, parentSid: string, sid: string, entityXml:string) => {};
+    onStoredEntityRemoved: OnStoredEntityRemoved = (processorUrl: string, sid: string) => {};
 
 
     async add(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string) {
@@ -223,56 +225,56 @@ export class ClusterClient {
         }
     }
 
-    async storeEntities(serverUrl: string, entitiesXml: string) {
-        if (this.clients.has(serverUrl)) {
-            await this.clients.get(serverUrl)!!.storeEntities(entitiesXml);
+    async storeEntities(processorUrl: string, entitiesXml: string) {
+        if (this.clients.has(processorUrl)) {
+            await this.clients.get(processorUrl)!!.storeEntities(entitiesXml);
         } else {
-            throw new Error("Server not connected: " + serverUrl);
+            throw new Error("Processor not connected: " + processorUrl);
         }
     }
 
-    async storeChildEntities(serverUrl: string, parentSid: string, entitiesXml: string) {
-        if (this.clients.has(serverUrl)) {
-            await this.clients.get(serverUrl)!!.storeChildEntities(parentSid, entitiesXml);
+    async storeChildEntities(processorUrl: string, parentSid: string, entitiesXml: string) {
+        if (this.clients.has(processorUrl)) {
+            await this.clients.get(processorUrl)!!.storeChildEntities(parentSid, entitiesXml);
         } else {
-            throw new Error("Server not connected: " + serverUrl);
+            throw new Error("Processor not connected: " + processorUrl);
         }
     }
 
-    async removeStoredEntities(serverUrl: string, sids: Array<string>) {
-        if (this.clients.has(serverUrl)) {
-            await this.clients.get(serverUrl)!!.removeStoredEntities(sids);
+    async removeStoredEntities(processorUrl: string, sids: Array<string>) {
+        if (this.clients.has(processorUrl)) {
+            await this.clients.get(processorUrl)!!.removeStoredEntities(sids);
         } else {
-            throw new Error("Server not connected: " + serverUrl);
+            throw new Error("Processor not connected: " + processorUrl);
         }
     }
 
     /**
-     * Gets servers with closest server as first.
+     * Gets processors with closest processor as first.
      * @param x the connection avatar x coordinate
      * @param y the connection avatar y coordinate
      * @param z the connection avatar z coordinate
-     * @return array of ServerInfo with closest server as first.
+     * @return array of ProcessorConfigurations with closest processor as first.
      */
-    getServers(x: number, y: number, z: number): Array<ProcessorConfig> {
+    getProcessors(x: number, y: number, z: number): Array<ProcessorConfig> {
         const edge = this.clusterConfiguration!!.edge;
-        const servers = Array<ProcessorConfig>();
+        const processors = Array<ProcessorConfig>();
         let lastD2 = edge * 2;
-        for (let serverInfo of this.clusterConfiguration!!.processors) {
+        for (let processor of this.clusterConfiguration!!.processors) {
 
-            if (x >= serverInfo.x - edge / 2 && x <= serverInfo.x + edge / 2 &&
-                y >= serverInfo.y - edge / 2 && y <= serverInfo.y + edge / 2 &&
-                z >= serverInfo.z - edge / 2 && z <= serverInfo.z + edge / 2) {
-                const d2 = Math.pow(x - serverInfo.x,2) + Math.pow(y - serverInfo.y, 2) + Math.pow(z - serverInfo.z, 2);
+            if (x >= processor.x - edge / 2 && x <= processor.x + edge / 2 &&
+                y >= processor.y - edge / 2 && y <= processor.y + edge / 2 &&
+                z >= processor.z - edge / 2 && z <= processor.z + edge / 2) {
+                const d2 = Math.pow(x - processor.x,2) + Math.pow(y - processor.y, 2) + Math.pow(z - processor.z, 2);
                 if (d2 < lastD2) {
-                    servers.unshift(serverInfo);
+                    processors.unshift(processor);
                 } else {
-                    servers.push(serverInfo);
+                    processors.push(processor);
                 }
                 lastD2 = d2;
             }
         }
-        return servers;
+        return processors;
     }
 
 

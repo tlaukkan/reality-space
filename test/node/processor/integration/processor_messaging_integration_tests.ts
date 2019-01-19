@@ -2,14 +2,14 @@ import 'mocha';
 require('isomorphic-fetch');
 import { expect } from 'chai';
 import {Encode} from "../../../../src/common/dataspace/Encode";
-import {Client} from "../../../../src/common/dataspace/Client";
+import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
 import {w3cwebsocket} from "websocket";
 
 describe('Integration Test Messaging', () => {
-    let client: Client;
+    let client: RealityClient;
 
     before(async () => {
-        client = new Client("0-0-0", "wws://aframe-dataspace-0-0-0.herokuapp.com/", "https://aframe-dataspace-storage-eu.herokuapp.com/api", "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com", "");
+        client = new RealityClient("default", "0-0-0", "wws://aframe-dataspace-0-0-0.herokuapp.com/", "https://aframe-dataspace-storage-eu.herokuapp.com/api", "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com", "");
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
     });

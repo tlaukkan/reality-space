@@ -1,16 +1,16 @@
 import 'mocha';
 import {expect} from 'chai';
 import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
-import {newStorageClient, resetStorage, startTestServer} from "../util/util";
+import {newLocalTestStorageClient, resetStorage, startLocalTestServer} from "../util/util";
 import {PrivilegeType} from "../../../src/common/dataspace/api/PrivilegeType";
 import {Group} from "../../../src/common/dataspace/api/Group";
 
 describe('Storage API / Testing privileges ...', () => {
     let server: DataSpaceServer;
-    const client = newStorageClient();
+    const client = newLocalTestStorageClient();
 
     before(async () => {
-        server = await startTestServer();
+        server = await startLocalTestServer();
     });
 
     beforeEach(async () => {

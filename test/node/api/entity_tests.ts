@@ -2,17 +2,17 @@ import 'mocha';
 import {expect} from 'chai';
 import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
 import {DocumentController} from "../../../src/node/storage/DocumentController";
-import {newStorageClient, resetStorage, startTestServer} from "../util/util";
+import {newLocalTestStorageClient, resetStorage, startLocalTestServer} from "../util/util";
 import {parseRootSids} from "../../../src/node/util/parser";
 import {xml2js} from "xml-js";
 
 describe('Storage API / Testing entity resource ...', () => {
-    const client = newStorageClient();
+    const client = newLocalTestStorageClient();
     let server: DataSpaceServer;
     let parser: DocumentController;
 
     before(async () => {
-        server = await startTestServer();
+        server = await startLocalTestServer();
         parser = server.storageApi!!.storages.get("default")!!.get("test")!!.documentController;
     });
 

@@ -2,6 +2,9 @@ export class Encode {
 
     static readonly SEPARATOR: string = '|';
 
+    static readonly LOGIN: string = 'L';
+    static readonly LOGIN_RESPONSE: string = 'l';
+
     static readonly ADD: string = 'A';
     static readonly ADDED: string = 'a';
     static readonly UPDATE: string = 'U';
@@ -22,6 +25,22 @@ export class Encode {
     static readonly OBJECT: string = 'o'; // Visible
     static readonly PROBE: string = 'p';  // Observing
     static readonly AVATAR: string = 'a'; // Visible and observing
+
+    static login(loginRequestId: string, jwt: string, dimension: string, processor: string) : string {
+        return "" +
+            s(this.LOGIN) +
+            s(loginRequestId) +
+            se(jwt) +
+            s(dimension) +
+            s(processor);
+    }
+
+    static loginResponse(loginRequestId: string, error: string) : string {
+        return "" +
+            s(this.LOGIN_RESPONSE) +
+            s(loginRequestId) +
+            s(error);
+    }
 
     static add(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string, type: string) : string {
         return "" +

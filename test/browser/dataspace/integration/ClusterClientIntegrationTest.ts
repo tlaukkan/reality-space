@@ -7,7 +7,7 @@ describe('Integration Test Cluster Client', () => {
 
     before(async () => {
         console.log("\ntesting 0 0 0 in range.\n");
-        client = new ClusterClient("https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace/defaul-configuration.json", "1", 0, 0, 0, 0, 0, 0, 1, "<a-box/>", "");
+        client = new ClusterClient("https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace/defaul-configuration.json", "default", "1", 0, 0, 0, 0, 0, 0, 1, "<a-box/>", "");
         await client.connect();
     });
 

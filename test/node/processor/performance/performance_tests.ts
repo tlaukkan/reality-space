@@ -1,6 +1,6 @@
 import 'mocha';
 
-import {Client} from "../../../../src/common/dataspace/Client";
+import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
 import uuid = require("uuid");
 import {Encode} from "../../../../src/common/dataspace/Encode";
 import {waitOnCondition} from "../../util/util";
@@ -17,11 +17,11 @@ describe('Performance Test Server', () => {
         const numberOfClients = 30;
         const numberOfUpdateRounds = 10;
 
-        const clients: Array<Client> = [];
+        const clients: Array<RealityClient> = [];
         const entityIds: Array<string> = [];
 
         for (let i = 0; i < numberOfClients; i++) {
-            const client = new Client("0-0-0", url, apiUrl, assetUrl, "");
+            const client = new RealityClient("default", "0-0-0", url, apiUrl, assetUrl, "");
             client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
             clients.push(client);
             entityIds.push(uuid.v4());

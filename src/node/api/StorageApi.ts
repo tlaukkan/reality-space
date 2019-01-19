@@ -162,7 +162,7 @@ export class StorageApi {
                     return newStorage;
                 }
             };
-            throw new Error("No such server: " + processorName);
+            throw new Error("dataspace server - no such dimension or processor: " + dimensionName + "/" + processorName);
         }
         return this.storages.get(dimensionName)!!.get(processorName)!!;
     }

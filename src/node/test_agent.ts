@@ -10,7 +10,7 @@ start()
 
 async function start() {
     const id = uuid.v4();
-    const client: ClusterClient = new ClusterClient("https://cdn.rawgit.com/tlaukkan/aframe-dataspace/f197b55b/defaul-configuration.json", id, 0, 0, 0, 0, 0, 0, 1, "<a-dodecahedron scale='0.5 0.5 0.5'></a-dodecahedron>", "");
+    const client: ClusterClient = new ClusterClient("https://cdn.rawgit.com/tlaukkan/aframe-dataspace/f197b55b/defaul-configuration.json", "default", id, 0, 0, 0, 0, 0, 0, 1, "<a-dodecahedron scale='0.5 0.5 0.5'></a-dodecahedron>", "");
     client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
     await client.connect();
 

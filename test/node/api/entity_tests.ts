@@ -1,6 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
-import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
+import {RealityServer} from "../../../src/node/server/RealityServer";
 import {DocumentController} from "../../../src/node/storage/DocumentController";
 import {newLocalTestStorageClient, resetStorage, startLocalTestServer} from "../util/util";
 import {parseRootSids} from "../../../src/node/util/parser";
@@ -8,7 +8,7 @@ import {xml2js} from "xml-js";
 
 describe('Storage API / Testing entity resource ...', () => {
     const client = newLocalTestStorageClient();
-    let server: DataSpaceServer;
+    let server: RealityServer;
     let parser: DocumentController;
 
     before(async () => {

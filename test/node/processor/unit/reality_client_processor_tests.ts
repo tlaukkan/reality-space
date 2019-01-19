@@ -1,14 +1,14 @@
 import 'mocha';
 import { expect } from 'chai';
 import {Encode} from "../../../../src/common/dataspace/Encode";
-import {DataSpaceServer} from "../../../../src/node/server/DataSpaceServer";
+import {RealityServer} from "../../../../src/node/server/RealityServer";
 import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
 import {createTestIdToken, startLocalTestServer, waitOnCondition} from "../../util/util";
 import uuid = require("uuid");
 import {w3cwebsocket} from "websocket";
 
 describe('Test Messaging', () => {
-    let server: DataSpaceServer;
+    let server: RealityServer;
     let client: RealityClient;
 
     before(async () => {

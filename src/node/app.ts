@@ -1,6 +1,6 @@
 import {Grid} from "./processor/Grid";
 import {Processor} from "./processor/Processor";
-import {DataSpaceServer} from "./server/DataSpaceServer";
+import {RealityServer} from "./server/RealityServer";
 import {
     ProcessorConfiguration, StorageConfiguration
 } from "../common/dataspace/Configuration";
@@ -14,7 +14,7 @@ import {Repository} from "./storage/Repository";
 const config = require('config');
 require('isomorphic-fetch');
 
-start().then().catch(e => console.log('dataspace server - startup error: ', e));
+start().then().catch(e => console.log('reality server - startup error: ', e));
 
 async function start() {
 
@@ -34,14 +34,14 @@ async function start() {
     const storageApi = storageConfiguration ? await newStorageApi(storageConfiguration, sanitizer) : undefined;
 
     if (processor) {
-        console.log("dataspace server - started processor at public URL: " + processorConfiguration!!.processorUrl);
+        console.log("reality server - started processor at public URL: " + processorConfiguration!!.processorUrl);
     }
     if (storageApi) {
-        console.log("dataspace server - started storage at public URL: " + storageConfiguration!!.url);
+        console.log("reality server - started storage at public URL: " + storageConfiguration!!.url);
     }
 
     // Construct server.
-    const server = new DataSpaceServer(
+    const server = new RealityServer(
         '0.0.0.0',
         config.get("Server.port"),
         processor,
@@ -79,13 +79,13 @@ function newProcessor(serverConfiguration: ProcessorConfiguration, sanitizer: Sa
 async function newRepository(): Promise<Repository> {
     const storageType = config.get('Storage.type').trim().toLocaleLowerCase();
     if (storageType == "s3") {
-        console.log("dataspace server - storage repository type is S3.");
+        console.log("reality server - storage repository type is S3.");
         const bucket = config.get('AWS.publicBucket');
         const repository = new S3Repository(bucket);
         await repository.startup();
         return repository;
     } else {
-        console.log("dataspace server - storage repository type is file system.");
+        console.log("reality server - storage repository type is file system.");
         const repository = new FileSystemRepository();
         await repository.startup();
         return repository;

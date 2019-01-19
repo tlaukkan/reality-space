@@ -30,7 +30,7 @@ export class StorageApi {
                     return; // Do not instantiate wildcard dimensions
                 }
                 this.createStorage(dimensionName, processorName);
-                console.log("dataspace server - processor storage added: " + dimensionName + "/" + processorName);
+                console.log("reality server - processor storage added: " + dimensionName + "/" + processorName);
             });
         });
     }
@@ -154,15 +154,15 @@ export class StorageApi {
         if (!this.storages.has(dimensionName) || !this.storages.get(dimensionName)!!.has(processorName) ) {
             for (let regExp of this.dimensionNameRegexs) {
                 if (regExp.test(dimensionName)) {
-                    console.log("dataspace server - processor storage creating on demand: " + dimensionName + "/" + processorName);
+                    console.log("reality server - processor storage creating on demand: " + dimensionName + "/" + processorName);
                     const newStorage = this.createStorage(dimensionName, processorName);
-                    console.log("dataspace server - processor storage starting on demand: " + dimensionName + "/" + processorName);
+                    console.log("reality server - processor storage starting on demand: " + dimensionName + "/" + processorName);
                     await newStorage.startup();
-                    console.log("dataspace server - processor storage started on demand: " + dimensionName + "/" + processorName);
+                    console.log("reality server - processor storage started on demand: " + dimensionName + "/" + processorName);
                     return newStorage;
                 }
             };
-            throw new Error("dataspace server - no such dimension or processor: " + dimensionName + "/" + processorName);
+            throw new Error("reality server - no such dimension or processor: " + dimensionName + "/" + processorName);
         }
         return this.storages.get(dimensionName)!!.get(processorName)!!;
     }

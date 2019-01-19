@@ -1,11 +1,11 @@
 import 'mocha';
 import {expect} from 'chai';
-import {DataSpaceServer} from "../../../src/node/server/DataSpaceServer";
+import {RealityServer} from "../../../src/node/server/RealityServer";
 import {createTestIdToken, resetStorage, startLocalTestServer} from "../util/util";
 import uuid = require("uuid");
 
 describe('Storage API / Testing access control ...', () => {
-    let server: DataSpaceServer;
+    let server: RealityServer;
     const idToken = createTestIdToken();
 
     before(async () => {

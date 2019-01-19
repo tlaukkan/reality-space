@@ -14,7 +14,7 @@ import {Principal} from "../framework/rest/Principal";
 import {log} from "util";
 import {connection} from "websocket";
 
-export class DataSpaceServer {
+export class RealityServer {
 
     host: string;
     port: number;
@@ -52,7 +52,7 @@ export class DataSpaceServer {
         }
 
         if (this.processor) {
-            console.log('dataspace server - started processor.')
+            console.log('reality server - started processor.')
             this.webSocketServer = new websocket.server({httpServer: this.httpServer});
             this.webSocketServer.on('request', (request) => this.processConnection(request));
             this.processor.start();
@@ -61,10 +61,10 @@ export class DataSpaceServer {
         this.httpServer.listen(this.port, this.host);
 
         if (this.processor) {
-            console.log('dataspace server - processor listening at local URL: at ws://' + this.host + ':' + this.port + '/');
+            console.log('reality server - processor listening at local URL: at ws://' + this.host + ':' + this.port + '/');
         }
         if (this.storageApi) {
-            console.log('dataspace server - storage listening at local URL: http://' + this.host + ':' + this.port + '/api');
+            console.log('reality server - storage listening at local URL: http://' + this.host + ':' + this.port + '/api');
         }
 
     }
@@ -78,11 +78,11 @@ export class DataSpaceServer {
             await this.storageApi.shutdown();
         }
         this.httpServer.close();
-        console.log('dataspace server - closed.');
+        console.log('reality server - closed.');
     }
 
     processConnection(request: websocket.request) {
-        console.log('dataspace server - client connected from ' + request.socket.remoteAddress + ':' + request.socket.remotePort);
+        console.log('reality server - client connected from ' + request.socket.remoteAddress + ':' + request.socket.remotePort);
         const ws = request.accept('ds-v1.0', request.origin);
 
         const connection = new Connection(uuid.v4());
@@ -93,21 +93,21 @@ export class DataSpaceServer {
         ws.on('message', async (message: websocket.IMessage) => {
             if (message.utf8Data!!) {
                 if (message.utf8Data!!.startsWith(Encode.LOGIN + '|')) {
-                    await this.processLoginRequest(ws, message.utf8Data!!);
+                    await this.processLoginRequest(ws, message.utf8Data!!, request.socket.remoteAddress!!, request.socket.remotePort!!);
                 } else {
                     await connection.receive(message.utf8Data!!);
                 }
             } else {
-                console.warn('dataspace server - client message from ' + request.socket.remoteAddress + ':' + request.socket.remotePort + ' without utf8Data.');
+                console.warn('reality server - client message from ' + request.socket.remoteAddress + ':' + request.socket.remotePort + ' without utf8Data.');
             }
         });
         ws.on('close', () => {
-            console.log('dataspace server - client disconnected from ' + request.socket.remoteAddress + ':' + request.socket.remotePort);
+            console.log('reality server - client disconnected from ' + request.socket.remoteAddress + ':' + request.socket.remotePort);
             this.processor!!.remove(connection);
         });
     }
 
-    private async processLoginRequest(ws: connection, message: string) {
+    private async processLoginRequest(ws: connection, message: string, remoteAddress: string, remotePort: number) {
         try {
             const parts = message.split(Encode.SEPARATOR);
             const m = Decode.login(parts);
@@ -155,7 +155,7 @@ export class DataSpaceServer {
             const groups = groupsString ? groupsString.split(",") : undefined;
             const principal = new Principal(issuer, claims.get("jti") as string, loginRequestId, claims.get("id")!! as string, claims.get("name")!! as string, groups);
 
-            info(principal, "client login success " + dimensionName + "/" + processorName);
+            info(principal, "client login success to " + dimensionName + "/" + processorName + " from: " + remoteAddress + ":" + remotePort);
             await ws.send(Encode.loginResponse(loginRequestId, ""));
 
         } catch (error) {
@@ -165,7 +165,7 @@ export class DataSpaceServer {
 
     private async processLoginError(ws: websocket.connection, loginRequestId: string, errorMessage: string) {
         await ws.send(Encode.loginResponse(loginRequestId, errorMessage));
-        console.warn("dataspace server - login request failed " + loginRequestId + " : " + errorMessage);
+        console.warn("reality server - login request failed " + loginRequestId + " : " + errorMessage);
         ws.close();
     }
 }

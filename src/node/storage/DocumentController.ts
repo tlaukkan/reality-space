@@ -21,7 +21,7 @@ export class DocumentController {
     clear(): void {
         this.elements.clear();
         this.document = this.parse(DocumentController.EMPTY_FRAGMENT);
-        console.log("dataspace server - document controller cleared.");
+        console.log("reality server - document controller cleared.");
     }
 
     putRootElements(fragmentXml: string): string {

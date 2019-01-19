@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect } from 'chai';
 import {Encode} from "../../../../src/common/dataspace/Encode";
-import {DataSpaceServer} from "../../../../src/node/server/DataSpaceServer";
+import {RealityServer} from "../../../../src/node/server/RealityServer";
 import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
 import {
     newLocalTestStorageClient,
@@ -13,7 +13,7 @@ import {xml2js} from "xml-js";
 
 describe('Reality client storage test.', () => {
 
-    const server: DataSpaceServer = newLocalTestServer();
+    const server: RealityServer = newLocalTestServer();
     const storageClient = newLocalTestStorageClient();
     const client :RealityClient = newLocalTestRealityClient();
 

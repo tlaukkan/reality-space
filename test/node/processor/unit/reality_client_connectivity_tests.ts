@@ -1,6 +1,6 @@
 import 'mocha';
 
-import {DataSpaceServer} from "../../../../src/node/server/DataSpaceServer";
+import {RealityServer} from "../../../../src/node/server/RealityServer";
 import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
 import {
     newLocalTestRealityClient,
@@ -8,7 +8,7 @@ import {
 } from "../../util/util";
 
 describe('Test Reality Client Connectivity', () => {
-    const server: DataSpaceServer = newLocalTestServer();
+    const server: RealityServer = newLocalTestServer();
     const client: RealityClient = newLocalTestRealityClient();
 
     before(async () => {

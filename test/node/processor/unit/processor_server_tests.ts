@@ -1,10 +1,10 @@
 import 'mocha';
 
-import {DataSpaceServer} from "../../../../src/node/server/DataSpaceServer";
+import {RealityServer} from "../../../../src/node/server/RealityServer";
 import {startLocalTestServer} from "../../util/util";
 
 describe('Test Server', () => {
-    let server: DataSpaceServer;
+    let server: RealityServer;
 
     after(async () => {
         await server.close();

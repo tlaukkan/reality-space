@@ -4,12 +4,18 @@ import { expect } from 'chai';
 import {Encode} from "../../../../src/common/dataspace/Encode";
 import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
 import {w3cwebsocket} from "websocket";
+import {
+    DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_CDN_URL,
+    PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME,
+    PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_URL, PUBLIC_TEST_CLUSTER_STORAGE_URL
+} from "../../../test";
+import {createTestIdToken} from "../../util/util";
 
 describe('Integration Test Messaging', () => {
     let client: RealityClient;
 
     before(async () => {
-        client = new RealityClient("default", "0-0-0", "wws://aframe-dataspace-0-0-0.herokuapp.com/", "https://aframe-dataspace-storage-eu.herokuapp.com/api", "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com", "");
+        client = new RealityClient(DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME, PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_URL, PUBLIC_TEST_CLUSTER_STORAGE_URL, PUBLIC_TEST_CLUSTER_CDN_URL, createTestIdToken());
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
     });
@@ -26,6 +32,7 @@ describe('Integration Test Messaging', () => {
                 return;
             }
 
+            console.log(message);
             const index = message.split(Encode.SEPARATOR)[1];
             expect(message.split(Encode.SEPARATOR)[0]).equals(Encode.ADDED);
             client.update("1", 1, 2, 3, 4, 5, 6, 7);

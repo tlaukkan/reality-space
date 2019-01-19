@@ -3,13 +3,15 @@ require('isomorphic-fetch');
 import { expect } from 'chai';
 import {ClusterClient} from "../../../../src/common/dataspace/ClusterClient";
 import {w3cwebsocket} from "websocket";
+import {DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_CONFIG_URL} from "../../../test";
+import {createTestIdToken} from "../../util/util";
 
 describe('Integration Test Cluster Client', () => {
     let client: ClusterClient;
 
     before(async () => {
         console.log("\ntesting 0 0 0 in range.\n");
-        client = new ClusterClient("default", "https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace/defaul-configuration.json", "1", 0, 0, 0, 0, 0, 0, 1, "<a-box/>", "");
+        client = new ClusterClient(PUBLIC_TEST_CLUSTER_CONFIG_URL, DEFAULT_DIMENSION, "1", 0, 0, 0, 0, 0, 0, 1, "<a-box/>", createTestIdToken());
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
         await client.connect();
     });

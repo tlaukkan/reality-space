@@ -194,6 +194,7 @@ export class ProcessorRequestManager {
             }
 
             processor!!.add(connection);
+            connection.processor = processor;
 
             const processorConfig = processor.processorConfig;
             const storageClient = new StorageClient(processor.dimensionName, processor.processorName, processorConfig.storageUrl, processorConfig.cdnUrl, idToken);

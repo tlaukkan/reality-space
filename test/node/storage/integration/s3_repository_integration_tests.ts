@@ -13,5 +13,4 @@ describe('S3 Repository Test.', () => {
         expect(await repository.load("data/test1/test.txt")).eq("");
     });
 
-
 });

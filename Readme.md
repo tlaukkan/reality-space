@@ -109,12 +109,6 @@ karma start karma.config.js  --browsers ChromeHeadless
     git push heroku master
     heroku logs -t
     heroku logs -t --dyno=web
- 
-To setup processor cluster configuration 
-
-    heroku create --region eu rs-test-processor
-    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json
-    heroku config:set PROCESSOR_URL=wss://rs-test-processor.herokuapp.com/
 
 To setup storage cluster configuration with AWS S3
 
@@ -126,6 +120,19 @@ To setup storage cluster configuration with AWS S3
     heroku config:set AWS_PUBLIC_BUCKET=dataspace-eu
     heroku config:set AWS_ACCESS_KEY_ID=
     heroku config:set AWS_SECRET_ACCESS_KEY=
+     
+To setup main processor cluster configuration 
+
+    heroku create --region eu rs-test-processor
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json
+    heroku config:set PROCESSOR_URL=wss://rs-test-processor.herokuapp.com/
+
+To setup 0-0-0 processor cluster configuration 
+
+    heroku create --region eu rs-test-processor-0-0-0
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json
+    heroku config:set PROCESSOR_URL=wss://rs-test-processor-0-0-0.herokuapp.com/
+
 
 ### Health check
 Storage server provides 200 OK healthcheck at URL path: /health-check.

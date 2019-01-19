@@ -12,9 +12,9 @@ async function start() {
 
     const clusterConfigurationUrl = config.get('Cluster.configurationUrl') as string;
     console.log("Cluster configuration URL: " + clusterConfigurationUrl);
-    const processorUrl = config.get('Processor.wsUrl');
+    const processorUrl = config.get('Processor.url');
     console.log("Processor WS URL: " + processorUrl);
-    const storageUrl = config.get('Storage.apiUrl');
+    const storageUrl = config.get('Storage.url');
     console.log("Storage API URL: " + storageUrl);
     const listenIp: string = '0.0.0.0';
     console.log("listen IP: " + listenIp);

@@ -11,10 +11,10 @@
     "allowedAttributeValueRegex": "SANITIZER_ALLOWED_ATTRIBUTE_VALUE_REGEX"
   },
   "Processor": {
-    "wsUrl": "WS_URL"
+    "url": "PROCESSOR_URL"
   },
   "Storage": {
-    "apiUrl": "STORAGE_API_URL",
+    "url": "STORAGE_URL",
     "type": "STORAGE_TYPE"
   },
   "Server": {

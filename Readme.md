@@ -129,9 +129,8 @@ To setup standalone configuration
 To setup processor cluster configuration 
 ---
     heroku info -s
-    heroku config:set WS_URL=<the websocket URL for the server (wss://xxx.herokuapp.com)
-    heroku config:set CLUSTER_CONFIGURATION_URL=<cluster-configuration-url (for example: https://rawgit.com/tlaukkan/aframe-dataspace/master/defaul-configuration.json)
-    heroku config:set WS_URL=<the websocket URL for the server (wss://xxx.herokuapp.com)
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json
+    heroku config:set PROCESSOR_URL=wss://rs-test-processor.herokuapp.com/
 ---
 
 ---
@@ -140,8 +139,8 @@ To setup storage cluster configuration with AWS S3
 ---
     heroku info -s
     heroku create aframe-dataspace-storage-eu
-    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace@0.0.22/defaul-configuration.json  
-    heroku config:set STORAGE_API_URL=https://aframe-dataspace-storage-eu.herokuapp.com/api    
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json 
+    heroku config:set STORAGE_URL=https://rs-test-storage.herokuapp.com/api/ 
     heroku config:set STORAGE_TYPE=S3
     heroku config:set AWS_ACCESS_KEY_ID=
     heroku config:set AWS_SECRET_ACCESS_KEY=

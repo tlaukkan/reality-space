@@ -11,10 +11,10 @@
     "allowedAttributeValueRegex": "[^\\w\\s\\.:;-]"
   },
   "Processor": {
-    "wsUrl": ""
+    "url": ""
   },
   "Storage": {
-    "apiUrl": "",
+    "url": "",
     "type": "fs"
   },
   "Server": {

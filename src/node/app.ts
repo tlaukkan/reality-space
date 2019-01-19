@@ -11,6 +11,7 @@ import {StorageApi} from "./api/StorageApi";
 import {loadConfiguration} from "./util/configuration";
 import {S3Repository} from "./storage/S3Repository";
 import {Repository} from "./storage/Repository";
+import {ProcessorManager} from "./server/ProcessorManager";
 const config = require('config');
 require('isomorphic-fetch');
 
@@ -30,7 +31,7 @@ async function start() {
 
     // Construct components.
     const sanitizer = new Sanitizer(sanitizerConfiguration.allowedElements, sanitizerConfiguration.allowedAttributes, sanitizerConfiguration.allowedAttributeValueRegex);
-    const processor = processorConfiguration ? newProcessor(processorConfiguration, sanitizer) : undefined;
+    const processor = processorConfiguration ? new ProcessorManager(newProcessor(processorConfiguration, sanitizer), idTokenIssuers) : undefined;
     const storageApi = storageConfiguration ? await newStorageApi(storageConfiguration, sanitizer) : undefined;
 
     if (processor) {

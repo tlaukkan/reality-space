@@ -11,11 +11,6 @@ export async function loadConfiguration(clusterConfigurationUrl: string): Promis
 
     const clusterConfiguration = await fetchConfiguration(clusterConfigurationUrl);
     if (clusterConfiguration) {
-
-        console.log("Cluster configuration: " +  + JSON.stringify(clusterConfiguration, null, 2));
-
-        //const storageConfiguration = storageApiUrl ? getStorageConfiguration(clusterConfiguration, storageApiUrl!!) : undefined;
-
         return clusterConfiguration;
     } else {
         console.log("Cluster configuration URL not defined. Loading local configuration.");

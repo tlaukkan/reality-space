@@ -38,6 +38,7 @@ export class ClusterConfiguration {
     step: number = 100;
     range: number = 200;
     maxDimensions: number = 10;
+    processorUrl: string = "";
     storageUrl: string = "";
     cdnUrl: string = "";
     dimensions: Array<string> = new Array<string>();
@@ -59,6 +60,8 @@ export async function fetchConfiguration(url: string): Promise<ClusterConfigurat
     const clusterConfiguration = JSON.parse(responseText) as ClusterConfiguration;
 
     clusterConfiguration.processors.forEach((processor) => {
+        processor.name = processor.name && processor.name.length > 0 ? processor.name : processor.x + "-" + processor.y + "-" + processor.z;
+        processor.processorUrl = processor.processorUrl && processor.processorUrl.length > 0 ? processor.processorUrl : clusterConfiguration.processorUrl;
         processor.storageUrl = processor.storageUrl && processor.storageUrl.length > 0 ? processor.storageUrl : clusterConfiguration.storageUrl;
         processor.cdnUrl = processor.cdnUrl && processor.cdnUrl.length > 0 ? processor.cdnUrl : clusterConfiguration.cdnUrl;
         processor.dimensions = processor.dimensions && processor.dimensions.length > 0 ? processor.dimensions : clusterConfiguration.dimensions;

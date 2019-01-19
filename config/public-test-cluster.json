@@ -6,28 +6,22 @@
     "allowedAttributes": "src,geometry,material,position,rotation,quaternion,scale,sound,text,sid,color,gltf-model,animator,avatar",
     "attributeValueRegex": "[^\\w\\s\\.:;-#/]"
   },
-  "storageUrl": "https://reality-space-eu-storage.herokuapp.com/api",
-  "cdnUrl": "https://reality-space-eu-storage.herokuapp.com/api",
+  "processorUrl": "wss://rs-test-processor.herokuapp.com/",
+  "storageUrl":   "https://rs-test-storage.herokuapp.com/api/",
+  "cdnUrl":       "https://rs-test-storage.herokuapp.com/api/",
   "edge": 140,
   "step": 10,
   "range": 20,
   "dimensions": ["default", "private-*"],
   "maxDimensions": 20,
   "processors": [
-    {
-      "name": "0-0-0",
-      "x": 0,
-      "y": 0,
-      "z": 0,
-      "processorUrl": "wss://reality-space-eu-processor-0-0-0.herokuapp.com/"
-    },
-    {
-      "name": "0-0-100",
-      "x": 0,
-      "y": 0,
-      "z": 100,
-      "processorUrl": "wss://reality-space-eu-processor-0-0-100.herokuapp.com/"
-    }
+    { "x":    0, "y":   0, "z":    0, "processorUrl": "wss://rs-test-processor-0-0-0.herokuapp.com/"},
+    { "x":  100, "y":   0, "z":    0},
+    { "x":    0, "y":   0, "z":  100},
+    { "x":  100, "y":   0, "z":  100},
+    { "x": -100, "y":   0, "z":    0},
+    { "x":    0, "y":   0, "z": -100},
+    { "x": -100, "y":   0, "z": -100}
   ],
   "idTokenIssuers": [
     {

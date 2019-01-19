@@ -200,7 +200,7 @@ export class ProcessorRequestManager {
 
             // check access rights
             try {
-                await storageClient.getEntity("none-existent")
+                await storageClient.getEntity("login-access-test")
             } catch (error) {
                 await this.processLoginError(ws, loginRequestId, "access denied: " + error.message);
                 return;

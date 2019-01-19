@@ -13,7 +13,7 @@ describe('Storage API / Testing entity resource ...', () => {
 
     before(async () => {
         server = await startLocalTestServer();
-        parser = server.storageApi!!.storages.get("default")!!.get("test")!!.documentController;
+        parser = server.storageManager!!.storages.get("default")!!.get("test")!!.documentController;
     });
 
     beforeEach(async () => {

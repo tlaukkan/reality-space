@@ -6,13 +6,13 @@ import {Sanitizer} from "../../../src/common/dataspace/Sanitizer";
 import {Processor} from "../../../src/node/processor/Processor";
 import {Grid} from "../../../src/node/processor/Grid";
 import {FileSystemRepository} from "../../../src/node/storage/FileSystemRepository";
-import {StorageApi} from "../../../src/node/api/StorageApi";
+import {StorageRequestManager} from "../../../src/node/api/StorageRequestManager";
 import {IdTokenIssuer} from "../../../src/common/dataspace/Configuration";
 import {createIdToken} from "../../../src/common/util/jwt";
 import {Principal} from "../../../src/node/framework/rest/Principal";
 import {StorageClient} from "../../../src/common/dataspace/api/StorageClient";
 import {w3cwebsocket} from "websocket";
-import {ProcessorManager} from "../../../src/node/server/ProcessorManager";
+import {ProcessorRequestManager} from "../../../src/node/server/ProcessorRequestManager";
 
 export const waitOnCondition = (condition: (() => boolean)): Promise<void> =>  {
     return new Promise((resolve, reject) => {
@@ -32,8 +32,8 @@ export function newLocalTestServer(): RealityServer {
     const processor = new Processor(new Grid(0, 0, 0, 1000, 100, 200), sanitizer);
     const repository = new FileSystemRepository();
     const idTokenIssuers = [new IdTokenIssuer("test-issuer", "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFwbDlqT0lrdjcrTVFwYzNZMVVUego5RE5TWFFlUUpSSThJZ2tIb3lLVDJGWGxhdHkrREJoNDJxTGRjc1JVV2hUNkJjVGRWKyszTUk5bVVsdVVBOHpjCjZzL29ZUi9RM0Q4RkpVaTJPZThWWGh2MS9lZERRVTJUZ3VZYUJ2eGlWWllYbFh1RGtqVTA1aUtNWWRpQmNGcDgKOHQ0RkRGUFVNUkdnTU5XcElEeEdPZUN4TjB2OG90dDNPQmtGSHlva0dkeE12dTFxNUtWUzRZNjBEOFVnQy80aQpJR0UzUUNMcUl6WitqbTBvOHZBcWdKRy9yQUw1VW11ZlIrS25XZElJVmZIeWhad3hGald1dXJmUFp3S1gyM2FqCmdjSURGalBmMVhkZVdkRVZpQ0dBRGVhaVlmeXJDazVFK0k3eDM4WmoxZUhxbGpKWWg2bzJqYUtKeEhzSDBaSksKdXdJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==")];
-    const storageRestService = new StorageApi(repository, sanitizer, ["test"], ["default","dynamic-*"], 2);
-    const processorManager = new ProcessorManager(processor, idTokenIssuers);
+    const storageRestService = new StorageRequestManager(repository, sanitizer, ["test"], ["default","dynamic-*"], 2);
+    const processorManager = new ProcessorRequestManager(processor, idTokenIssuers);
 
     const server = new RealityServer('127.0.0.1', 8889, processorManager, storageRestService, idTokenIssuers);
     return server;
@@ -62,8 +62,8 @@ export function newStorageClientDynamicDimension() {
 }
 
 export function resetStorage(server: RealityServer) {
-    if (server.storageApi) {
-        server.storageApi.storages.forEach(dimensionStorages => {
+    if (server.storageManager) {
+        server.storageManager.storages.forEach(dimensionStorages => {
             dimensionStorages.forEach(storage => {
                 storage.clear();
                 storage.init();

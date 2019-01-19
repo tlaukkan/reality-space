@@ -10,8 +10,7 @@ import {GroupMember} from "../../common/dataspace/api/GroupMember";
 import {GroupPrivilege} from "../../common/dataspace/api/GroupPrivilege";
 import {UserPrivilege} from "../../common/dataspace/api/UserPrivilege";
 
-export class StorageApi {
-
+export class StorageRequestManager {
 
     repository: Repository;
     sanitizer: Sanitizer;

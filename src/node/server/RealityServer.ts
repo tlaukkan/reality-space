@@ -1,27 +1,29 @@
 import * as websocket from "websocket";
 import * as http from "http";
-import {StorageApi} from "../api/StorageApi";
+import {StorageRequestManager} from "../api/StorageRequestManager";
 import {IdTokenIssuer} from "../../common/dataspace/Configuration";
 import {Context} from "../framework/http/Context";
 import {processRequest} from "../framework/http/http";
-import {ProcessorManager} from "./ProcessorManager";
+import {ProcessorRequestManager} from "./ProcessorRequestManager";
 
 export class RealityServer {
 
     host: string;
     port: number;
-    processorManager: ProcessorManager | undefined;
-    storageApi: StorageApi | undefined;
-    webSocketServer: websocket.server = undefined as any as websocket.server;
+
+    processorManager: ProcessorRequestManager | undefined;
+    storageManager: StorageRequestManager | undefined;
 
     httpServer: http.Server = undefined as any as http.Server;
+    webSocketServer: websocket.server = undefined as any as websocket.server;
+
     issuers: Map<string, IdTokenIssuer> = new Map<string, IdTokenIssuer>();
 
-    constructor(host: string, port: number, processorManager: ProcessorManager | undefined, storageApi: StorageApi | undefined, idTokenIssuers: Array<IdTokenIssuer>) {
+    constructor(host: string, port: number, processorManager: ProcessorRequestManager | undefined, storageManager: StorageRequestManager | undefined, idTokenIssuers: Array<IdTokenIssuer>) {
         this.host = host;
         this.port = port;
         this.processorManager = processorManager;
-        this.storageApi = storageApi;
+        this.storageManager = storageManager;
         idTokenIssuers.forEach(idTokenIssuer => {
             this.issuers.set(idTokenIssuer.issuer, idTokenIssuer);
         })
@@ -29,17 +31,17 @@ export class RealityServer {
 
     async startup() {
         this.httpServer = http.createServer(async (request, response) => {
-            if (this.storageApi) {
+            if (this.storageManager) {
                 await processRequest(request, response, [
-                    async (c: Context) => this.storageApi!!.process(c)
+                    async (c: Context) => this.storageManager!!.process(c)
                 ], this.issuers);
             } else {
                 await processRequest(request, response, [], this.issuers);
             }
         });
 
-        if (this.storageApi) {
-            await this.storageApi.startup();
+        if (this.storageManager) {
+            await this.storageManager.startup();
             console.log('reality server - started storages.')
         }
 
@@ -55,7 +57,7 @@ export class RealityServer {
         if (this.processorManager) {
             console.log('reality server - processor listening at local URL: at ws://' + this.host + ':' + this.port + '/');
         }
-        if (this.storageApi) {
+        if (this.storageManager) {
             console.log('reality server - storage listening at local URL: http://' + this.host + ':' + this.port + '/api');
         }
 
@@ -67,8 +69,8 @@ export class RealityServer {
             this.webSocketServer.shutDown();
             console.log('reality server - closed processors.')
         }
-        if (this.storageApi) {
-            await this.storageApi.shutdown();
+        if (this.storageManager) {
+            await this.storageManager.shutdown();
             console.log('reality server - closed storages.')
         }
         this.httpServer.close();

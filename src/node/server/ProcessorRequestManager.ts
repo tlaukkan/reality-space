@@ -9,7 +9,7 @@ import {Principal} from "../framework/rest/Principal";
 import {info} from "../util/log";
 import uuid = require("uuid");
 
-export class ProcessorManager {
+export class ProcessorRequestManager {
 
     processor: Processor | undefined;
     issuers: Map<string, IdTokenIssuer> = new Map<string, IdTokenIssuer>();

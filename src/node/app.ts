@@ -7,11 +7,11 @@ import {
 import {Sanitizer} from "../common/dataspace/Sanitizer";
 import {ServerAvatarClient} from "./server/ServerAvatarClient";
 import {FileSystemRepository} from "./storage/FileSystemRepository";
-import {StorageApi} from "./api/StorageApi";
+import {StorageRequestManager} from "./api/StorageRequestManager";
 import {loadConfiguration} from "./util/configuration";
 import {S3Repository} from "./storage/S3Repository";
 import {Repository} from "./storage/Repository";
-import {ProcessorManager} from "./server/ProcessorManager";
+import {ProcessorRequestManager} from "./server/ProcessorRequestManager";
 const config = require('config');
 require('isomorphic-fetch');
 
@@ -31,7 +31,7 @@ async function start() {
 
     // Construct components.
     const sanitizer = new Sanitizer(sanitizerConfiguration.allowedElements, sanitizerConfiguration.allowedAttributes, sanitizerConfiguration.allowedAttributeValueRegex);
-    const processor = processorConfiguration ? new ProcessorManager(newProcessor(processorConfiguration, sanitizer), idTokenIssuers) : undefined;
+    const processor = processorConfiguration ? new ProcessorRequestManager(newProcessor(processorConfiguration, sanitizer), idTokenIssuers) : undefined;
     const storageApi = storageConfiguration ? await newStorageApi(storageConfiguration, sanitizer) : undefined;
 
     if (processor) {
@@ -64,15 +64,15 @@ async function start() {
     });
 }
 
-function newProcessor(serverConfiguration: ProcessorConfiguration, sanitizer: Sanitizer) {
+function newProcessor(processorConfiguration: ProcessorConfiguration, sanitizer: Sanitizer) {
     return new Processor(
         new Grid(
-            serverConfiguration.cx,
-            serverConfiguration.cy,
-            serverConfiguration.cz,
-            serverConfiguration.edge,
-            serverConfiguration.step,
-            serverConfiguration.range
+            processorConfiguration.cx,
+            processorConfiguration.cy,
+            processorConfiguration.cz,
+            processorConfiguration.edge,
+            processorConfiguration.step,
+            processorConfiguration.range
         ), sanitizer
     );
 }
@@ -95,7 +95,7 @@ async function newRepository(): Promise<Repository> {
 
 async function newStorageApi(storageConfiguration: StorageConfiguration, sanitizer: Sanitizer) {
     const repository = await newRepository();
-    const storageRestService = new StorageApi(repository, sanitizer, storageConfiguration.processorNames, storageConfiguration.dimensions, storageConfiguration.maxDimensions);
+    const storageRestService = new StorageRequestManager(repository, sanitizer, storageConfiguration.processorNames, storageConfiguration.dimensions, storageConfiguration.maxDimensions);
     await storageRestService.startup();
     return storageRestService;
 }

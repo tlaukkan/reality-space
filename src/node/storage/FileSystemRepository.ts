@@ -71,7 +71,7 @@ export class FileSystemRepository implements Repository {
         if (lastSepIndex > -1) {
             const directoryPath = filePath.substring(0, lastSepIndex);
             if (!this.existingDirectories.has(directoryPath)) {
-                console.log("dataspace server: ensuring directory exists - " + filePath);
+                //console.log("reality server - ensuring directory exists - " + filePath);
                 this.mkDirByPathSync(directoryPath);
                 this.existingDirectories.add(directoryPath);
             }

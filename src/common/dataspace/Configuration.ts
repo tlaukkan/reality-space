@@ -112,32 +112,19 @@ export class StorageConfiguration {
     }
 }
 
-export function getProcessorConfiguration(clusterConfiguration: ClusterConfiguration, processorUrl: string) : ProcessorConfiguration {
+export function getProcessorConfiguration(clusterConfiguration: ClusterConfiguration, processorUrl: string) : Map<string, ProcessorConfig> {
     const normalizedServerUrl = processorUrl.trim().toLocaleLowerCase();
+    const processorConfigs = new Map<string, ProcessorConfig>();
     for (let processor of clusterConfiguration.processors) {
         const normalizedServerUrlCandidate = processor.processorUrl.trim().toLowerCase();
         if (normalizedServerUrl == normalizedServerUrlCandidate) {
-            const processorConfiguration = new ProcessorConfiguration(
-                processor.name,
-                processorUrl,
-                processor.dimensions,
-                processor.maxDimensions,
-                processor.x,
-                processor.y,
-                processor.z,
-                processor.edge,
-                processor.step,
-                processor.range
-            );
-            return processorConfiguration;
+            processorConfigs.set(processor.name, processor);
         }
     };
-    throw new Error("No matching server " + processorUrl + " in loaded configuration " + JSON.stringify(clusterConfiguration));
+    return processorConfigs;
 }
 
 export function getStorageConfiguration(clusterConfiguration: ClusterConfiguration, storageUrl: string) {
-    console.log("Processors: " + JSON.stringify(clusterConfiguration.processors));
-    console.log("Storage URL: '" + storageUrl.trim().toLocaleLowerCase() + "'");
     const matchingServerNames = clusterConfiguration.processors.filter(s => {
         const processorStorageUrl = s.storageUrl && s.storageUrl.length > 0 ? s.storageUrl : clusterConfiguration.storageUrl;
         return processorStorageUrl.trim().toLocaleLowerCase() == storageUrl.trim().toLocaleLowerCase()

@@ -4,7 +4,7 @@ import {StorageRequestManager} from "../api/StorageRequestManager";
 import {IdTokenIssuer} from "../../common/dataspace/Configuration";
 import {Context} from "../framework/http/Context";
 import {processRequest} from "../framework/http/http";
-import {ProcessorRequestManager} from "./ProcessorRequestManager";
+import {ProcessorRequestManager} from "../processor/ProcessorRequestManager";
 
 export class RealityServer {
 
@@ -42,20 +42,19 @@ export class RealityServer {
 
         if (this.storageManager) {
             await this.storageManager.startup();
-            console.log('reality server - started storages.')
         }
 
         if (this.processorManager) {
             this.webSocketServer = new websocket.server({httpServer: this.httpServer});
             this.webSocketServer.on('request', async (request) => await this.processorManager!!.processConnection(request));
             await this.processorManager.startup();
-            console.log('reality server - started processors.')
         }
 
         this.httpServer.listen(this.port, this.host);
+        console.log('reality server - started http server.')
 
         if (this.processorManager) {
-            console.log('reality server - processor listening at local URL: at ws://' + this.host + ':' + this.port + '/');
+            console.log('reality server - processor listening at local URL: ws://' + this.host + ':' + this.port + '/');
         }
         if (this.storageManager) {
             console.log('reality server - storage listening at local URL: http://' + this.host + ':' + this.port + '/api');
@@ -67,14 +66,13 @@ export class RealityServer {
         if (this.processorManager) {
             await this.processorManager.close();
             this.webSocketServer.shutDown();
-            console.log('reality server - closed processors.')
         }
         if (this.storageManager) {
-            await this.storageManager.shutdown();
-            console.log('reality server - closed storages.')
+            await this.storageManager.close();
         }
         this.httpServer.close();
-        console.log('reality server - http server.')
+        console.log('reality server - closed http server.');
+
         console.log('reality server - closed.');
     }
 

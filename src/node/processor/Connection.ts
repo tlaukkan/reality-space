@@ -1,4 +1,5 @@
 import Queue from "typescript-collections/dist/lib/Queue";
+import {Processor} from "./Processor";
 
 interface MessageSend { (message: string): Promise<void> }
 
@@ -9,6 +10,8 @@ export class Connection {
     id: string;
 
     entityIds: Set<string> = new Set();
+
+    processor: Processor | undefined;
 
     constructor(id: string) {
         this.id = id;

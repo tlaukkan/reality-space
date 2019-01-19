@@ -34,21 +34,23 @@ export class StorageRequestManager {
         });
     }
 
-
     async startup() {
+        await this.repository.startup();
         for(let dimensionStorages of this.storages.values()) {
             for (const storage of dimensionStorages.values()) {
                 await storage.startup();
             }
         }
+        console.log('reality server - started storage manager.')
     }
 
-    async shutdown() {
+    async close() {
         for(let dimensionStorages of this.storages.values()) {
             for (const storage of dimensionStorages.values()) {
-                await storage.shutdown();
+                await storage.close();
             }
         }
+        console.log('reality server - closed storage manager.')
     }
 
     process(c: Context): Promise<Context> {

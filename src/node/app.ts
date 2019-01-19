@@ -1,17 +1,8 @@
-import {Grid} from "./processor/Grid";
 import {Processor} from "./processor/Processor";
-import {RealityServer} from "./server/RealityServer";
-import {
-    ProcessorConfiguration, StorageConfiguration
-} from "../common/dataspace/Configuration";
-import {Sanitizer} from "../common/dataspace/Sanitizer";
 import {ServerAvatarClient} from "./server/ServerAvatarClient";
-import {FileSystemRepository} from "./storage/FileSystemRepository";
-import {StorageRequestManager} from "./api/StorageRequestManager";
 import {loadConfiguration} from "./util/configuration";
-import {S3Repository} from "./storage/S3Repository";
-import {Repository} from "./storage/Repository";
-import {ProcessorRequestManager} from "./server/ProcessorRequestManager";
+import {newRealityServer} from "./server/server";
+
 const config = require('config');
 require('isomorphic-fetch');
 
@@ -19,35 +10,26 @@ start().then().catch(e => console.log('reality server - startup error: ', e));
 
 async function start() {
 
+    const clusterConfigurationUrl = config.get('Cluster.configurationUrl') as string;
+    console.log("Cluster configuration URL: " + clusterConfigurationUrl);
+    const processorUrl = config.get('Processor.wsUrl');
+    console.log("Processor WS URL: " + processorUrl);
+    const storageUrl = config.get('Storage.apiUrl');
+    console.log("Storage API URL: " + storageUrl);
+    const listenIp: string = '0.0.0.0';
+    console.log("listen IP: " + listenIp);
+    const listenPort: number = config.get("Server.port");
+    console.log("port: " + listenIp);
+
+    const storageType = config.get('Storage.type').trim().toLocaleLowerCase();
+    console.log("storage type: " + storageType);
+
+
     // Load configuration.
-    const gridConfiguration = await loadConfiguration();
+    const clusterConfiguration = await loadConfiguration(clusterConfigurationUrl);
+    console.log("Loaded configuration: " + JSON.stringify(clusterConfiguration, null, 2));
 
-    console.log("Loaded configuration: " + JSON.stringify(gridConfiguration, null, 2));
-
-    const sanitizerConfiguration = gridConfiguration[0];
-    const processorConfiguration = gridConfiguration[1];
-    const storageConfiguration = gridConfiguration[2];
-    const idTokenIssuers = gridConfiguration[3];
-
-    // Construct components.
-    const sanitizer = new Sanitizer(sanitizerConfiguration.allowedElements, sanitizerConfiguration.allowedAttributes, sanitizerConfiguration.allowedAttributeValueRegex);
-    const processor = processorConfiguration ? new ProcessorRequestManager(newProcessor(processorConfiguration, sanitizer), idTokenIssuers) : undefined;
-    const storageApi = storageConfiguration ? await newStorageApi(storageConfiguration, sanitizer) : undefined;
-
-    if (processor) {
-        console.log("reality server - started processor at public URL: " + processorConfiguration!!.processorUrl);
-    }
-    if (storageApi) {
-        console.log("reality server - started storage at public URL: " + storageConfiguration!!.url);
-    }
-
-    // Construct server.
-    const server = new RealityServer(
-        '0.0.0.0',
-        config.get("Server.port"),
-        processor,
-        storageApi,
-        idTokenIssuers);
+    const server = newRealityServer(clusterConfiguration, processorUrl, storageUrl, storageType, listenIp, listenPort);
 
     // Start listening.
     await server.startup();
@@ -64,39 +46,4 @@ async function start() {
     });
 }
 
-function newProcessor(processorConfiguration: ProcessorConfiguration, sanitizer: Sanitizer) {
-    return new Processor(
-        new Grid(
-            processorConfiguration.cx,
-            processorConfiguration.cy,
-            processorConfiguration.cz,
-            processorConfiguration.edge,
-            processorConfiguration.step,
-            processorConfiguration.range
-        ), sanitizer
-    );
-}
-
-async function newRepository(): Promise<Repository> {
-    const storageType = config.get('Storage.type').trim().toLocaleLowerCase();
-    if (storageType == "s3") {
-        console.log("reality server - storage repository type is S3.");
-        const bucket = config.get('AWS.publicBucket');
-        const repository = new S3Repository(bucket);
-        await repository.startup();
-        return repository;
-    } else {
-        console.log("reality server - storage repository type is file system.");
-        const repository = new FileSystemRepository();
-        await repository.startup();
-        return repository;
-    }
-}
-
-async function newStorageApi(storageConfiguration: StorageConfiguration, sanitizer: Sanitizer) {
-    const repository = await newRepository();
-    const storageRestService = new StorageRequestManager(repository, sanitizer, storageConfiguration.processorNames, storageConfiguration.dimensions, storageConfiguration.maxDimensions);
-    await storageRestService.startup();
-    return storageRestService;
-}
 

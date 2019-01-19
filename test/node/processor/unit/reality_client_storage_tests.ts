@@ -37,11 +37,6 @@ describe('Reality client storage test.', () => {
         //client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
 
         // Lets store the a-box sid and xml on initial load of stored entities.
-        client.onStoredRootEntityReceived = (entitySid: string, entityXml) => {
-            sid = entitySid;
-            xml = entityXml;
-            console.log(entitySid, entityXml);
-        };
 
 
         await client.connect();
@@ -53,28 +48,33 @@ describe('Reality client storage test.', () => {
 
     it('Should save and remove entity.', function (done) {
 
-        client.add("1", 1, 2, 3, 4, 5, 6, 7, '<a-image src="dog.img"/>', Encode.AVATAR);
+        client.onStoredRootEntityReceived = (entitySid: string, entityXml) => {
+            sid = entitySid;
+            xml = entityXml;
+            console.log(entitySid, entityXml);
+            client.add("1", 1, 2, 3, 4, 5, 6, 7, '<a-image src="dog.img"/>', Encode.AVATAR);
 
-        client.onReceive = async function (message) {
-            expect(message).equals('a|0|1|1.00|2.00|3.00|4.00|5.00|6.00|7.00|<a-image src="dog.img"/>|a|');
+            client.onReceive = async function (message) {
+                expect(message).equals('a|0|1|1.00|2.00|3.00|4.00|5.00|6.00|7.00|<a-image src="dog.img"/>|a|');
 
-            expect(sid).eq(((xml2js(xml).elements[0].attributes as any).sid as string));
+                expect(sid).eq(((xml2js(xml).elements[0].attributes as any).sid as string));
 
-            client.storeChildEntities(sid, "<a-entities><a-sphere>test2</a-sphere></a-entities>");
+                client.storeChildEntities(sid, "<a-entities><a-sphere>test2</a-sphere></a-entities>");
 
-            client.onStoredChildEntityReceived = (parentSid, childSid, entityXml) => {
-                const childEntity = xml2js(entityXml).elements[0];
-                expect(parentSid).eq(sid);
-                expect("a-sphere").eq(childEntity.name);
-                expect(childSid).eq((childEntity.attributes as any).sid as string);
-                client.removeStoredEntities([childSid]);
-                client.onStoredEntityRemoved = (childSid2) => {
-                    expect(childSid2).eq(childSid);
-                    done();
-                }
+                client.onStoredChildEntityReceived = (parentSid, childSid, entityXml) => {
+                    const childEntity = xml2js(entityXml).elements[0];
+                    expect(parentSid).eq(sid);
+                    expect("a-sphere").eq(childEntity.name);
+                    expect(childSid).eq((childEntity.attributes as any).sid as string);
+                    client.removeStoredEntities([childSid]);
+                    client.onStoredEntityRemoved = (childSid2) => {
+                        expect(childSid2).eq(childSid);
+                        done();
+                    }
+                };
             };
-        };
 
+        };
 
     });
 

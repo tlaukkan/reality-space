@@ -1,18 +1,19 @@
 import {RealityClient} from "../../../src";
 
 require('isomorphic-fetch');
+
 import {RealityServer} from "../../../src/node/server/RealityServer";
-import {Sanitizer} from "../../../src/common/dataspace/Sanitizer";
-import {Processor} from "../../../src/node/processor/Processor";
-import {Grid} from "../../../src/node/processor/Grid";
-import {FileSystemRepository} from "../../../src/node/storage/FileSystemRepository";
-import {StorageRequestManager} from "../../../src/node/api/StorageRequestManager";
-import {IdTokenIssuer} from "../../../src/common/dataspace/Configuration";
+import {
+    ClusterConfiguration,
+    IdTokenIssuer,
+    ProcessorConfig,
+    SanitizerConfig
+} from "../../../src/common/dataspace/Configuration";
 import {createIdToken} from "../../../src/common/util/jwt";
 import {Principal} from "../../../src/node/framework/rest/Principal";
 import {StorageClient} from "../../../src/common/dataspace/api/StorageClient";
 import {w3cwebsocket} from "websocket";
-import {ProcessorRequestManager} from "../../../src/node/server/ProcessorRequestManager";
+import {newRealityServer} from "../../../src/node/server/server";
 
 export const waitOnCondition = (condition: (() => boolean)): Promise<void> =>  {
     return new Promise((resolve, reject) => {
@@ -26,17 +27,61 @@ export const waitOnCondition = (condition: (() => boolean)): Promise<void> =>  {
 };
 
 export function newLocalTestServer(): RealityServer {
-    const sanitizer = new Sanitizer("a-entities,a-scene,a-box,a-circle,a-collada-model,a-cone,a-curvedimage,a-cylinder,a-dodecahedron,a-gltf-model,a-icosahedron,a-image,a-obj-model,a-octahedron,a-plane,a-ring,a-sound,a-sphere,a-tetrahedron,a-text,a-torus-knot,a-torus,a-triangle",
-        "sid,scale,src,geometry,material,position,rotation,sound,text",
-        "[^\\w\\s\\.:;-]");
-    const processor = new Processor(new Grid(0, 0, 0, 1000, 100, 200), sanitizer);
-    const repository = new FileSystemRepository();
-    const idTokenIssuers = [new IdTokenIssuer("test-issuer", "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFwbDlqT0lrdjcrTVFwYzNZMVVUego5RE5TWFFlUUpSSThJZ2tIb3lLVDJGWGxhdHkrREJoNDJxTGRjc1JVV2hUNkJjVGRWKyszTUk5bVVsdVVBOHpjCjZzL29ZUi9RM0Q4RkpVaTJPZThWWGh2MS9lZERRVTJUZ3VZYUJ2eGlWWllYbFh1RGtqVTA1aUtNWWRpQmNGcDgKOHQ0RkRGUFVNUkdnTU5XcElEeEdPZUN4TjB2OG90dDNPQmtGSHlva0dkeE12dTFxNUtWUzRZNjBEOFVnQy80aQpJR0UzUUNMcUl6WitqbTBvOHZBcWdKRy9yQUw1VW11ZlIrS25XZElJVmZIeWhad3hGald1dXJmUFp3S1gyM2FqCmdjSURGalBmMVhkZVdkRVZpQ0dBRGVhaVlmeXJDazVFK0k3eDM4WmoxZUhxbGpKWWg2bzJqYUtKeEhzSDBaSksKdXdJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==")];
-    const storageRestService = new StorageRequestManager(repository, sanitizer, ["test"], ["default","dynamic-*"], 2);
-    const processorManager = new ProcessorRequestManager(processor, idTokenIssuers);
 
-    const server = new RealityServer('127.0.0.1', 8889, processorManager, storageRestService, idTokenIssuers);
-    return server;
+    const clusterConfiguration = newLocalClusterConfiguration();
+
+    /*const sanitizer = new Sanitizer(clusterConfiguration.sanitizer.allowedElements, clusterConfiguration.sanitizer.allowedAttributes, clusterConfiguration.sanitizer.allowedAttributeValueRegex);
+    const repository = new FileSystemRepository();
+
+    const storageConfiguration = getStorageConfiguration(clusterConfiguration, "http://localhost:8889/api/");
+
+    const storageRestService = new StorageRequestManager(repository, sanitizer, storageConfiguration.processorNames, storageConfiguration.dimensions, storageConfiguration.maxDimensions);
+    const processorManager = new ProcessorRequestManager("ws://localhost:8889/", clusterConfiguration, sanitizer);
+
+    const server = new RealityServer('127.0.0.1', 8889, processorManager, storageRestService, clusterConfiguration.idTokenIssuers);*/
+
+    return newRealityServer(clusterConfiguration, "ws://localhost:8889/", "http://localhost:8889/api/", "local", "0.0.0.0", 8889);
+}
+
+export function newLocalClusterConfiguration() {
+    const sanitizeConfig = new SanitizerConfig();
+    sanitizeConfig.allowedElements = "a-entities,a-scene,a-box,a-circle,a-collada-model,a-cone,a-curvedimage,a-cylinder,a-dodecahedron,a-gltf-model,a-icosahedron,a-image,a-obj-model,a-octahedron,a-plane,a-ring,a-sound,a-sphere,a-tetrahedron,a-text,a-torus-knot,a-torus,a-triangle";
+    sanitizeConfig.allowedAttributes = "sid,scale,src,geometry,material,position,rotation,sound,text";
+    sanitizeConfig.allowedAttributeValueRegex = "[^\\w\\s\\.:;-]";
+
+    const processorConfig = new ProcessorConfig();
+    processorConfig.name = "test";
+    processorConfig.processorUrl = "ws://localhost:8889/";
+    processorConfig.storageUrl = "http://localhost:8889/api/";
+    processorConfig.cdnUrl  = "http://localhost:8889/api/";
+    processorConfig.dimensions = ["default","dynamic-*"];
+    processorConfig.maxDimensions = 2;
+    processorConfig.edge = process.env.GRID_EDGE as any || 140;
+    processorConfig.step = process.env.GRID_STEP as any || 10;
+    processorConfig.range = process.env.GRID_RANGE as any || 20;
+    processorConfig.x = process.env.GRID_CX as any || 0;
+    processorConfig.y = process.env.GRID_CY as any || 0;
+    processorConfig.z = process.env.GRID_CZ as any || 0;
+
+    const clusterConfiguration = new ClusterConfiguration();
+    clusterConfiguration.name = "local-cluster";
+    clusterConfiguration.description = "local-cluster";
+    clusterConfiguration.edge = 1000;
+    clusterConfiguration.step = 100;
+    clusterConfiguration.range = 200;
+    clusterConfiguration.dimensions = ["default","dynamic-*"];
+    clusterConfiguration.maxDimensions = 2;
+    clusterConfiguration.storageUrl = "http://localhost:8889/api/";
+    clusterConfiguration.cdnUrl = "http://localhost:8889/api/";
+    clusterConfiguration.sanitizer = sanitizeConfig;
+    clusterConfiguration.processors = [processorConfig];
+    clusterConfiguration.idTokenIssuers = [
+        new IdTokenIssuer(
+            "test-issuer",
+            "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFwbDlqT0lrdjcrTVFwYzNZMVVUego5RE5TWFFlUUpSSThJZ2tIb3lLVDJGWGxhdHkrREJoNDJxTGRjc1JVV2hUNkJjVGRWKyszTUk5bVVsdVVBOHpjCjZzL29ZUi9RM0Q4RkpVaTJPZThWWGh2MS9lZERRVTJUZ3VZYUJ2eGlWWllYbFh1RGtqVTA1aUtNWWRpQmNGcDgKOHQ0RkRGUFVNUkdnTU5XcElEeEdPZUN4TjB2OG90dDNPQmtGSHlva0dkeE12dTFxNUtWUzRZNjBEOFVnQy80aQpJR0UzUUNMcUl6WitqbTBvOHZBcWdKRy9yQUw1VW11ZlIrS25XZElJVmZIeWhad3hGald1dXJmUFp3S1gyM2FqCmdjSURGalBmMVhkZVdkRVZpQ0dBRGVhaVlmeXJDazVFK0k3eDM4WmoxZUhxbGpKWWg2bzJqYUtKeEhzSDBaSksKdXdJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==")
+    ];
+
+    return clusterConfiguration;
 }
 
 export async function startLocalTestServer(): Promise<RealityServer> {

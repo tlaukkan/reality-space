@@ -35,23 +35,26 @@ describe('Test Configuration', () => {
 
     it('should get and deserialize default configuration from network.', async() => {
         const configuration = await getClusterConfiguration(PUBLIC_TEST_CLUSTER_CONFIG_URL);
-        console.log(JSON.stringify(configuration));
+        console.log(JSON.stringify(configuration, null, 2));
         expect(configuration.processors.length).to.be.greaterThan(0);
         expect(configuration.processors[0].cdnUrl).eq(PUBLIC_TEST_CLUSTER_CDN_URL);
 
         const processorConfiguration = getProcessorConfiguration(configuration,  PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_URL);
-        const storageApiConfiguration = getStorageConfiguration(configuration, PUBLIC_TEST_CLUSTER_STORAGE_URL);
+        expect(processorConfiguration.size).equals(1);
 
-        expect(processorConfiguration.name).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME);
-        expect(processorConfiguration.dimensions.length).equals(1);
-        expect(processorConfiguration.dimensions[0]).equals("default");
-        expect(processorConfiguration.maxDimensions).equals(20);
-        expect(processorConfiguration.cx).equals(0);
-        expect(processorConfiguration.cy).equals(0);
-        expect(processorConfiguration.cz).equals(100);
-        expect(processorConfiguration.edge).equals(140);
-        expect(processorConfiguration.step).equals(10);
-        expect(processorConfiguration.range).equals(20);
+        expect(processorConfiguration.has("0-0-100")).true;
+        expect(processorConfiguration.get("0-0-100")!!.name).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME);
+        expect(processorConfiguration.get("0-0-100")!!.dimensions.length).equals(1);
+        expect(processorConfiguration.get("0-0-100")!!.dimensions[0]).equals("default");
+        expect(processorConfiguration.get("0-0-100")!!.maxDimensions).equals(20);
+        expect(processorConfiguration.get("0-0-100")!!.x).equals(0);
+        expect(processorConfiguration.get("0-0-100")!!.y).equals(0);
+        expect(processorConfiguration.get("0-0-100")!!.z).equals(100);
+        expect(processorConfiguration.get("0-0-100")!!.edge).equals(140);
+        expect(processorConfiguration.get("0-0-100")!!.step).equals(10);
+        expect(processorConfiguration.get("0-0-100")!!.range).equals(20);
+
+        const storageApiConfiguration = getStorageConfiguration(configuration, PUBLIC_TEST_CLUSTER_STORAGE_URL);
 
         expect(storageApiConfiguration.processorNames.length).eq(2);
         expect(storageApiConfiguration.processorNames[0]).eq(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME);

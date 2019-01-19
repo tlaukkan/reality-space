@@ -29,7 +29,11 @@ describe('Storage API / Testing entity resource ...', () => {
 
     it('It should add entity.', async () => {
 
-        fs.unlinkSync("repository/dimensions/dynamic-1/processors/test/entities.xml");
+        try {
+            fs.unlinkSync("repository/dimensions/dynamic-1/processors/test/entities.xml");
+        } catch (error) {
+
+        }
 
         if (!await client.getUser("1")) {
             await client.addUser(new User("1", "test", []));

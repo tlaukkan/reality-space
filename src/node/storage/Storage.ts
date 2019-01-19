@@ -27,6 +27,7 @@ export class Storage {
 
     async startup() {
         await this.load();
+        console.log("reality server - started storage: " + this.documentFileName)
     }
 
     clear() {
@@ -43,23 +44,23 @@ export class Storage {
         //console.log("LOADING entities.xml: " + this.sceneFileName + " " + sceneContent);
         if (sceneContent.length > 0) {
             this.documentController.deserialize(sceneContent);
-            console.log("reality server - storage document controller state loaded from repository.");
+            //console.log("reality server - storage document controller state loaded from repository.");
         } else {
             await this.repository.save(this.documentFileName, this.documentController.serialize());
-            console.log("reality server - storage document controller started for the first time.");
+            //console.log("reality server - storage document controller started for the first time.");
         }
         const accessContent = await this.repository.load(this.accessFileName);
         if (accessContent.length > 0) {
-            console.log('reality server - storage access controller state loaded from repository.');
+            //console.log('reality server - storage access controller state loaded from repository.');
             this.accessController.deserialize(accessContent);
         } else {
-            console.log('reality server - storage access controller started for the first time.');
+            //console.log('reality server - storage access controller started for the first time.');
             this.accessController.init();
             await this.save();
         }
     }
 
-    async shutdown() {
+    async close() {
         await this.save();
     }
 

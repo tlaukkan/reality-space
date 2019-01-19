@@ -1,13 +1,15 @@
 import { expect } from 'chai';
 
 import {ClusterClient} from "../../../../src/common/dataspace/ClusterClient";
+import {DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_CONFIG_URL} from "../../../test";
+import {createTestIdToken} from "../../browser";
 
 describe('Integration Test Cluster Client', () => {
     let client: ClusterClient;
 
     before(async () => {
         console.log("\ntesting 0 0 0 in range.\n");
-        client = new ClusterClient("https://cdn.jsdelivr.net/gh/tlaukkan/aframe-dataspace/defaul-configuration.json", "default", "1", 0, 0, 0, 0, 0, 0, 1, "<a-box/>", "");
+        client = new ClusterClient(PUBLIC_TEST_CLUSTER_CONFIG_URL, DEFAULT_DIMENSION, "1", 0, 0, 0, 0, 0, 0, 1, "<a-box/>", createTestIdToken());
         await client.connect();
     });
 

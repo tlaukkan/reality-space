@@ -1,5 +1,5 @@
 import {RestApiContext} from "./RestApiContext";
-import {error, info} from "../../util/log";
+import {error, info, warn} from "../../util/log";
 
 const CACHE_REGEXP = new Map<string, RegExp>();
 const CACHE_REGEXP_WITH_GLOBAL_FLAG = new Map<string, RegExp>();
@@ -110,7 +110,12 @@ async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding,
             }
         }
     } catch (err) {
-        setResponseWithError(context, err, 500);
+        if (err.message.indexOf("access denied") != -1) {
+            warn(context.principal, err.message);
+            setResponse(context, 403);
+        } else {
+            setResponseWithError(context, err, 500);
+        }
     }
 }
 

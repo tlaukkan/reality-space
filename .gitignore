@@ -3,4 +3,5 @@
 node_modules
 lib
 dist
+repository
 config/local-development.json

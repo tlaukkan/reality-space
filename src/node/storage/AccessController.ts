@@ -35,14 +35,14 @@ export class AccessController {
 
     checkPrivilege(userId: string, sid: string, type: PrivilegeType): void {
         if (!this.hasPrivilege(userId, sid, type)) {
-            throw new Error(userId + " " + type + " access denied to " + sid);
+            throw new Error(userId + " " + type + " access denied to '" + sid + "'");
         }
     }
 
     hasPrivilege(userId: string, sid: string, type: PrivilegeType): boolean {
 
         if (!this.model.users.has(userId)) {
-            throw new Error("User doest not exist: " + userId);
+            throw new Error(userId + " " + type + " access denied to '" + sid + "' because user does not exist.");
         }
 
         if (this.model.userPrivileges.has(sid)) {

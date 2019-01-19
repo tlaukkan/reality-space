@@ -68,7 +68,7 @@ export class RealityClient {
                         const error = m[1];
                         if (error) {
                             console.warn("reality client - processor login failed to " + this.dimensionName + "/" + this.processorName + " login request ID: " + loginRequestId + " error: " + error);
-                            reject(error);
+                            reject(new Error(error));
                             return;
                         } else {
                             console.log("reality client - processor login success to " + this.dimensionName + "/" + this.processorName + " login request ID: " + loginRequestId);

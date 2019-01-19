@@ -14,6 +14,7 @@ import {info} from "../util/log";
 import uuid = require("uuid");
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
 import {Grid} from "./Grid";
+import {StorageClient} from "../../common/dataspace/api/StorageClient";
 
 export class ProcessorRequestManager {
 
@@ -77,7 +78,7 @@ export class ProcessorRequestManager {
 
         if (this.processors.has(dimensionName) && !this.processors.get(dimensionName)!!.has(processorName)) {
             if (this.processorConfigurations.has(processorName)) {
-                const processor = this.newProcessor(this.processorConfigurations.get(processorName)!!, this.sanitizer);
+                const processor = this.newProcessor(this.processorConfigurations.get(processorName)!!, dimensionName, processorName, this.sanitizer);
                 await processor.start();
                 this.processors.get(dimensionName)!!.set(processorName, processor);
                 console.log("reality server - processor started: " + dimensionName + "/" + processorName);
@@ -93,8 +94,11 @@ export class ProcessorRequestManager {
 
     }
 
-    newProcessor(processorConfig: ProcessorConfig, sanitizer: Sanitizer): Processor {
+    newProcessor(processorConfig: ProcessorConfig, dimensionName: string, processorName: string, sanitizer: Sanitizer): Processor {
         return new Processor(
+            processorConfig,
+            dimensionName,
+            processorName,
             new Grid(
                 processorConfig.x,
                 processorConfig.y,
@@ -178,6 +182,7 @@ export class ProcessorRequestManager {
                 return;
             }
 
+
             const groupsString = claims.get("groups");
             const groups = groupsString ? groupsString.split(",") : undefined;
             const principal = new Principal(issuer, claims.get("jti") as string, loginRequestId, claims.get("id")!! as string, claims.get("name")!! as string, groups);
@@ -189,6 +194,17 @@ export class ProcessorRequestManager {
             }
 
             processor!!.add(connection);
+
+            const processorConfig = processor.processorConfig;
+            const storageClient = new StorageClient(processor.dimensionName, processor.processorName, processorConfig.storageUrl, processorConfig.cdnUrl, idToken);
+
+            // check access rights
+            try {
+                await storageClient.getEntity("none-existent")
+            } catch (error) {
+                await this.processLoginError(ws, loginRequestId, "access denied: " + error.message);
+                return;
+            }
 
             info(principal, "client login success to " + dimensionName + "/" + processorName + " from: " + remoteAddress + ":" + remotePort);
             await ws.send(Encode.loginResponse(loginRequestId, ""));

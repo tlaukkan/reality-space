@@ -4,6 +4,7 @@ import {Encode} from "../../common/dataspace/Encode";
 import {Decode} from "../../common/dataspace/Decode";
 import Timer = NodeJS.Timer;
 import {Sanitizer} from "../../common/dataspace/Sanitizer";
+import {ProcessorConfig} from "../../common/dataspace/Configuration";
 
 export class Processor {
 
@@ -11,13 +12,20 @@ export class Processor {
     static readonly TICK_INTERVAL_MILLIS: number = 5;
     static readonly TICKS_PER_UPDATE_INTERVAL: number = Processor.UPDATE_INTERVAL_MILLIS / Processor.TICK_INTERVAL_MILLIS;
 
+    processorConfig: ProcessorConfig;
+    dimensionName: string;
+    processorName: string;
+
     grid: Grid;
     sanitizer: Sanitizer;
     connections: Map<string, Connection> = new Map();
     intervalHandle: Timer | undefined = undefined;
     lastProcessTime: number = new Date().getTime();
 
-    constructor(grid: Grid, sanitizer: Sanitizer) {
+    constructor(processorConfig: ProcessorConfig, dimensionName: string, processorName: string, grid: Grid, sanitizer: Sanitizer) {
+        this.processorConfig = processorConfig;
+        this.dimensionName = dimensionName;
+        this.processorName = processorName;
         this.grid = grid;
         this.sanitizer = sanitizer;
     }

@@ -11,9 +11,9 @@ import {
 import {
     PUBLIC_TEST_CLUSTER_CDN_URL,
     PUBLIC_TEST_CLUSTER_CONFIG_URL,
-    PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME,
+    PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME, PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_URL,
     PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME,
-    PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_URL,
+    PUBLIC_TEST_CLUSTER_PROCESSOR_URL,
     PUBLIC_TEST_CLUSTER_STORAGE_URL
 } from "../../test";
 
@@ -39,26 +39,48 @@ describe('Test Configuration', () => {
         expect(configuration.processors.length).to.be.greaterThan(0);
         expect(configuration.processors[0].cdnUrl).eq(PUBLIC_TEST_CLUSTER_CDN_URL);
 
-        const processorConfiguration = getProcessorConfiguration(configuration,  PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_URL);
-        expect(processorConfiguration.size).equals(1);
+        const processorConfiguration000 = getProcessorConfiguration(configuration,  PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_URL);
+        expect(processorConfiguration000.size).equals(1);
 
-        expect(processorConfiguration.has("0-0-100")).true;
-        expect(processorConfiguration.get("0-0-100")!!.name).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME);
-        expect(processorConfiguration.get("0-0-100")!!.dimensions.length).equals(1);
-        expect(processorConfiguration.get("0-0-100")!!.dimensions[0]).equals("default");
-        expect(processorConfiguration.get("0-0-100")!!.maxDimensions).equals(20);
-        expect(processorConfiguration.get("0-0-100")!!.x).equals(0);
-        expect(processorConfiguration.get("0-0-100")!!.y).equals(0);
-        expect(processorConfiguration.get("0-0-100")!!.z).equals(100);
-        expect(processorConfiguration.get("0-0-100")!!.edge).equals(140);
-        expect(processorConfiguration.get("0-0-100")!!.step).equals(10);
-        expect(processorConfiguration.get("0-0-100")!!.range).equals(20);
+        expect(processorConfiguration000.has(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)).true;
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.processorUrl).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_URL);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.storageUrl).equals(PUBLIC_TEST_CLUSTER_STORAGE_URL);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.cdnUrl).equals(PUBLIC_TEST_CLUSTER_CDN_URL);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.name).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.dimensions.length).equals(2);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.dimensions[0]).equals("default");
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.dimensions[1]).equals("private-*");
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.maxDimensions).equals(20);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.x).equals(0);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.y).equals(0);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.z).equals(0);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.edge).equals(140);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.step).equals(10);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.range).equals(20);
+
+        const processorConfiguration = getProcessorConfiguration(configuration,  PUBLIC_TEST_CLUSTER_PROCESSOR_URL);
+        expect(processorConfiguration.size).equals(8);
+
+        expect(processorConfiguration.has(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)).true;
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.processorUrl).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_URL);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.storageUrl).equals(PUBLIC_TEST_CLUSTER_STORAGE_URL);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.cdnUrl).equals(PUBLIC_TEST_CLUSTER_CDN_URL);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.name).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.dimensions.length).equals(2);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.dimensions[0]).equals("default");
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.dimensions[1]).equals("private-*");
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.maxDimensions).equals(20);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.x).equals(0);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.y).equals(0);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.z).equals(100);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.edge).equals(140);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.step).equals(10);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.range).equals(20);
 
         const storageApiConfiguration = getStorageConfiguration(configuration, PUBLIC_TEST_CLUSTER_STORAGE_URL);
 
-        expect(storageApiConfiguration.processorNames.length).eq(2);
+        expect(storageApiConfiguration.processorNames.length).eq(9);
         expect(storageApiConfiguration.processorNames[0]).eq(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME);
-        expect(storageApiConfiguration.processorNames[1]).eq(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME);
 
         expect(configuration.idTokenIssuers.length).to.be.greaterThan(0);
         const idTokenIssuer = findItTokenIssuerConfiguration(configuration, "test-issuer")!!;

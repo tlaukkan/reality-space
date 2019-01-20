@@ -1,8 +1,8 @@
-import {ClusterConfiguration, getStorageConfiguration} from "../../common/dataspace/Configuration";
+import {ClusterConfiguration, getStorageConfiguration} from "../../common/reality/Configuration";
 import {RealityServer} from "./RealityServer";
-import {Sanitizer} from "../../common/dataspace/Sanitizer";
+import {Sanitizer} from "../../common/reality/Sanitizer";
 import {ProcessorRequestManager} from "../processor/ProcessorRequestManager";
-import {StorageRequestManager} from "../api/StorageRequestManager";
+import {StorageRequestManager} from "../storage/StorageRequestManager";
 import {Repository} from "../storage/Repository";
 import {S3Repository} from "../storage/S3Repository";
 import {FileSystemRepository} from "../storage/FileSystemRepository";

@@ -3,18 +3,18 @@ import {
     ClusterConfiguration, getProcessorConfiguration,
     IdTokenIssuer,
     ProcessorConfig
-} from "../../common/dataspace/Configuration";
+} from "../../common/reality/Configuration";
 import * as websocket from "websocket";
 import {Connection} from "./Connection";
 import {Decode, Encode} from "../..";
 import {connection} from "websocket";
-import {decodeIdToken, validateIdToken} from "../../common/util/jwt";
-import {Principal} from "../framework/rest/Principal";
+import {decodeIdToken, validateIdToken} from "../../common/reality/util/jwt";
+import {Principal} from "../http/Principal";
 import {info} from "../util/log";
 import uuid = require("uuid");
-import {Sanitizer} from "../../common/dataspace/Sanitizer";
+import {Sanitizer} from "../../common/reality/Sanitizer";
 import {Grid} from "./Grid";
-import {StorageClient} from "../../common/dataspace/api/StorageClient";
+import {StorageClient} from "../../common/reality/api/StorageClient";
 
 export class ProcessorRequestManager {
 

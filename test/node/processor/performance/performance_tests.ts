@@ -1,17 +1,23 @@
 import 'mocha';
 
-import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
+import {RealityClient} from "../../../../src/common/reality/RealityClient";
 import uuid = require("uuid");
-import {Encode} from "../../../../src/common/dataspace/Encode";
-import {waitOnCondition} from "../../util/util";
+import {Encode} from "../../../../src/common/reality/Encode";
+import {createTestIdToken, waitOnCondition} from "../../util/util";
 import {w3cwebsocket} from "websocket";
+import {
+    DEFAULT_DIMENSION,
+    PUBLIC_TEST_CLUSTER_CDN_URL, PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME,
+    PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_URL,
+    PUBLIC_TEST_CLUSTER_STORAGE_URL
+} from "../../../test";
 
 describe('Performance Test Server', () => {
 
     it('Should performance test server.', async () => {
-        const url = "wss://aframe-dataspace-0-0-0.herokuapp.com/";
-        const apiUrl = "https://aframe-dataspace-storage-eu.herokuapp.com/api";
-        const assetUrl = "http://dataspace-eu.s3-website.eu-central-1.amazonaws.com";
+        const url = PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_URL;
+        const apiUrl = PUBLIC_TEST_CLUSTER_STORAGE_URL;
+        const assetUrl = PUBLIC_TEST_CLUSTER_CDN_URL;
 
         //const url = "ws://127.0.0.1:8889/";
         const numberOfClients = 30;
@@ -21,7 +27,7 @@ describe('Performance Test Server', () => {
         const entityIds: Array<string> = [];
 
         for (let i = 0; i < numberOfClients; i++) {
-            const client = new RealityClient("default", "0-0-0", url, apiUrl, assetUrl, "");
+            const client = new RealityClient(DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME, url, apiUrl, assetUrl, createTestIdToken());
             client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
             clients.push(client);
             entityIds.push(uuid.v4());

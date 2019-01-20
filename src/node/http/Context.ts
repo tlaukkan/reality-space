@@ -1,5 +1,5 @@
 import {IncomingMessage, ServerResponse} from "http";
-import {Principal} from "../rest/Principal";
+import {Principal} from "./Principal";
 
 export class Context {
     principal: Principal;

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import {Sanitizer} from "../../../src/common/dataspace/Sanitizer";
+import {Sanitizer} from "../../../src/common/reality/Sanitizer";
 
 describe('Sanitizer test.', () => {
 

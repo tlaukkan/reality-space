@@ -1,7 +1,7 @@
 import 'mocha';
 
 import {RealityServer} from "../../../../src/node/server/RealityServer";
-import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
+import {RealityClient} from "../../../../src/common/reality/RealityClient";
 import {
     newLocalTestRealityClient,
     newLocalTestServer

@@ -1,8 +1,8 @@
 import 'mocha';
 import { expect } from 'chai';
-import {Encode} from "../../../../src/common/dataspace/Encode";
+import {Encode} from "../../../../src/common/reality/Encode";
 import {RealityServer} from "../../../../src/node/server/RealityServer";
-import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
+import {RealityClient} from "../../../../src/common/reality/RealityClient";
 import {createTestIdToken, startLocalTestServer, waitOnCondition} from "../../util/util";
 import uuid = require("uuid");
 import {w3cwebsocket} from "websocket";

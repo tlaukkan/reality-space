@@ -1,9 +1,9 @@
 import * as websocket from "websocket";
 import * as http from "http";
-import {StorageRequestManager} from "../api/StorageRequestManager";
-import {IdTokenIssuer} from "../../common/dataspace/Configuration";
-import {Context} from "../framework/http/Context";
-import {processRequest} from "../framework/http/http";
+import {StorageRequestManager} from "../storage/StorageRequestManager";
+import {IdTokenIssuer} from "../../common/reality/Configuration";
+import {Context} from "../http/Context";
+import {processRequest} from "../http/http";
 import {ProcessorRequestManager} from "../processor/ProcessorRequestManager";
 
 export class RealityServer {

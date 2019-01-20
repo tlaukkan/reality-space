@@ -7,7 +7,7 @@ import {
     IdTokenIssuer,
     ProcessorConfig,
     getStorageConfiguration
-} from "../../../src/common/dataspace/Configuration";
+} from "../../../src/common/reality/Configuration";
 import {
     PUBLIC_TEST_CLUSTER_CDN_URL,
     PUBLIC_TEST_CLUSTER_CONFIG_URL,

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import {DocumentController} from "../../../../src/node/storage/DocumentController";
-import {Sanitizer} from "../../../../src/common/dataspace/Sanitizer";
+import {Sanitizer} from "../../../../src/common/reality/Sanitizer";
 import {js2xml, xml2js} from "xml-js";
 import {parseRootSids, parseFragment} from "../../../../src/node/util/parser";
 

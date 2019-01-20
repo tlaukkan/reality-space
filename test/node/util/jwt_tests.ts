@@ -1,7 +1,7 @@
 const { generateKeyPairSync } = require('crypto');
 const jwt = require('jsonwebtoken');
 import { expect } from 'chai';
-import {createIdToken, decodeIdToken, validateIdToken} from "../../../src/common/util/jwt";
+import {createIdToken, decodeIdToken, validateIdToken} from "../../../src/common/reality/util/jwt";
 
 describe('JWT Test', () => {
 

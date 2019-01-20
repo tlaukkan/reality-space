@@ -1,5 +1,5 @@
 import {RestApiContext} from "./RestApiContext";
-import {error, info, warn} from "../../util/log";
+import {error, info, warn} from "../util/log";
 
 const CACHE_REGEXP = new Map<string, RegExp>();
 const CACHE_REGEXP_WITH_GLOBAL_FLAG = new Map<string, RegExp>();

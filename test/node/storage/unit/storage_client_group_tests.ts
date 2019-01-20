@@ -1,9 +1,9 @@
 import 'mocha';
 import {expect} from 'chai';
-import {RealityServer} from "../../../src/node/server/RealityServer";
-import {createTestIdToken, newLocalTestStorageClient, resetStorage, startLocalTestServer} from "../util/util";
-import {Group} from "../../../src/common/dataspace/api/Group";
-import {User} from "../../../src/common/dataspace/api/User";
+import {RealityServer} from "../../../../src/node/server/RealityServer";
+import {createTestIdToken, newLocalTestStorageClient, resetStorage, startLocalTestServer} from "../../util/util";
+import {Group} from "../../../../src/common/reality/api/Group";
+import {User} from "../../../../src/common/reality/api/User";
 
 describe('Storage API / Testing groups resource ...', () => {
     let server: RealityServer;

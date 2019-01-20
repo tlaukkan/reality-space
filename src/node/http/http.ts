@@ -1,9 +1,9 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Context} from "./Context";
-import {error, info, warnWithRequestId} from "../../util/log";
-import {decodeIdToken, validateIdToken} from "../../../common/util/jwt";
-import {Principal} from "../rest/Principal";
-import {IdTokenIssuer} from "../../../common/dataspace/Configuration";
+import {error, info, warnWithRequestId} from "../util/log";
+import {decodeIdToken, validateIdToken} from "../../common/reality/util/jwt";
+import {Principal} from "./Principal";
+import {IdTokenIssuer} from "../../common/reality/Configuration";
 import * as fs from "fs";
 const mime = require('mime-types');
 

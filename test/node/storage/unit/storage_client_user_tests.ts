@@ -1,8 +1,8 @@
 import 'mocha';
 import {expect} from 'chai';
-import {RealityServer} from "../../../src/node/server/RealityServer";
-import {newLocalTestStorageClient, resetStorage, startLocalTestServer} from "../util/util";
-import {User} from "../../../src/common/dataspace/api/User";
+import {RealityServer} from "../../../../src/node/server/RealityServer";
+import {newLocalTestStorageClient, resetStorage, startLocalTestServer} from "../../util/util";
+import {User} from "../../../../src/common/reality/api/User";
 
 describe('Storage API / Testing users resource ...', () => {
     let server: RealityServer;

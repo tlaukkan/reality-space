@@ -1,6 +1,6 @@
 import 'mocha';
 require('isomorphic-fetch');
-import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
+import {RealityClient} from "../../../../src/common/reality/RealityClient";
 import {w3cwebsocket} from "websocket";
 import {
     DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_CDN_URL,

@@ -8,10 +8,10 @@ import {
     IdTokenIssuer,
     ProcessorConfig,
     SanitizerConfig
-} from "../../../src/common/dataspace/Configuration";
-import {createIdToken} from "../../../src/common/util/jwt";
-import {Principal} from "../../../src/node/framework/rest/Principal";
-import {StorageClient} from "../../../src/common/dataspace/api/StorageClient";
+} from "../../../src/common/reality/Configuration";
+import {createIdToken} from "../../../src/common/reality/util/jwt";
+import {Principal} from "../../../src/node/http/Principal";
+import {StorageClient} from "../../../src/common/reality/api/StorageClient";
 import {w3cwebsocket} from "websocket";
 import {newRealityServer} from "../../../src/node/server/server";
 

@@ -1,9 +1,9 @@
 import 'mocha';
 import {expect} from 'chai';
-import {RealityServer} from "../../../src/node/server/RealityServer";
-import {newLocalTestStorageClient, resetStorage, startLocalTestServer} from "../util/util";
-import {PrivilegeType} from "../../../src/common/dataspace/api/PrivilegeType";
-import {Group} from "../../../src/common/dataspace/api/Group";
+import {RealityServer} from "../../../../src/node/server/RealityServer";
+import {newLocalTestStorageClient, resetStorage, startLocalTestServer} from "../../util/util";
+import {PrivilegeType} from "../../../../src/common/reality/api/PrivilegeType";
+import {Group} from "../../../../src/common/reality/api/Group";
 
 describe('Storage API / Testing privileges ...', () => {
     let server: RealityServer;

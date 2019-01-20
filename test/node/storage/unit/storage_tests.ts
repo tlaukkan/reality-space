@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import {DocumentController} from "../../../../src/node/storage/DocumentController";
-import {Sanitizer} from "../../../../src/common/dataspace/Sanitizer";
+import {Sanitizer} from "../../../../src/common/reality/Sanitizer";
 import {js2xml} from "xml-js";
 import {Storage} from "../../../../src/node/storage/Storage";
 import {FileSystemRepository} from "../../../../src/node/storage/FileSystemRepository";
-import {Principal} from "../../../../src/node/framework/rest/Principal";
+import {Principal} from "../../../../src/node/http/Principal";
 import {parseRootSids, parseFragment} from "../../../../src/node/util/parser";
 
 describe('Storage test.', () => {

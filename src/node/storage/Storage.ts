@@ -1,11 +1,11 @@
 import {AccessController} from "./AccessController";
 import {DocumentController} from "./DocumentController";
-import {Sanitizer} from "../../common/dataspace/Sanitizer";
+import {Sanitizer} from "../../common/reality/Sanitizer";
 import {Repository} from "./Repository";
 import {PrivilegeType} from "./model/PrivilegeType";
 import {User} from "./model/User";
 import {Group} from "./model/Group";
-import {Principal} from "../framework/rest/Principal";
+import {Principal} from "../http/Principal";
 import {info} from "../util/log";
 
 export class Storage {

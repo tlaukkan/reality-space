@@ -1,7 +1,7 @@
 import {Grid} from '../../../src/node/processor/Grid';
 import { expect } from 'chai';
 import {Connection} from "../../../src/node/processor/Connection";
-import {Encode} from "../../../src/common/dataspace/Encode";
+import {Encode} from "../../../src/common/reality/Encode";
 
 const connection = new Connection("");
 const connection2 = new Connection("");

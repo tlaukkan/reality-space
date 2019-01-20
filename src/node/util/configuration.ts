@@ -5,7 +5,7 @@ import {
     fetchConfiguration,
     IdTokenIssuer, ProcessorConfig,
     SanitizerConfig,
-} from "../../common/dataspace/Configuration";
+} from "../../common/reality/Configuration";
 
 export async function loadConfiguration(clusterConfigurationUrl: string): Promise<ClusterConfiguration> {
 

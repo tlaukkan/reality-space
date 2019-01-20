@@ -1,14 +1,14 @@
-import {Storage} from "../storage/Storage";
-import {Repository} from "../storage/Repository";
-import {Sanitizer} from "../../common/dataspace/Sanitizer";
-import {BodyEncoding, match} from "../framework/rest/rest";
-import {Context} from "../framework/http/Context";
-import {lift} from "../../common/util/functional";
-import {Group} from "../storage/model/Group";
-import {User} from "../storage/model/User";
-import {GroupMember} from "../../common/dataspace/api/GroupMember";
-import {GroupPrivilege} from "../../common/dataspace/api/GroupPrivilege";
-import {UserPrivilege} from "../../common/dataspace/api/UserPrivilege";
+import {Storage} from "./Storage";
+import {Repository} from "./Repository";
+import {Sanitizer} from "../../common/reality/Sanitizer";
+import {BodyEncoding, match} from "../http/rest";
+import {Context} from "../http/Context";
+import {lift} from "../../common/reality/util/functional";
+import {Group} from "./model/Group";
+import {User} from "./model/User";
+import {GroupMember} from "../../common/reality/api/GroupMember";
+import {GroupPrivilege} from "../../common/reality/api/GroupPrivilege";
+import {UserPrivilege} from "../../common/reality/api/UserPrivilege";
 
 export class StorageRequestManager {
 

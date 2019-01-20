@@ -1,10 +1,10 @@
 import {Connection} from "./Connection";
 import {Grid} from "./Grid";
-import {Encode} from "../../common/dataspace/Encode";
-import {Decode} from "../../common/dataspace/Decode";
+import {Encode} from "../../common/reality/Encode";
+import {Decode} from "../../common/reality/Decode";
 import Timer = NodeJS.Timer;
-import {Sanitizer} from "../../common/dataspace/Sanitizer";
-import {ProcessorConfig} from "../../common/dataspace/Configuration";
+import {Sanitizer} from "../../common/reality/Sanitizer";
+import {ProcessorConfig} from "../../common/reality/Configuration";
 
 export class Processor {
 

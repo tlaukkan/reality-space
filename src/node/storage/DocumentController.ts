@@ -1,5 +1,5 @@
 import {Element, js2xml, xml2js} from "xml-js";
-import {Sanitizer} from "../../common/dataspace/Sanitizer";
+import {Sanitizer} from "../../common/reality/Sanitizer";
 import {Fragment} from "./model/Fragment";
 import uuid = require("uuid");
 import {FragmentElement} from "./model/FragmentElement";

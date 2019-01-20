@@ -1,7 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
-import {RealityServer} from "../../../src/node/server/RealityServer";
-import {createTestIdToken, resetStorage, startLocalTestServer} from "../util/util";
+import {RealityServer} from "../../../../src/node/server/RealityServer";
+import {createTestIdToken, resetStorage, startLocalTestServer} from "../../util/util";
 import uuid = require("uuid");
 
 describe('Storage API / Testing access control ...', () => {

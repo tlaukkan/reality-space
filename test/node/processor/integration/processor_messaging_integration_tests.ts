@@ -1,8 +1,8 @@
 import 'mocha';
 require('isomorphic-fetch');
 import { expect } from 'chai';
-import {Encode} from "../../../../src/common/dataspace/Encode";
-import {RealityClient} from "../../../../src/common/dataspace/RealityClient";
+import {Encode} from "../../../../src/common/reality/Encode";
+import {RealityClient} from "../../../../src/common/reality/RealityClient";
 import {w3cwebsocket} from "websocket";
 import {
     DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_CDN_URL,

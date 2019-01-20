@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import {Encode} from "../../../src/common/dataspace/Encode";
-import {Decode} from "../../../src/common/dataspace/Decode";
+import {Encode} from "../../../src/common/reality/Encode";
+import {Decode} from "../../../src/common/reality/Decode";
 
 describe('Test Encode', () => {
 

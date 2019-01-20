@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import {ClusterClient} from "../../../../src/common/dataspace/ClusterClient";
+import {ClusterClient} from "../../../../src/common/reality/ClusterClient";
 import {DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_CONFIG_URL} from "../../../test";
 import {createTestIdToken} from "../../browser";
 

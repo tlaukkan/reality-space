@@ -1,7 +1,7 @@
 import 'mocha';
 require('isomorphic-fetch');
 import { expect } from 'chai';
-import {ClusterClient} from "../../../../src/common/dataspace/ClusterClient";
+import {ClusterClient} from "../../../../src/common/reality/ClusterClient";
 import {w3cwebsocket} from "websocket";
 import {DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_CONFIG_URL} from "../../../test";
 import {createTestIdToken} from "../../util/util";

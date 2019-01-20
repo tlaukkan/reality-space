@@ -1,5 +1,5 @@
 import {Connection} from "./Connection";
-import {Encode} from "../../common/dataspace/Encode";
+import {Encode} from "../../common/reality/Encode";
 
 export class Entity {
     connection: Connection;

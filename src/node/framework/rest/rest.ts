@@ -129,8 +129,6 @@ function startResponse(context: RestApiContext, httpStatusCode: number, bodyEnco
     } else {
         context.response.setHeader('Content-Type', 'text/plain');
     }
-    context.response.setHeader('Access-Control-Allow-Origin', '*');
-    context.response.setHeader('Access-Control-Allow-Methods', 'POST, PUT, GET, DELETE');
 }
 
 function endResponse(context: RestApiContext) {
@@ -139,13 +137,13 @@ function endResponse(context: RestApiContext) {
 
 function setResponse(context: RestApiContext, httpStatusCode: number) {
     info(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " ");
-    context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, PUT, GET, DELETE'});
+    context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
     context.response.end();
 }
 
 function setResponseWithError(context: RestApiContext, err: Error, httpStatusCode: number) {
     error(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " ", err);
-    context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, PUT, GET, DELETE'});
+    context.response.writeHead(httpStatusCode, {'Content-Type': 'text/plain'});
     context.response.end();
 }
 

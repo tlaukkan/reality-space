@@ -35,9 +35,15 @@ async function start() {
     await server.startup();
 
     // Start server avatar client.
-    if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL) {
-        const serverAvatarClient = new ServerAvatarClient(process.env.CLUSTER_CONFIGURATION_URL);
-        await serverAvatarClient.start();
+    if (process.env.WS_URL && process.env.CLUSTER_CONFIGURATION_URL && process.env.CLUSTER_CONFIGURATION_URL.indexOf("public-test-cluster") != -1) {
+        try {
+            console.log("reality server - starting test server avatar client...")
+            const serverAvatarClient = new ServerAvatarClient(process.env.CLUSTER_CONFIGURATION_URL);
+            await serverAvatarClient.start();
+            console.log("reality server - started test server avatar client.")
+        } catch (error) {
+            console.error("reality server - error starting test server avatar client.", error);
+        }
     }
 
     // Add exit hook

@@ -147,7 +147,7 @@ To setup 0-0-0 processor cluster configuration
 
 
 ### Health check
-Storage server provides 200 OK healthcheck at URL path: /health-check.
+Storage server provides 200 OK healthcheck at URL path: /health.
 
-Example: http://127.0.0.1:8080/health-check
+Example: http://127.0.0.1:8080/health
 

@@ -105,7 +105,7 @@ karma start karma.config.js  --browsers ChromeHeadless
 
 # Deployment
 
-## Deploying storage server to heroku
+## Deploying processor and storage to Heroku
 
 ### Preparation 
 
@@ -147,7 +147,7 @@ To setup 0-0-0 processor cluster configuration
 
 
 ### Health check
-Storage server provides 200 OK healthcheck at URL path: /health.
+Processor and storage provide 200 OK healthcheck at URL path: /health.
 
 Example: http://127.0.0.1:8080/health
 

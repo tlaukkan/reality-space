@@ -6,7 +6,17 @@ code-reality framework enables building networked extended reality (XR) experien
 
 reality-space servers provide a shared space to store and transmit scene data between code-reality clients.
 
-## Usage
+# Build
+
+## Docker
+Build docker image:
+
+docker build -t reality-space .
+
+## Test image
+docker run --read-only -p 0.0.0.0:8080:3000 --env CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json --env PROCESSOR_URL=wss://rs-test-processor-0-0-0.herokuapp.com/ --name reality-space-processor reality-space:latest
+docker stop reality-space-processor
+docker rm reality-space-processor
 
 # Testing
 
@@ -92,6 +102,8 @@ karma start karma.config.js  --browsers ChromeHeadless
     npm version patch
     npm publish
 ---
+
+# Deployment
 
 ## Deploying storage server to heroku
 

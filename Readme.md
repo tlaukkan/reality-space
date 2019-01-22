@@ -9,6 +9,9 @@ reality-space servers provide a shared space to store and transmit scene data be
 # Build
 
 ## Docker
+On windows prepare docker tools:
+docker-machine env
+
 Build docker image:
 
 docker build -t reality-space .

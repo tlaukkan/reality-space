@@ -17,7 +17,7 @@ Build docker image:
 docker build -t reality-space .
 
 ## Test image
-docker run --read-only -p 0.0.0.0:8080:8889 --env CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json --env PROCESSOR_URL=wss://rs-test-processor-0-0-0.herokuapp.com/ --name reality-space-processor reality-space:latest
+docker run --read-only -p 0.0.0.0:8080:8889 --env CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.26/config/public-test-cluster.json --env PROCESSOR_URL=wss://rs-test-processor-0-0-0.herokuapp.com/ --name reality-space-processor reality-space:latest
 docker stop reality-space-processor
 docker rm reality-space-processor
 
@@ -128,7 +128,7 @@ karma start karma.config.js  --browsers ChromeHeadless
 To setup storage cluster configuration with AWS S3
 
     heroku create --region eu rs-test-storage
-    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json 
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.27/config/public-test-cluster.json 
     heroku config:set STORAGE_URL=https://rs-test-storage.herokuapp.com/api/ 
     heroku config:set STORAGE_TYPE=S3
     heroku config:set AWS_REGION=eu-central-1
@@ -139,13 +139,13 @@ To setup storage cluster configuration with AWS S3
 To setup main processor cluster configuration 
 
     heroku create --region eu rs-test-processor
-    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.27/config/public-test-cluster.json
     heroku config:set PROCESSOR_URL=wss://rs-test-processor.herokuapp.com/
 
 To setup 0-0-0 processor cluster configuration 
 
     heroku create --region eu rs-test-processor-0-0-0
-    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.25/config/public-test-cluster.json
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.27/config/public-test-cluster.json
     heroku config:set PROCESSOR_URL=wss://rs-test-processor-0-0-0.herokuapp.com/
 
 

@@ -79,8 +79,8 @@ describe('Test Configuration', () => {
 
         const storageApiConfiguration = getStorageConfiguration(configuration, PUBLIC_TEST_CLUSTER_STORAGE_URL);
 
-        expect(storageApiConfiguration.processorNames.length).eq(9);
-        expect(storageApiConfiguration.processorNames[0]).eq(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME);
+        expect(storageApiConfiguration.regions.length).eq(9);
+        expect(storageApiConfiguration.regions[0]).eq(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME);
 
         expect(configuration.idTokenIssuers.length).to.be.greaterThan(0);
         const idTokenIssuer = findItTokenIssuerConfiguration(configuration, "test-issuer")!!;

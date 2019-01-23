@@ -102,13 +102,13 @@ export class ProcessorConfiguration {
 
 export class StorageConfiguration {
     url: string;
-    processorNames: Array<string>;
+    regions: Array<string>;
     dimensions: Array<string> = new Array<string>();
     maxDimensions: number;
 
-    constructor(url: string, processorNames: Array<string>, dimensions: Array<string>, maxDimensions: number) {
+    constructor(url: string, regions: Array<string>, dimensions: Array<string>, maxDimensions: number) {
         this.url = url;
-        this.processorNames = processorNames;
+        this.regions = regions;
         this.dimensions = dimensions;
         this.maxDimensions = maxDimensions;
 

@@ -35,7 +35,7 @@ export function newLocalTestServer(): RealityServer {
 
     const storageConfiguration = getStorageConfiguration(clusterConfiguration, "http://localhost:8889/api/");
 
-    const storageRestService = new StorageRequestManager(repository, sanitizer, storageConfiguration.processorNames, storageConfiguration.dimensions, storageConfiguration.maxDimensions);
+    const storageRestService = new StorageRequestManager(repository, sanitizer, storageConfiguration.regions, storageConfiguration.dimensions, storageConfiguration.maxDimensions);
     const processorManager = new ProcessorRequestManager("ws://localhost:8889/", clusterConfiguration, sanitizer);
 
     const server = new RealityServer('127.0.0.1', 8889, processorManager, storageRestService, clusterConfiguration.idTokenIssuers);*/

@@ -18,18 +18,18 @@ export class StorageRequestManager {
     maxDimenions: number;
     storages: Map<string, Map<string, Storage>> = new Map();
 
-    constructor(repository: Repository, sanitizer: Sanitizer, processorNames: Array<string>, dimensionNames: Array<string>, maxDimensions: number) {
+    constructor(repository: Repository, sanitizer: Sanitizer, regions: Array<string>, dimensionNames: Array<string>, maxDimensions: number) {
         this.repository = repository;
         this.sanitizer = sanitizer;
         this.maxDimenions = maxDimensions;
-        processorNames.forEach((processorName: string) => {
+        regions.forEach((region: string) => {
             dimensionNames.forEach((dimensionName: string) => {
                 if (dimensionName.indexOf("*") > -1) {
                     this.dimensionNameRegexs.push(RegExp('^' + dimensionName.replace("*", ".*") + '$'));
                     return; // Do not instantiate wildcard dimensions
                 }
-                this.createStorage(dimensionName, processorName);
-                console.log("reality server - processor storage added: " + dimensionName + "/" + processorName);
+                this.createStorage(dimensionName, region);
+                console.log("reality server - processor storage added: " + dimensionName + "/" + region);
             });
         });
     }
@@ -151,32 +151,32 @@ export class StorageRequestManager {
         });
     }
 
-    private async storage(dimensionName: string, processorName: string) : Promise<Storage> {
-        if (!this.storages.has(dimensionName) || !this.storages.get(dimensionName)!!.has(processorName) ) {
+    private async storage(dimensionName: string, region: string) : Promise<Storage> {
+        if (!this.storages.has(dimensionName) || !this.storages.get(dimensionName)!!.has(region) ) {
             for (let regExp of this.dimensionNameRegexs) {
                 if (regExp.test(dimensionName)) {
-                    console.log("reality server - processor storage creating on demand: " + dimensionName + "/" + processorName);
-                    const newStorage = this.createStorage(dimensionName, processorName);
-                    console.log("reality server - processor storage starting on demand: " + dimensionName + "/" + processorName);
+                    console.log("reality server - processor storage creating on demand: " + dimensionName + "/" + region);
+                    const newStorage = this.createStorage(dimensionName, region);
+                    console.log("reality server - processor storage starting on demand: " + dimensionName + "/" + region);
                     await newStorage.startup();
-                    console.log("reality server - processor storage started on demand: " + dimensionName + "/" + processorName);
+                    console.log("reality server - processor storage started on demand: " + dimensionName + "/" + region);
                     return newStorage;
                 }
             };
-            throw new Error("reality server - no such dimension or processor: " + dimensionName + "/" + processorName);
+            throw new Error("reality server - no such dimension or processor: " + dimensionName + "/" + region);
         }
-        return this.storages.get(dimensionName)!!.get(processorName)!!;
+        return this.storages.get(dimensionName)!!.get(region)!!;
     }
 
-    private createStorage(dimensionName: string, processorName: string): Storage {
+    private createStorage(dimensionName: string, region: string): Storage {
         if (!this.storages.has(dimensionName)) {
             if (this.storages.size >= this.maxDimenions) {
                 throw new Error("Maximum number of dimensions exist. Can not add new: " + dimensionName);
             }
             this.storages.set(dimensionName, new Map());
         }
-        const storage = new Storage("dimensions/" + dimensionName + "/processors/" + processorName + "/entities.xml", "dimensions/" + dimensionName + "/processors/" + processorName + "/access.json", this.repository, this.sanitizer);
-        this.storages.get(dimensionName)!!.set(processorName, storage);
+        const storage = new Storage("dimensions/" + dimensionName + "/processors/" + region + "/entities.xml", "dimensions/" + dimensionName + "/processors/" + region + "/access.json", this.repository, this.sanitizer);
+        this.storages.get(dimensionName)!!.set(region, storage);
         return storage;
     }
 }

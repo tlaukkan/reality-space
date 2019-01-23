@@ -14,7 +14,7 @@ export class Processor {
 
     processorConfig: ProcessorConfig;
     dimensionName: string;
-    processorName: string;
+    region: string;
 
     grid: Grid;
     sanitizer: Sanitizer;
@@ -22,10 +22,10 @@ export class Processor {
     intervalHandle: Timer | undefined = undefined;
     lastProcessTime: number = new Date().getTime();
 
-    constructor(processorConfig: ProcessorConfig, dimensionName: string, processorName: string, grid: Grid, sanitizer: Sanitizer) {
+    constructor(processorConfig: ProcessorConfig, dimensionName: string, region: string, grid: Grid, sanitizer: Sanitizer) {
         this.processorConfig = processorConfig;
         this.dimensionName = dimensionName;
-        this.processorName = processorName;
+        this.region = region;
         this.grid = grid;
         this.sanitizer = sanitizer;
     }

@@ -37,7 +37,7 @@ async function start() {
     // Start server avatar client.
     if (processorUrl && clusterConfigurationUrl && clusterConfigurationUrl.indexOf("public-test-cluster") != -1) {
         try {
-            console.log("reality server - starting test server avatar client...")
+            console.log("reality server - starting test server avatar client...");
             const serverAvatarClient = new ServerAvatarClient(clusterConfigurationUrl);
             await serverAvatarClient.start();
             console.log("reality server - started test server avatar client.")

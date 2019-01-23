@@ -8,7 +8,7 @@ COPY . .
 RUN npm run build:lib
 RUN npm prune --production
 
-EXPOSE 3000
+EXPOSE 8889
 
 CMD ["node","lib/src/node/app.js"]
 

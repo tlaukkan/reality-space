@@ -18,9 +18,9 @@ describe('Test Messaging', () => {
         await client.connect();
     });
 
-    after(function() {
+    after(async () => {
         client.close();
-        server.close();
+        await server.close();
     });
 
     it('Should send add and receive messages.', function (done) {

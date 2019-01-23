@@ -36,7 +36,7 @@ export class StorageClient {
         return await response.text();
     }
 
-    async getRootEntities(): Promise<String> {
+    async getRootEntities(): Promise<string> {
         return this.getText(await this.request("GET", "/entities", [200]));
     };
 

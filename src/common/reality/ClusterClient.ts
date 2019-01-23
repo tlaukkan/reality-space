@@ -257,14 +257,13 @@ export class ClusterClient {
      * @return array of ProcessorConfigurations with closest processor as first.
      */
     getProcessors(x: number, y: number, z: number): Array<ProcessorConfig> {
-        const edge = this.clusterConfiguration!!.edge;
         const processors = Array<ProcessorConfig>();
-        let lastD2 = edge * 2;
+        let lastD2 = Number.MAX_SAFE_INTEGER;
         for (let processor of this.clusterConfiguration!!.processors) {
 
-            if (x >= processor.x - edge / 2 && x <= processor.x + edge / 2 &&
-                y >= processor.y - edge / 2 && y <= processor.y + edge / 2 &&
-                z >= processor.z - edge / 2 && z <= processor.z + edge / 2) {
+            if (x >= processor.x - processor.edge / 2 && x <= processor.x + processor.edge / 2 &&
+                y >= processor.y - processor.edge / 2 && y <= processor.y + processor.edge / 2 &&
+                z >= processor.z - processor.edge / 2 && z <= processor.z + processor.edge / 2) {
                 const d2 = Math.pow(x - processor.x,2) + Math.pow(y - processor.y, 2) + Math.pow(z - processor.z, 2);
                 if (d2 < lastD2) {
                     processors.unshift(processor);

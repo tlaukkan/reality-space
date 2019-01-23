@@ -2,12 +2,12 @@ import {ClusterConfiguration, getClusterConfiguration, RegionConfiguration} from
 import {RealityClient} from "./RealityClient";
 import {Encode} from "./Encode";
 
-interface OnReceive { (processorUrl: string, type: string, message: string[]): void }
-interface OnStoredRootEntityReceived { (processorUrl: string, sid: string, entityXml: string): void }
-interface OnStoredChildEntityReceived { (processorUrl: string, parentSid: string, sid: string, entityXml: string): void }
-interface OnStoredEntityRemoved { (processorUrl: string, sid: string): void }
-interface OnConnect { (processorUrl: string): void }
-interface OnDisconnect { (processorUrl: string): void }
+interface OnReceive { (region: string, type: string, message: string[]): void }
+interface OnStoredRootEntityReceived { (region: string, sid: string, entityXml: string): void }
+interface OnStoredChildEntityReceived { (region: string, parentSid: string, sid: string, entityXml: string): void }
+interface OnStoredEntityRemoved { (region: string, sid: string): void }
+interface OnConnect { (region: string): void }
+interface OnDisconnect { (region: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 
 export class ClusterClient {
@@ -27,7 +27,7 @@ export class ClusterClient {
 
     clusterConfiguration: ClusterConfiguration | undefined;
 
-    primaryProcessorUrl: String | undefined = undefined;
+    primaryRegion: String | undefined = undefined;
 
     clients: Map<String, RealityClient> = new Map();
 
@@ -82,114 +82,114 @@ export class ClusterClient {
         this.rz = rz;
         this.rw = rw;
 
-        const processors = this.getRegions(x, y, z);
+        const regions = this.getRegions(x, y, z);
 
-        if (processors.length === 0) {
-            this.primaryProcessorUrl = undefined;
+        if (regions.length === 0) {
+            this.primaryRegion = undefined;
         } else {
-            if (this.primaryProcessorUrl!==processors[0].processorUrl) {
-                if (this.primaryProcessorUrl && this.clients.has(this.primaryProcessorUrl)) {
-                    console.log("cluster client - switching primary processor...");
-                    this.closeClient(this.clients.get(this.primaryProcessorUrl)!!)
-                    console.log("cluster client - disconnected old primary processor: " + this.primaryProcessorUrl);
+            if (this.primaryRegion!==regions[0].region) {
+                if (this.primaryRegion && this.clients.has(this.primaryRegion)) {
+                    console.log("cluster client - switching primary region...");
+                    this.closeClient(this.clients.get(this.primaryRegion)!!)
+                    console.log("cluster client - disconnected old primary region: " + this.primaryRegion);
                 }
-                if (this.clients.has(processors[0].processorUrl)) {
-                    this.closeClient(this.clients.get(processors[0].processorUrl)!!)
-                    console.log("cluster client - disconnected secondary processor as it is promoted to primary processor: " + processors[0].processorUrl);
+                if (this.clients.has(regions[0].region)) {
+                    this.closeClient(this.clients.get(regions[0].region)!!)
+                    console.log("cluster client - disconnected secondary region as it is promoted to primary region: " + regions[0].region);
                 }
-                this.primaryProcessorUrl = processors[0].processorUrl;
-                console.log("cluster client - new primary processor set to: " + processors[0].processorUrl);
+                this.primaryRegion = regions[0].region;
+                console.log("cluster client - new primary region set to: " + regions[0].region);
             }
         }
 
-        for (let processor of processors) {
-            if (!this.clients.has(processor.processorUrl)) {
-                let client = new RealityClient(this.spaceName, processor.region, processor.processorUrl, processor.storageUrl, processor.cdnUrl, this.idToken);
-                this.clients.set(processor.processorUrl, client);
+        for (let region of regions) {
+            if (!this.clients.has(region.region)) {
+                let client = new RealityClient(this.spaceName, region.region, region.processorUrl, region.storageUrl, region.cdnUrl, this.idToken);
+                this.clients.set(region.region, client);
                 client.newWebSocket = this.newWebSocket;
                 client.onClose = () => {
-                    console.log('cluster client - processor disconnected: ' + client.url);
-                    if (this.primaryProcessorUrl === client.url) {
-                        this.onDisconnect(client.url);
+                    console.log('cluster client - region disconnected: ' + client.region);
+                    if (this.primaryRegion === client.region) {
+                        this.onDisconnect(client.region);
                     }
-                    if (this.clients.get(processor.processorUrl) === client) {
-                        this.clients.delete(processor.processorUrl);
+                    if (this.clients.get(region.region) === client) {
+                        this.clients.delete(region.region);
                     }
                 };
                 client.onReceive = (message: string) => {
                     const parts = message.split(Encode.SEPARATOR);
-                    this.onReceive(client.url, parts[0], parts);
+                    this.onReceive(client.region, parts[0], parts);
                 };
                 client.onStoredRootEntityReceived = (sid, entityXml: string) => {
-                    this.onStoredRootEntityReceived(client.url, sid, entityXml);
+                    this.onStoredRootEntityReceived(client.region, sid, entityXml);
                 };
                 client.onStoredChildEntityReceived = (parentSid, sid, entityXml: string) => {
-                    this.onStoredChildEntityReceived(client.url, parentSid, sid, entityXml);
+                    this.onStoredChildEntityReceived(client.region, parentSid, sid, entityXml);
                 };
                 client.onStoredEntityRemoved = (sid: string) => {
-                    this.onStoredEntityRemoved(client.url, sid);
+                    this.onStoredEntityRemoved(client.region, sid);
                 };
                 try {
                     await client.connect();
-                    this.onConnect(client.url);
+                    this.onConnect(client.region);
                 } catch (error) {
-                    console.log("cluster client - error connecting to processor.");
+                    console.log("cluster client - error connecting to region.");
                     continue;
                 }
-                // Add clients for processors which are in range and not connected yet.
-                if (client.url === this.primaryProcessorUrl) {
+                // Add clients for regions which are in range and not connected yet.
+                if (client.region === this.primaryRegion) {
                     // Add avatar
-                    console.log("cluster client - connected to primary processor: " + client.url);
+                    console.log("cluster client - connected to primary region: " + client.region);
                     await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, this.avatarDescription, Encode.AVATAR);
                 } else {
                     // Add probe
-                    console.log("cluster client - connected to secondary processor: " + client.url);
+                    console.log("cluster client - connected to secondary region: " + client.region);
                     await client.add(this.avatarId, x, y, z, rx, ry, rz, rw, "", Encode.PROBE);
                 }
             } else {
-                // Update avatars and probes for processors in range..
-                if (this.clients.get(processor.processorUrl)!!.isConnected()) {
-                    await this.clients.get(processor.processorUrl)!!.update(this.avatarId, x, y, z, rx, ry, rz, rw);
+                // Update avatars and probes for regions in range..
+                if (this.clients.get(region.region)!!.isConnected()) {
+                    await this.clients.get(region.region)!!.update(this.avatarId, x, y, z, rx, ry, rz, rw);
                 }
             }
         }
 
-        // Close clients for processors which are not in range.
+        // Close clients for regions which are not in range.
         this.clients.forEach((client) => {
-            for (let processor of processors) {
-                if (processor.processorUrl === client.url) {
+            for (let region of regions) {
+                if (region.region === client.region) {
                     return;
                 }
             }
-            console.log("cluster client - closing client to processor not in range: " + client.url);
+            console.log("cluster client - closing client to region not in range: " + client.region);
             this.closeClient(client);
         });
 
     }
 
     private closeClient(client: RealityClient) {
-        this.clients.delete(client.url);
+        this.clients.delete(client.region);
         client.close();
-        this.onDisconnect(client.url);
+        this.onDisconnect(client.region);
     }
 
     getClient() : RealityClient | undefined {
-        if (!this.primaryProcessorUrl) {
+        if (!this.primaryRegion) {
             return undefined;
         }
-        return this.clients.get(this.primaryProcessorUrl);
+        return this.clients.get(this.primaryRegion);
     }
 
     isConnected() : boolean {
-        return this.primaryProcessorUrl !== undefined && this.clients.has(this.primaryProcessorUrl) && this.clients.get(this.primaryProcessorUrl)!!.isConnected();
+        return this.primaryRegion !== undefined && this.clients.has(this.primaryRegion) && this.clients.get(this.primaryRegion)!!.isConnected();
     }
 
-    onConnect: OnConnect = (processorUrl: string) => {};
-    onDisconnect: OnDisconnect = (processorUrl: string) => {};
-    onReceive: OnReceive = (processorUrl: string, type: string, message: string[]) => {};
-    onStoredRootEntityReceived: OnStoredRootEntityReceived = (processorUrl: string, sid: string, entityXml:string) => {};
-    onStoredChildEntityReceived: OnStoredChildEntityReceived = (processorUrl: string, parentSid: string, sid: string, entityXml:string) => {};
-    onStoredEntityRemoved: OnStoredEntityRemoved = (processorUrl: string, sid: string) => {};
+    onConnect: OnConnect = (region: string) => {};
+    onDisconnect: OnDisconnect = (region: string) => {};
+    onReceive: OnReceive = (region: string, type: string, message: string[]) => {};
+    onStoredRootEntityReceived: OnStoredRootEntityReceived = (region: string, sid: string, entityXml:string) => {};
+    onStoredChildEntityReceived: OnStoredChildEntityReceived = (region: string, parentSid: string, sid: string, entityXml:string) => {};
+    onStoredEntityRemoved: OnStoredEntityRemoved = (region: string, sid: string) => {};
 
 
     async add(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string) {
@@ -222,50 +222,50 @@ export class ClusterClient {
         }
     }
 
-    async storeEntities(processorUrl: string, entitiesXml: string) {
-        if (this.clients.has(processorUrl)) {
-            await this.clients.get(processorUrl)!!.storeEntities(entitiesXml);
+    async storeEntities(region: string, entitiesXml: string) {
+        if (this.clients.has(region)) {
+            await this.clients.get(region)!!.storeEntities(entitiesXml);
         } else {
-            throw new Error("Processor not connected: " + processorUrl);
+            throw new Error("Region not connected: " + region);
         }
     }
 
-    async storeChildEntities(processorUrl: string, parentSid: string, entitiesXml: string) {
-        if (this.clients.has(processorUrl)) {
-            await this.clients.get(processorUrl)!!.storeChildEntities(parentSid, entitiesXml);
+    async storeChildEntities(region: string, parentSid: string, entitiesXml: string) {
+        if (this.clients.has(region)) {
+            await this.clients.get(region)!!.storeChildEntities(parentSid, entitiesXml);
         } else {
-            throw new Error("Processor not connected: " + processorUrl);
+            throw new Error("Region not connected: " + region);
         }
     }
 
-    async removeStoredEntities(processorUrl: string, sids: Array<string>) {
-        if (this.clients.has(processorUrl)) {
-            await this.clients.get(processorUrl)!!.removeStoredEntities(sids);
+    async removeStoredEntities(region: string, sids: Array<string>) {
+        if (this.clients.has(region)) {
+            await this.clients.get(region)!!.removeStoredEntities(sids);
         } else {
-            throw new Error("Processor not connected: " + processorUrl);
+            throw new Error("Region not connected: " + region);
         }
     }
 
     /**
-     * Gets processors with closest processor as first.
+     * Gets regions with closest region as first.
      * @param x the connection avatar x coordinate
      * @param y the connection avatar y coordinate
      * @param z the connection avatar z coordinate
-     * @return array of ProcessorConfigurations with closest processor as first.
+     * @return array of RegionConfigurations with closest region as first.
      */
     getRegions(x: number, y: number, z: number): Array<RegionConfiguration> {
         const regions = Array<RegionConfiguration>();
         let lastD2 = Number.MAX_SAFE_INTEGER;
-        for (let processor of this.clusterConfiguration!!.regions) {
+        for (let region of this.clusterConfiguration!!.regions) {
 
-            if (x >= processor.x - processor.edge / 2 && x <= processor.x + processor.edge / 2 &&
-                y >= processor.y - processor.edge / 2 && y <= processor.y + processor.edge / 2 &&
-                z >= processor.z - processor.edge / 2 && z <= processor.z + processor.edge / 2) {
-                const d2 = Math.pow(x - processor.x,2) + Math.pow(y - processor.y, 2) + Math.pow(z - processor.z, 2);
+            if (x >= region.x - region.edge / 2 && x <= region.x + region.edge / 2 &&
+                y >= region.y - region.edge / 2 && y <= region.y + region.edge / 2 &&
+                z >= region.z - region.edge / 2 && z <= region.z + region.edge / 2) {
+                const d2 = Math.pow(x - region.x,2) + Math.pow(y - region.y, 2) + Math.pow(z - region.z, 2);
                 if (d2 < lastD2) {
-                    regions.unshift(processor);
+                    regions.unshift(region);
                 } else {
-                    regions.push(processor);
+                    regions.push(region);
                 }
                 lastD2 = d2;
             }

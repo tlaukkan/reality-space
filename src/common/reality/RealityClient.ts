@@ -67,11 +67,11 @@ export class RealityClient {
                         const loginRequestId = m[0];
                         const error = m[1];
                         if (error) {
-                            console.warn("reality client - processor login failed to " + this.spaceName + "/" + this.region + " login request ID: " + loginRequestId + " error: " + error);
+                            console.warn("reality client - region login failed to " + this.spaceName + "/" + this.region + " login request ID: " + loginRequestId + " error: " + error);
                             reject(new Error(error));
                             return;
                         } else {
-                            console.log("reality client - processor login success to " + this.spaceName + "/" + this.region + " login request ID: " + loginRequestId);
+                            console.log("reality client - region login success to " + this.spaceName + "/" + this.region + " login request ID: " + loginRequestId);
                             this.connected = true;
                             resolve();
                             await this.loadStoredEntities();

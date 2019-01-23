@@ -212,6 +212,7 @@ export class ProcessorRequestManager {
 
 
         } catch (error) {
+            console.error("error parsing login request", error);
             await this.processLoginError(ws, "", "error parsing login request");
         }
     }

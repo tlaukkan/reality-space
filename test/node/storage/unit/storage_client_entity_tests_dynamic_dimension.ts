@@ -30,7 +30,7 @@ describe('Storage API / Testing entity resource ...', () => {
     it('It should add entity.', async () => {
 
         try {
-            fs.unlinkSync("repository/spaces/dynamic-1/processors/test/entities.xml");
+            fs.unlinkSync("repository/spaces/dynamic-1/regions/test/entities.xml");
         } catch (error) {
 
         }

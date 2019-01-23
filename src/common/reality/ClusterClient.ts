@@ -82,7 +82,7 @@ export class ClusterClient {
         this.rz = rz;
         this.rw = rw;
 
-        const processors = this.getProcessors(x, y, z);
+        const processors = this.getRegions(x, y, z);
 
         if (processors.length === 0) {
             this.primaryProcessorUrl = undefined;
@@ -185,11 +185,8 @@ export class ClusterClient {
     }
 
     onConnect: OnConnect = (processorUrl: string) => {};
-
     onDisconnect: OnDisconnect = (processorUrl: string) => {};
-
     onReceive: OnReceive = (processorUrl: string, type: string, message: string[]) => {};
-
     onStoredRootEntityReceived: OnStoredRootEntityReceived = (processorUrl: string, sid: string, entityXml:string) => {};
     onStoredChildEntityReceived: OnStoredChildEntityReceived = (processorUrl: string, parentSid: string, sid: string, entityXml:string) => {};
     onStoredEntityRemoved: OnStoredEntityRemoved = (processorUrl: string, sid: string) => {};
@@ -256,8 +253,8 @@ export class ClusterClient {
      * @param z the connection avatar z coordinate
      * @return array of ProcessorConfigurations with closest processor as first.
      */
-    getProcessors(x: number, y: number, z: number): Array<RegionConfiguration> {
-        const processors = Array<RegionConfiguration>();
+    getRegions(x: number, y: number, z: number): Array<RegionConfiguration> {
+        const regions = Array<RegionConfiguration>();
         let lastD2 = Number.MAX_SAFE_INTEGER;
         for (let processor of this.clusterConfiguration!!.regions) {
 
@@ -266,14 +263,14 @@ export class ClusterClient {
                 z >= processor.z - processor.edge / 2 && z <= processor.z + processor.edge / 2) {
                 const d2 = Math.pow(x - processor.x,2) + Math.pow(y - processor.y, 2) + Math.pow(z - processor.z, 2);
                 if (d2 < lastD2) {
-                    processors.unshift(processor);
+                    regions.unshift(processor);
                 } else {
-                    processors.push(processor);
+                    regions.push(processor);
                 }
                 lastD2 = d2;
             }
         }
-        return processors;
+        return regions;
     }
 
 

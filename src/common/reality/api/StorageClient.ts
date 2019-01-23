@@ -24,7 +24,7 @@ export class StorageClient {
     }
 
     async getRootEntitiesFromCdn(): Promise<string> {
-        const entitiesXmlUrl = this.cdnUrl + "spaces/" + this.spaceName + "/processors/" + this.region + "/entities.xml";
+        const entitiesXmlUrl = this.cdnUrl + "spaces/" + this.spaceName + "/regions/" + this.region + "/entities.xml";
         const response = (await fetch(entitiesXmlUrl, {
             method: "GET",
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()}
@@ -136,7 +136,7 @@ export class StorageClient {
 
 
     private async request(method: string, path: string, successStatuses: Array<number>) {
-        const response = (await fetch(this.storageUrl + "spaces/" + this.spaceName + "/processors/" + this.region + path, {
+        const response = (await fetch(this.storageUrl + "spaces/" + this.spaceName + "/regions/" + this.region + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()}
         }));
@@ -147,7 +147,7 @@ export class StorageClient {
     }
 
     private async requestWithBody(method: string, path: string, body: any, successStatuses: Array<number>) {
-        const response = (await fetch(this.storageUrl + "spaces/" + this.spaceName + "/processors/" + this.region + path, {
+        const response = (await fetch(this.storageUrl + "spaces/" + this.spaceName + "/regions/" + this.region + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
             body: JSON.stringify(body)
@@ -159,7 +159,7 @@ export class StorageClient {
     }
 
     private async requestWithTextBody(method: string, path: string, body: string, successStatuses: Array<number>) {
-        const response = (await fetch(this.storageUrl + "spaces/" + this.spaceName + "/processors/" + this.region + path, {
+        const response = (await fetch(this.storageUrl + "spaces/" + this.spaceName + "/regions/" + this.region + path, {
             method: method,
             headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
             body: body

@@ -56,90 +56,90 @@ export class StorageRequestManager {
     process(c: Context): Promise<Context> {
         return new Promise<Context>((resolve, reject) => {
             lift({pathParams: new Map(), body: undefined, ...c})
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/entities.xml', BodyEncoding.XML, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/entities.xml', BodyEncoding.XML, {
                     GET: async c => await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).getDocument(c.principal),
                     POST: undefined,
                     PUT: undefined,
                     DELETE: undefined,
                 }))
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/entities', BodyEncoding.XML, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/entities', BodyEncoding.XML, {
                     GET: async c => await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).getDocument(c.principal),
                     POST: async c => await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).saveRootElements(c.principal, c.body),
                     PUT: undefined,
                     DELETE: undefined,
                 }))
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/entities/{id}', BodyEncoding.XML, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/entities/{id}', BodyEncoding.XML, {
                     GET: async c => await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).getElement(c.principal, c.pathParams.get('id')!!),
                     POST: undefined,
                     PUT: undefined,
                     DELETE: async c => await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).removeElement(c.principal, c.pathParams.get('id')!!)
                 }))
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/entities/{id}/entities', BodyEncoding.XML, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/entities/{id}/entities', BodyEncoding.XML, {
                     GET: undefined,
                     POST: async c => await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).saveChildElements(c.principal, c.pathParams.get('id')!!, c.body),
                     PUT: undefined,
                     DELETE: undefined
                 }))
 
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/users', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/users', BodyEncoding.JSON, {
                     GET: async c => (await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).getUsers(c.principal)).map(u => cu(u)),
                     POST: async c => cu(await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).addUser(c.principal, c.body.id.toString(), c.body.name.toString())),
                     PUT: undefined,
                     DELETE: async c => await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).removeElement(c.principal, c.body),
                 }))
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/users/{id}', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/users/{id}', BodyEncoding.JSON, {
                     GET: async c => cu(await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).getUser(c.principal, c.pathParams.get('id')!!)),
                     POST: undefined,
                     PUT: async c => cu(await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).updateUser(c.principal, c.pathParams.get('id')!!, c.body.name)),
                     DELETE: async c => await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).removeUser(c.principal, c.pathParams.get('id')!!)
                  }))
 
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/groups', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/groups', BodyEncoding.JSON, {
                     GET: async c => (await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).getGroups(c.principal)).map(g => cg(g)),
                     POST: async c => cg(await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).addGroup(c.principal, c.body.name.toString())),
                     PUT: undefined,
                     DELETE: undefined
                 }))
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/groups/{name}', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/groups/{name}', BodyEncoding.JSON, {
                     GET: async c => cg(await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).getGroup(c.principal, c.pathParams.get('name')!!)),
                     POST: undefined,
                     PUT: undefined,
                     DELETE: async c => await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).removeGroup(c.principal, c.pathParams.get('name')!!)
                 }))
 
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/groups/{name}/members', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/groups/{name}/members', BodyEncoding.JSON, {
                     GET: undefined,
                     POST: async c => { await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).addGroupMember(c.principal, c.pathParams.get('name')!!, c.body.userId.toString()); return new GroupMember(c.pathParams.get('name')!!, c.body.userId.toString()); },
                     PUT: undefined,
                     DELETE: undefined
                 }))
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/groups/{name}/members/{userId}', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/groups/{name}/members/{userId}', BodyEncoding.JSON, {
                     GET: undefined,
                     POST: undefined,
                     PUT: undefined,
                     DELETE: async c => await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).removeGroupMember(c.principal, c.pathParams.get('name')!!, c.pathParams.get('userId')!!)
                 }))
 
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/groups/{name}/privileges', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/groups/{name}/privileges', BodyEncoding.JSON, {
                     GET: async c => (await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).getGroupPrivileges(c.principal, c.pathParams.get('name')!!)).map(value => new GroupPrivilege(value[1], c.pathParams.get('name')!!, value[0])),
                     POST: async c => { await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).setGroupPrivilege(c.principal, c.pathParams.get('name')!!, c.body.type.toString(), c.body.sid.toString()); return new GroupPrivilege(c.body.type.toString(), c.pathParams.get('name')!!, c.body.sid.toString()); },
                     PUT: undefined,
                     DELETE: undefined
                 }))
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/groups/{name}/privileges/{sid}', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/groups/{name}/privileges/{sid}', BodyEncoding.JSON, {
                     GET: undefined,
                     POST: undefined,
                     PUT: undefined,
                     DELETE: async c => await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).removeGroupPrivilege(c.principal, c.pathParams.get('name')!!, c.pathParams.get('sid')!!)
                 }))
 
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/users/{userId}/privileges', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/users/{userId}/privileges', BodyEncoding.JSON, {
                     GET: async c => (await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).getUserPrivileges(c.principal, c.pathParams.get('userId')!!)).map(value => new UserPrivilege(value[1], c.pathParams.get('userId')!!, value[0])),
                     POST: async c => { await (await this.storage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).setUserPrivilege(c.principal, c.pathParams.get('userId')!!, c.body.type.toString(), c.body.sid.toString()); return new UserPrivilege(c.body.type.toString(), c.pathParams.get('userId')!!, c.body.sid.toString()); },
                     PUT: undefined,
                     DELETE: undefined
                 }))
-                .then(c => match(c, '/api/spaces/{space}/processors/{processor}/users/{userId}/privileges/{sid}', BodyEncoding.JSON, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/users/{userId}/privileges/{sid}', BodyEncoding.JSON, {
                     GET: undefined,
                     POST: undefined,
                     PUT: undefined,
@@ -175,7 +175,7 @@ export class StorageRequestManager {
             }
             this.storages.set(spaceName, new Map());
         }
-        const storage = new Storage("spaces/" + spaceName + "/processors/" + region + "/entities.xml", "spaces/" + spaceName + "/processors/" + region + "/access.json", this.repository, this.sanitizer);
+        const storage = new Storage("spaces/" + spaceName + "/regions/" + region + "/entities.xml", "spaces/" + spaceName + "/regions/" + region + "/access.json", this.repository, this.sanitizer);
         this.storages.get(spaceName)!!.set(region, storage);
         return storage;
     }

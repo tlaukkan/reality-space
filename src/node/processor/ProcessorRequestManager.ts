@@ -1,8 +1,8 @@
 import {Processor} from "./Processor";
 import {
-    ClusterConfiguration, getProcessorConfiguration,
+    ClusterConfiguration, getRegionConfigurations,
     IdTokenIssuer,
-    ProcessorConfig
+    RegionConfiguration
 } from "../../common/reality/Configuration";
 import * as websocket from "websocket";
 import {Connection} from "./Connection";
@@ -21,19 +21,19 @@ export class ProcessorRequestManager {
     configuration: ClusterConfiguration;
     sanitizer: Sanitizer;
 
-    dimensionNameRegexs: Array<RegExp> = new Array<RegExp>();
+    spaceNameRegexs: Array<RegExp> = new Array<RegExp>();
 
-    processorConfigurations: Map<string, ProcessorConfig>;
+    processorConfigurations: Map<string, RegionConfiguration>;
     processors: Map<string, Map<string, Processor>> = new Map();
     issuers: Map<string, IdTokenIssuer> = new Map<string, IdTokenIssuer>();
 
     constructor(processorUrl: string, configuration: ClusterConfiguration, sanitizer: Sanitizer) {
         this.configuration = configuration;
         this.sanitizer = sanitizer;
-        this.processorConfigurations = getProcessorConfiguration(configuration, processorUrl);
+        this.processorConfigurations = getRegionConfigurations(configuration, processorUrl);
 
-        configuration.dimensions.forEach((dimensionName: string) => {
-            this.dimensionNameRegexs.push(RegExp('^' + dimensionName.replace("*", ".*") + '$'));
+        configuration.spaces.forEach((spaceName: string) => {
+            this.spaceNameRegexs.push(RegExp('^' + spaceName.replace("*", ".*") + '$'));
         });
 
         configuration.idTokenIssuers.forEach(idTokenIssuer => {
@@ -43,10 +43,10 @@ export class ProcessorRequestManager {
     }
 
     async startup() {
-        for (const dimensionName of this.configuration.dimensions) {
-            if (dimensionName.indexOf("*") == -1) { // Do not create wildcard dimensions.
+        for (const spaceName of this.configuration.spaces) {
+            if (spaceName.indexOf("*") == -1) { // Do not create wildcard spaces.
                 for (const region of this.processorConfigurations.keys()) {
-                    await this.getProcessor(dimensionName, region);
+                    await this.getProcessor(spaceName, region);
                 }
             }
         }
@@ -54,50 +54,50 @@ export class ProcessorRequestManager {
     }
 
     async close() {
-        for (const dimensionProcessors of this.processors.values()) {
-            for (const processor of dimensionProcessors.values()) {
+        for (const spaceProcessors of this.processors.values()) {
+            for (const processor of spaceProcessors.values()) {
                 processor.stop();
             }
         }
         console.log('reality server - closed processor manager.')
     }
 
-    async getProcessor(dimensionName: string, region: string): Promise<Processor | undefined> {
+    async getProcessor(spaceName: string, region: string): Promise<Processor | undefined> {
 
-        if (dimensionName.match(/[^0-9a-z\\-]/i)) {
-            throw new Error("Only small alphanumerics and '-' allowed in dimension names.");
+        if (spaceName.match(/[^0-9a-z\\-]/i)) {
+            throw new Error("Only small alphanumerics and '-' allowed in space names.");
         }
 
-        if (!this.processors.has(dimensionName)) {
-            for (let regExp of this.dimensionNameRegexs) {
-                if (regExp.test(dimensionName)) {
-                    this.processors.set(dimensionName, new Map());
+        if (!this.processors.has(spaceName)) {
+            for (let regExp of this.spaceNameRegexs) {
+                if (regExp.test(spaceName)) {
+                    this.processors.set(spaceName, new Map());
                 }
             }
         }
 
-        if (this.processors.has(dimensionName) && !this.processors.get(dimensionName)!!.has(region)) {
+        if (this.processors.has(spaceName) && !this.processors.get(spaceName)!!.has(region)) {
             if (this.processorConfigurations.has(region)) {
-                const processor = this.newProcessor(this.processorConfigurations.get(region)!!, dimensionName, region, this.sanitizer);
+                const processor = this.newProcessor(this.processorConfigurations.get(region)!!, spaceName, region, this.sanitizer);
                 await processor.start();
-                this.processors.get(dimensionName)!!.set(region, processor);
-                console.log("reality server - processor started: " + dimensionName + "/" + region);
+                this.processors.get(spaceName)!!.set(region, processor);
+                console.log("reality server - processor started: " + spaceName + "/" + region);
             }
         }
 
-        if (this.processors.has(dimensionName) && this.processors.get(dimensionName)!!.has(region)) {
-            return this.processors.get(dimensionName)!!.get(region)!!;
+        if (this.processors.has(spaceName) && this.processors.get(spaceName)!!.has(region)) {
+            return this.processors.get(spaceName)!!.get(region)!!;
         } else {
-            console.warn("reality server - no such processor: " + dimensionName + "/" + region);
+            console.warn("reality server - no such processor: " + spaceName + "/" + region);
             return undefined;
         }
 
     }
 
-    newProcessor(processorConfig: ProcessorConfig, dimensionName: string, region: string, sanitizer: Sanitizer): Processor {
+    newProcessor(processorConfig: RegionConfiguration, spaceName: string, region: string, sanitizer: Sanitizer): Processor {
         return new Processor(
             processorConfig,
-            dimensionName,
+            spaceName,
             region,
             new Grid(
                 processorConfig.x,
@@ -144,7 +144,7 @@ export class ProcessorRequestManager {
             const m = Decode.login(parts);
             const loginRequestId = m[0];
             const idToken = m[1];
-            const dimensionName = m[2];
+            const spaceName = m[2];
             const region = m[3];
 
             if (!loginRequestId) {
@@ -155,11 +155,11 @@ export class ProcessorRequestManager {
                 await this.processLoginError(ws, loginRequestId, "no id token in login request");
                 return;
             }
-            if (!dimensionName) {
-                await this.processLoginError(ws, loginRequestId, "no dimension name in login request");
+            if (!spaceName) {
+                await this.processLoginError(ws, loginRequestId, "no space name in login request");
                 return;
             }
-            if (!dimensionName) {
+            if (!spaceName) {
                 await this.processLoginError(ws, loginRequestId, "no processor name name in login request");
                 return;
             }
@@ -187,9 +187,9 @@ export class ProcessorRequestManager {
             const groups = groupsString ? groupsString.split(",") : undefined;
             const principal = new Principal(issuer, claims.get("jti") as string, loginRequestId, claims.get("id")!! as string, claims.get("name")!! as string, groups);
 
-            const processor = await this.getProcessor(dimensionName, region);
+            const processor = await this.getProcessor(spaceName, region);
             if (!processor) {
-                await this.processLoginError(ws, loginRequestId, "no such processor: " + dimensionName + "/" + region);
+                await this.processLoginError(ws, loginRequestId, "no such processor: " + spaceName + "/" + region);
                 return;
             }
 
@@ -197,7 +197,7 @@ export class ProcessorRequestManager {
             connection.processor = processor;
 
             const processorConfig = processor.processorConfig;
-            const storageClient = new StorageClient(processor.dimensionName, processor.region, processorConfig.storageUrl, processorConfig.cdnUrl, idToken);
+            const storageClient = new StorageClient(processor.spaceName, processor.region, processorConfig.storageUrl, processorConfig.cdnUrl, idToken);
 
             // check access rights
             try {
@@ -207,7 +207,7 @@ export class ProcessorRequestManager {
                 return;
             }
 
-            info(principal, "client login success to " + dimensionName + "/" + region + " from: " + remoteAddress + ":" + remotePort);
+            info(principal, "client login success to " + spaceName + "/" + region + " from: " + remoteAddress + ":" + remotePort);
             await ws.send(Encode.loginResponse(loginRequestId, ""));
 
 

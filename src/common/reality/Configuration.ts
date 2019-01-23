@@ -1,12 +1,28 @@
 require('isomorphic-fetch');
 
-export class ProcessorConfig {
+export class ClusterConfiguration {
     name: string = "";
+    description: string = "";
+    edge: number = 1000;
+    step: number = 100;
+    range: number = 200;
+    maxSpaces: number = 10;
     processorUrl: string = "";
     storageUrl: string = "";
     cdnUrl: string = "";
-    dimensions: Array<string> = new Array<string>();
-    maxDimensions: number = 0;
+    spaces: Array<string> = new Array<string>();
+    sanitizer: SanitizerConfiguration = new SanitizerConfiguration();
+    regions: Array<RegionConfiguration> = new Array<RegionConfiguration>();
+    idTokenIssuers: Array<IdTokenIssuer> = new Array<IdTokenIssuer>();
+}
+
+export class RegionConfiguration {
+    region: string = "";
+    processorUrl: string = "";
+    storageUrl: string = "";
+    cdnUrl: string = "";
+    spaces: Array<string> = new Array<string>();
+    maxSpaces: number = 0;
     edge: number = 0;
     step: number = 0;
     range: number = 0;
@@ -15,10 +31,25 @@ export class ProcessorConfig {
     z: number = 0;
 }
 
-export class SanitizerConfig {
+export class SanitizerConfiguration {
     allowedElements: string = "";
     allowedAttributes: string = "";
     allowedAttributeValueRegex: string = "";
+}
+
+export class StorageConfiguration {
+    url: string;
+    regions: Array<string>;
+    spaces: Array<string> = new Array<string>();
+    maxSpaces: number;
+
+    constructor(url: string, regions: Array<string>, spaces: Array<string>, maxSpaces: number) {
+        this.url = url;
+        this.regions = regions;
+        this.spaces = spaces;
+        this.maxSpaces = maxSpaces;
+
+    }
 }
 
 export class IdTokenIssuer {
@@ -29,22 +60,6 @@ export class IdTokenIssuer {
         this.issuer = issuer;
         this.publicKey = publicKey;
     }
-}
-
-export class ClusterConfiguration {
-    name: string = "";
-    description: string = "";
-    edge: number = 1000;
-    step: number = 100;
-    range: number = 200;
-    maxDimensions: number = 10;
-    processorUrl: string = "";
-    storageUrl: string = "";
-    cdnUrl: string = "";
-    dimensions: Array<string> = new Array<string>();
-    sanitizer: SanitizerConfig = new SanitizerConfig();
-    processors: Array<ProcessorConfig> = new Array<ProcessorConfig>();
-    idTokenIssuers: Array<IdTokenIssuer> = new Array<IdTokenIssuer>();
 }
 
 export async function getClusterConfiguration(url: string): Promise<ClusterConfiguration> {
@@ -59,13 +74,13 @@ export async function fetchConfiguration(url: string): Promise<ClusterConfigurat
     const responseText = await (response.text());
     const clusterConfiguration = JSON.parse(responseText) as ClusterConfiguration;
 
-    clusterConfiguration.processors.forEach((processor) => {
-        processor.name = processor.name && processor.name.length > 0 ? processor.name : processor.x + "-" + processor.y + "-" + processor.z;
+    clusterConfiguration.regions.forEach((processor) => {
+        processor.region = processor.region && processor.region.length > 0 ? processor.region : processor.x + "-" + processor.y + "-" + processor.z;
         processor.processorUrl = processor.processorUrl && processor.processorUrl.length > 0 ? processor.processorUrl : clusterConfiguration.processorUrl;
         processor.storageUrl = processor.storageUrl && processor.storageUrl.length > 0 ? processor.storageUrl : clusterConfiguration.storageUrl;
         processor.cdnUrl = processor.cdnUrl && processor.cdnUrl.length > 0 ? processor.cdnUrl : clusterConfiguration.cdnUrl;
-        processor.dimensions = processor.dimensions && processor.dimensions.length > 0 ? processor.dimensions : clusterConfiguration.dimensions;
-        processor.maxDimensions = processor.maxDimensions ? processor.maxDimensions : clusterConfiguration.maxDimensions;
+        processor.spaces = processor.spaces && processor.spaces.length > 0 ? processor.spaces : clusterConfiguration.spaces;
+        processor.maxSpaces = processor.maxSpaces ? processor.maxSpaces : clusterConfiguration.maxSpaces;
         processor.edge = processor.edge ? processor.edge : clusterConfiguration.edge;
         processor.step = processor.step ? processor.step : clusterConfiguration.step;
         processor.range = processor.range ? processor.range : clusterConfiguration.range;
@@ -74,65 +89,34 @@ export async function fetchConfiguration(url: string): Promise<ClusterConfigurat
     return clusterConfiguration;
 }
 
-export class ProcessorConfiguration {
-    name: string;
-    processorUrl: string;
-    dimensions: Array<string> = new Array<string>();
-    maxDimensions: number;
-    cx: number;
-    cy: number;
-    cz: number;
-    edge: number;
-    step: number;
-    range: number;
-
-    constructor(name: string, processorUrl: string, dimensions: Array<string>, maxDimensions: number, cx: number, cy: number, cz: number, edge: number, step: number, range: number) {
-        this.name = name;
-        this.processorUrl = processorUrl;
-        this.dimensions = dimensions;
-        this.maxDimensions = maxDimensions;
-        this.cx = cx;
-        this.cy = cy;
-        this.cz = cz;
-        this.edge = edge;
-        this.step = step;
-        this.range = range;
-    }
-}
-
-export class StorageConfiguration {
-    url: string;
-    regions: Array<string>;
-    dimensions: Array<string> = new Array<string>();
-    maxDimensions: number;
-
-    constructor(url: string, regions: Array<string>, dimensions: Array<string>, maxDimensions: number) {
-        this.url = url;
-        this.regions = regions;
-        this.dimensions = dimensions;
-        this.maxDimensions = maxDimensions;
-
-    }
-}
-
-export function getProcessorConfiguration(clusterConfiguration: ClusterConfiguration, processorUrl: string) : Map<string, ProcessorConfig> {
+/**
+ * Gets regions processor is responsible for.
+ * @param clusterConfiguration the cluster configuration.
+ * @param processorUrl the processor URL
+ */
+export function getRegionConfigurations(clusterConfiguration: ClusterConfiguration, processorUrl: string) : Map<string, RegionConfiguration> {
     const normalizedServerUrl = processorUrl.trim().toLocaleLowerCase();
-    const processorConfigs = new Map<string, ProcessorConfig>();
-    for (let processor of clusterConfiguration.processors) {
+    const processorConfigs = new Map<string, RegionConfiguration>();
+    for (let processor of clusterConfiguration.regions) {
         const normalizedServerUrlCandidate = processor.processorUrl.trim().toLowerCase();
         if (normalizedServerUrl == normalizedServerUrlCandidate) {
-            processorConfigs.set(processor.name, processor);
+            processorConfigs.set(processor.region, processor);
         }
     };
     return processorConfigs;
 }
 
+/**
+ * Gets storage configuration.
+ * @param clusterConfiguration the cluster configuration
+ * @param storageUrl the storage URL
+ */
 export function getStorageConfiguration(clusterConfiguration: ClusterConfiguration, storageUrl: string) {
-    const matchingServerNames = clusterConfiguration.processors.filter(s => {
+    const matchingServerNames = clusterConfiguration.regions.filter(s => {
         const processorStorageUrl = s.storageUrl && s.storageUrl.length > 0 ? s.storageUrl : clusterConfiguration.storageUrl;
         return processorStorageUrl.trim().toLocaleLowerCase() == storageUrl.trim().toLocaleLowerCase()
-    }).map(s => s.name);
-    return new StorageConfiguration(storageUrl, matchingServerNames, clusterConfiguration.dimensions, clusterConfiguration.maxDimensions);
+    }).map(s => s.region);
+    return new StorageConfiguration(storageUrl, matchingServerNames, clusterConfiguration.spaces, clusterConfiguration.maxSpaces);
 }
 
 export function findItTokenIssuerConfiguration(clusterConfiguration: ClusterConfiguration, issuer: string) : IdTokenIssuer | null {

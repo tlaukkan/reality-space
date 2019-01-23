@@ -6,8 +6,8 @@ import {RealityServer} from "../../../src/node/server/RealityServer";
 import {
     ClusterConfiguration,
     IdTokenIssuer,
-    ProcessorConfig,
-    SanitizerConfig
+    RegionConfiguration,
+    SanitizerConfiguration
 } from "../../../src/common/reality/Configuration";
 import {createIdToken} from "../../../src/common/reality/util/jwt";
 import {Principal} from "../../../src/node/http/Principal";
@@ -35,7 +35,7 @@ export function newLocalTestServer(): RealityServer {
 
     const storageConfiguration = getStorageConfiguration(clusterConfiguration, "http://localhost:8889/api/");
 
-    const storageRestService = new StorageRequestManager(repository, sanitizer, storageConfiguration.regions, storageConfiguration.dimensions, storageConfiguration.maxDimensions);
+    const storageRestService = new StorageRequestManager(repository, sanitizer, storageConfiguration.regions, storageConfiguration.spaces, storageConfiguration.maxSpaces);
     const processorManager = new ProcessorRequestManager("ws://localhost:8889/", clusterConfiguration, sanitizer);
 
     const server = new RealityServer('127.0.0.1', 8889, processorManager, storageRestService, clusterConfiguration.idTokenIssuers);*/
@@ -44,18 +44,18 @@ export function newLocalTestServer(): RealityServer {
 }
 
 export function newLocalClusterConfiguration() {
-    const sanitizeConfig = new SanitizerConfig();
+    const sanitizeConfig = new SanitizerConfiguration();
     sanitizeConfig.allowedElements = "a-entities,a-scene,a-box,a-circle,a-collada-model,a-cone,a-curvedimage,a-cylinder,a-dodecahedron,a-gltf-model,a-icosahedron,a-image,a-obj-model,a-octahedron,a-plane,a-ring,a-sound,a-sphere,a-tetrahedron,a-text,a-torus-knot,a-torus,a-triangle";
     sanitizeConfig.allowedAttributes = "sid,scale,src,geometry,material,position,rotation,sound,text";
     sanitizeConfig.allowedAttributeValueRegex = "[^\\w\\s\\.:;-]";
 
-    const processorConfig = new ProcessorConfig();
-    processorConfig.name = "test";
+    const processorConfig = new RegionConfiguration();
+    processorConfig.region = "test";
     processorConfig.processorUrl = "ws://localhost:8889/";
     processorConfig.storageUrl = "http://localhost:8889/api/";
     processorConfig.cdnUrl  = "http://localhost:8889/api/";
-    processorConfig.dimensions = ["default","dynamic-*"];
-    processorConfig.maxDimensions = 2;
+    processorConfig.spaces = ["default","dynamic-*"];
+    processorConfig.maxSpaces = 2;
     processorConfig.edge = process.env.GRID_EDGE as any || 140;
     processorConfig.step = process.env.GRID_STEP as any || 10;
     processorConfig.range = process.env.GRID_RANGE as any || 20;
@@ -69,12 +69,12 @@ export function newLocalClusterConfiguration() {
     clusterConfiguration.edge = 1000;
     clusterConfiguration.step = 100;
     clusterConfiguration.range = 200;
-    clusterConfiguration.dimensions = ["default","dynamic-*"];
-    clusterConfiguration.maxDimensions = 2;
+    clusterConfiguration.spaces = ["default","dynamic-*"];
+    clusterConfiguration.maxSpaces = 2;
     clusterConfiguration.storageUrl = "http://localhost:8889/api/";
     clusterConfiguration.cdnUrl = "http://localhost:8889/api/";
     clusterConfiguration.sanitizer = sanitizeConfig;
-    clusterConfiguration.processors = [processorConfig];
+    clusterConfiguration.regions = [processorConfig];
     clusterConfiguration.idTokenIssuers = [
         new IdTokenIssuer(
             "test-issuer",
@@ -108,14 +108,14 @@ export function newLocalTestRealityClientWithoutAccessRights() {
     return client;
 }
 
-export function newStorageClientDynamicDimension() {
+export function newStorageClientDynamicSpace() {
     return new StorageClient("dynamic-1", "test", "http://127.0.0.1:8889/api/", "http://localhost:8889/api/", createTestIdToken());
 }
 
 export function resetStorage(server: RealityServer) {
     if (server.storageManager) {
-        server.storageManager.storages.forEach(dimensionStorages => {
-            dimensionStorages.forEach(storage => {
+        server.storageManager.storages.forEach(spaceStorages => {
+            spaceStorages.forEach(storage => {
                 storage.clear();
                 storage.init();
                 const principal = new Principal("", "", "", "1", "test", ["administrators", "modifiers"]);

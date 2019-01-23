@@ -26,12 +26,12 @@ export class Encode {
     static readonly PROBE: string = 'p';  // Observing
     static readonly AVATAR: string = 'a'; // Visible and observing
 
-    static login(loginRequestId: string, jwt: string, dimension: string, processor: string) : string {
+    static login(loginRequestId: string, jwt: string, space: string, processor: string) : string {
         return "" +
             s(this.LOGIN) +
             s(loginRequestId) +
             se(jwt) +
-            s(dimension) +
+            s(space) +
             s(processor);
     }
 

@@ -14,7 +14,7 @@ interface OnClose { (): void }
 
 export class RealityClient {
 
-    dimensionName: string;
+    spaceName: string;
     region: string;
     url: string;
     apiUrl: string;
@@ -24,14 +24,14 @@ export class RealityClient {
     connected: boolean = false;
     idToken: string;
 
-    constructor(dimensionName: string, region: string, url: string, apiUrl: string, assetUrl: string, idToken: string) {
-        this.dimensionName = dimensionName;
+    constructor(spaceName: string, region: string, url: string, apiUrl: string, assetUrl: string, idToken: string) {
+        this.spaceName = spaceName;
         this.region = region;
         this.url = url;
         this.apiUrl = apiUrl;
         this.assetUrl = assetUrl;
         this.idToken = idToken;
-        this.storageClient = new StorageClient(dimensionName, region, apiUrl, assetUrl, idToken);
+        this.storageClient = new StorageClient(spaceName, region, apiUrl, assetUrl, idToken);
     }
 
     newWebSocket: WebSocketConstruct = (url:string, protocol:string) => { return new WebSocket(url, protocol)};
@@ -58,7 +58,7 @@ export class RealityClient {
                     this.onClose();
                 };
                 this.ws.onopen = async () => {
-                    await this.send(Encode.login(uuid.v4().toString(), this.idToken, this.dimensionName, this.region));
+                    await this.send(Encode.login(uuid.v4().toString(), this.idToken, this.spaceName, this.region));
                 };
                 this.ws.onmessage = async (message) => {
                     if ((message.data as string).startsWith(Encode.LOGIN_RESPONSE + "|" )) {
@@ -67,11 +67,11 @@ export class RealityClient {
                         const loginRequestId = m[0];
                         const error = m[1];
                         if (error) {
-                            console.warn("reality client - processor login failed to " + this.dimensionName + "/" + this.region + " login request ID: " + loginRequestId + " error: " + error);
+                            console.warn("reality client - processor login failed to " + this.spaceName + "/" + this.region + " login request ID: " + loginRequestId + " error: " + error);
                             reject(new Error(error));
                             return;
                         } else {
-                            console.log("reality client - processor login success to " + this.dimensionName + "/" + this.region + " login request ID: " + loginRequestId);
+                            console.log("reality client - processor login success to " + this.spaceName + "/" + this.region + " login request ID: " + loginRequestId);
                             this.connected = true;
                             resolve();
                             await this.loadStoredEntities();

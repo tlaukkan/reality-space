@@ -4,7 +4,7 @@ import {Encode} from "../../common/reality/Encode";
 import {Decode} from "../../common/reality/Decode";
 import Timer = NodeJS.Timer;
 import {Sanitizer} from "../../common/reality/Sanitizer";
-import {ProcessorConfig} from "../../common/reality/Configuration";
+import {RegionConfiguration} from "../../common/reality/Configuration";
 
 export class Processor {
 
@@ -12,8 +12,8 @@ export class Processor {
     static readonly TICK_INTERVAL_MILLIS: number = 5;
     static readonly TICKS_PER_UPDATE_INTERVAL: number = Processor.UPDATE_INTERVAL_MILLIS / Processor.TICK_INTERVAL_MILLIS;
 
-    processorConfig: ProcessorConfig;
-    dimensionName: string;
+    processorConfig: RegionConfiguration;
+    spaceName: string;
     region: string;
 
     grid: Grid;
@@ -22,9 +22,9 @@ export class Processor {
     intervalHandle: Timer | undefined = undefined;
     lastProcessTime: number = new Date().getTime();
 
-    constructor(processorConfig: ProcessorConfig, dimensionName: string, region: string, grid: Grid, sanitizer: Sanitizer) {
+    constructor(processorConfig: RegionConfiguration, spaceName: string, region: string, grid: Grid, sanitizer: Sanitizer) {
         this.processorConfig = processorConfig;
-        this.dimensionName = dimensionName;
+        this.spaceName = spaceName;
         this.region = region;
         this.grid = grid;
         this.sanitizer = sanitizer;

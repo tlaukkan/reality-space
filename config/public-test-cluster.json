@@ -12,6 +12,19 @@
   "edge": 140,
   "step": 10,
   "range": 20,
+  "spaces": ["default", "private-*"],
+  "maxSpaces": 20,
+  "regions": [
+    { "x":    0, "y":   0, "z":    0, "processorUrl": "wss://rs-test-processor-0-0-0.herokuapp.com/"},
+    { "x":  100, "y":   0, "z":    0},
+    { "x":    0, "y":   0, "z":  100},
+    { "x":  100, "y":   0, "z":  100},
+    { "x":  100, "y":   0, "z":  -100},
+    { "x": -100, "y":   0, "z":  100},
+    { "x": -100, "y":   0, "z":    0},
+    { "x":    0, "y":   0, "z": -100},
+    { "x": -100, "y":   0, "z": -100}
+  ],
   "dimensions": ["default", "private-*"],
   "maxDimensions": 20,
   "processors": [

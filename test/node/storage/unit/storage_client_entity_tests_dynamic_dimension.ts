@@ -2,14 +2,14 @@ import 'mocha';
 import {expect} from 'chai';
 import {RealityServer} from "../../../../src/node/server/RealityServer";
 import {DocumentController} from "../../../../src/node/storage/DocumentController";
-import {newStorageClientDynamicDimension, resetStorage, startLocalTestServer} from "../../util/util";
+import {newStorageClientDynamicSpace, resetStorage, startLocalTestServer} from "../../util/util";
 import {parseRootSids} from "../../../../src/node/util/parser";
 import {xml2js} from "xml-js";
 import {User} from "../../../../src/common/reality/api/User";
 import * as fs from "fs";
 
 describe('Storage API / Testing entity resource ...', () => {
-    const client = newStorageClientDynamicDimension();
+    const client = newStorageClientDynamicSpace();
     let server: RealityServer;
     let parser: DocumentController;
 
@@ -30,7 +30,7 @@ describe('Storage API / Testing entity resource ...', () => {
     it('It should add entity.', async () => {
 
         try {
-            fs.unlinkSync("repository/dimensions/dynamic-1/processors/test/entities.xml");
+            fs.unlinkSync("repository/spaces/dynamic-1/processors/test/entities.xml");
         } catch (error) {
 
         }

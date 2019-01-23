@@ -3,8 +3,8 @@ const config = require('config');
 import {
     ClusterConfiguration,
     fetchConfiguration,
-    IdTokenIssuer, ProcessorConfig,
-    SanitizerConfig,
+    IdTokenIssuer, RegionConfiguration,
+    SanitizerConfiguration,
 } from "../../common/reality/Configuration";
 
 export async function loadConfiguration(clusterConfigurationUrl: string): Promise<ClusterConfiguration> {
@@ -15,18 +15,18 @@ export async function loadConfiguration(clusterConfigurationUrl: string): Promis
     } else {
         console.log("Cluster configuration URL not defined. Loading local configuration.");
 
-        const sanitizeConfig = new SanitizerConfig();
+        const sanitizeConfig = new SanitizerConfiguration();
         sanitizeConfig.allowedElements = config.get('Sanitizer.allowedElements');
         sanitizeConfig.allowedAttributes = config.get('Sanitizer.allowedAttributes');
         sanitizeConfig.allowedAttributeValueRegex = config.get('Sanitizer.allowedAttributeValueRegex');
 
-        const processorConfig = new ProcessorConfig();
-        processorConfig.name = "0-0-0";
+        const processorConfig = new RegionConfiguration();
+        processorConfig.region = "0-0-0";
         processorConfig.processorUrl = "ws://localhost:8889/";
         processorConfig.storageUrl = "http://localhost:8889/api/";
         processorConfig.cdnUrl  = "http://localhost:8889/api/";
-        processorConfig.dimensions = ["default"];
-        processorConfig.maxDimensions = 10;
+        processorConfig.spaces = ["default"];
+        processorConfig.maxSpaces = 10;
         processorConfig.edge = process.env.GRID_EDGE as any || 140;
         processorConfig.step = process.env.GRID_STEP as any || 10;
         processorConfig.range = process.env.GRID_RANGE as any || 20;
@@ -40,12 +40,12 @@ export async function loadConfiguration(clusterConfigurationUrl: string): Promis
         clusterConfiguration.edge = 1000;
         clusterConfiguration.step = 100;
         clusterConfiguration.range = 200;
-        clusterConfiguration.dimensions = ["default"];
-        clusterConfiguration.maxDimensions = 10;
+        clusterConfiguration.spaces = ["default"];
+        clusterConfiguration.maxSpaces = 10;
         clusterConfiguration.storageUrl = "http://localhost:8889/api/";
         clusterConfiguration.cdnUrl = "http://localhost:8889/api/";
         clusterConfiguration.sanitizer = sanitizeConfig;
-        clusterConfiguration.processors = [processorConfig];
+        clusterConfiguration.regions = [processorConfig];
         clusterConfiguration.idTokenIssuers = [
             new IdTokenIssuer(
                 "test-issuer",

@@ -1,4 +1,4 @@
-import {ClusterConfiguration, getClusterConfiguration, ProcessorConfig} from "./Configuration";
+import {ClusterConfiguration, getClusterConfiguration, RegionConfiguration} from "./Configuration";
 import {RealityClient} from "./RealityClient";
 import {Encode} from "./Encode";
 
@@ -13,7 +13,7 @@ interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 export class ClusterClient {
 
     clusterConfigurationUrl: string;
-    dimensionName: string;
+    spaceName: string;
     idToken: string;
     avatarId: string;
     x: number;
@@ -31,9 +31,9 @@ export class ClusterClient {
 
     clients: Map<String, RealityClient> = new Map();
 
-    constructor(clusterConfigurationUrl: string, dimensionName: string, avatarId: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, avatarDescription: string, idToken: string) {
+    constructor(clusterConfigurationUrl: string, spaceName: string, avatarId: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, avatarDescription: string, idToken: string) {
         this.clusterConfigurationUrl = clusterConfigurationUrl;
-        this.dimensionName = dimensionName;
+        this.spaceName = spaceName;
         this.idToken = idToken;
         this.avatarId = avatarId;
         this.x = x;
@@ -104,7 +104,7 @@ export class ClusterClient {
 
         for (let processor of processors) {
             if (!this.clients.has(processor.processorUrl)) {
-                let client = new RealityClient(this.dimensionName, processor.name, processor.processorUrl, processor.storageUrl, processor.cdnUrl, this.idToken);
+                let client = new RealityClient(this.spaceName, processor.region, processor.processorUrl, processor.storageUrl, processor.cdnUrl, this.idToken);
                 this.clients.set(processor.processorUrl, client);
                 client.newWebSocket = this.newWebSocket;
                 client.onClose = () => {
@@ -256,10 +256,10 @@ export class ClusterClient {
      * @param z the connection avatar z coordinate
      * @return array of ProcessorConfigurations with closest processor as first.
      */
-    getProcessors(x: number, y: number, z: number): Array<ProcessorConfig> {
-        const processors = Array<ProcessorConfig>();
+    getProcessors(x: number, y: number, z: number): Array<RegionConfiguration> {
+        const processors = Array<RegionConfiguration>();
         let lastD2 = Number.MAX_SAFE_INTEGER;
-        for (let processor of this.clusterConfiguration!!.processors) {
+        for (let processor of this.clusterConfiguration!!.regions) {
 
             if (x >= processor.x - processor.edge / 2 && x <= processor.x + processor.edge / 2 &&
                 y >= processor.y - processor.edge / 2 && y <= processor.y + processor.edge / 2 &&

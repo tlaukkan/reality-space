@@ -31,7 +31,7 @@ function newProcessorRequestManager(processorUrl: string, clusterConfiguration: 
 function newStorageRequestManager(storageUrl: string, storageType: string, clusterConfiguration: ClusterConfiguration, sanitizer: Sanitizer): StorageRequestManager {
     const storageConfiguration = getStorageConfiguration(clusterConfiguration, storageUrl);
     const repository = newRepository(storageType);
-    return new StorageRequestManager(repository, sanitizer, storageConfiguration.regions, storageConfiguration.dimensions, storageConfiguration.maxDimensions);
+    return new StorageRequestManager(repository, sanitizer, storageConfiguration.regions, storageConfiguration.spaces, storageConfiguration.maxSpaces);
 }
 
 function newRepository(storageType: string): Repository {

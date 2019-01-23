@@ -81,14 +81,14 @@ export class ProcessorRequestManager {
                 const processor = this.newProcessor(this.processorConfigurations.get(region)!!, spaceName, region, this.sanitizer);
                 await processor.start();
                 this.processors.get(spaceName)!!.set(region, processor);
-                console.log("reality server - processor started: " + spaceName + "/" + region);
+                console.log("reality server - region started: " + spaceName + "/" + region);
             }
         }
 
         if (this.processors.has(spaceName) && this.processors.get(spaceName)!!.has(region)) {
             return this.processors.get(spaceName)!!.get(region)!!;
         } else {
-            console.warn("reality server - no such processor: " + spaceName + "/" + region);
+            console.warn("reality server - no such region: " + spaceName + "/" + region);
             return undefined;
         }
 
@@ -159,8 +159,8 @@ export class ProcessorRequestManager {
                 await this.processLoginError(ws, loginRequestId, "no space name in login request");
                 return;
             }
-            if (!spaceName) {
-                await this.processLoginError(ws, loginRequestId, "no processor name name in login request");
+            if (!region) {
+                await this.processLoginError(ws, loginRequestId, "no region name in login request");
                 return;
             }
 

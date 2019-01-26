@@ -1,5 +1,3 @@
-import {RestApiContext} from "../http/RestApiContext";
-import {Context} from "../http/Context";
 import {Principal} from "../http/Principal";
 
 require('console-stamp')(console, {
@@ -22,6 +20,27 @@ export function error(context: Principal, message:string, error: any) {
     const contextString = formatContextString(context.requestId, context.tokenId, context.issuer, context.userId);
     console.error(contextString + " > " + message);
     console.error(error);
+}
+
+export function  infoWithoutContext(message:string) {
+    const contextString = formatContextString('', '', '', '');
+    console.info(contextString + " > " + message);
+}
+
+export function  warnWithoutContext(message:string) {
+    const contextString = formatContextString('', '', '', '');
+    console.info(contextString + " > " + message);
+}
+
+export function  errorWithoutContext(message:string, error: any) {
+    const contextString = formatContextString('', '', '', '');
+    console.error(contextString + " > " + message);
+    console.error(error);
+}
+
+export function  infoWithRequestId(requestId: string, message:string) {
+    const contextString = formatContextString(requestId, '', '', '');
+    console.info(contextString + " > " + message);
 }
 
 export function warnWithRequestId(requestId: string, message:string) {

@@ -10,6 +10,11 @@ import {info} from "../util/log";
 
 export class Storage {
 
+    spaceName: string;
+    region: string;
+    dynamic: boolean;
+    lastAccessTimeMillis = new Date().getTime();
+
     private readonly documentFileName: string;
     private readonly accessFileName: string;
 
@@ -17,7 +22,10 @@ export class Storage {
     documentController: DocumentController;
     repository: Repository;
 
-    constructor(sceneFileName: string, accessFileName: string, repository: Repository, sanitizer: Sanitizer) {
+    constructor(spaceName: string, region: string, sceneFileName: string, accessFileName: string, repository: Repository, sanitizer: Sanitizer, dynamic: boolean) {
+        this.spaceName = spaceName;
+        this.region = region;
+        this.dynamic = dynamic;
         this.documentFileName = sceneFileName;
         this.accessFileName = accessFileName;
         this.repository = repository;

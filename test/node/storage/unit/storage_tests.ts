@@ -20,7 +20,7 @@ describe('Storage test.', () => {
         await repository.delete(accessFileName);
 
         const sceneController = new DocumentController(sanitizer);
-        const storage = new Storage(sceneFileName, accessFileName, repository, sanitizer);
+        const storage = new Storage("default", "test", sceneFileName, accessFileName, repository, sanitizer, false);
         await storage.startup();
 
         const principal = new Principal("", "", "", "1", "test-user-1", ["administrators", "modifiers"]);

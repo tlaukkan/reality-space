@@ -23,6 +23,7 @@ export class RealityClient {
     storageClient: StorageClient;
     connected: boolean = false;
     idToken: string;
+    loadEntities = true;
 
     constructor(spaceName: string, region: string, url: string, apiUrl: string, assetUrl: string, idToken: string) {
         this.spaceName = spaceName;
@@ -74,7 +75,9 @@ export class RealityClient {
                             console.log("reality client - region login success to " + this.spaceName + "/" + this.region + " login request ID: " + loginRequestId);
                             this.connected = true;
                             resolve();
-                            await this.loadStoredEntities();
+                            if (this.loadEntities) {
+                                await this.loadStoredEntities();
+                            }
                             return;
                         }
                     }

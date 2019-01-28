@@ -15,6 +15,7 @@ export class Processor {
     processorConfig: RegionConfiguration;
     spaceName: string;
     region: string;
+    dynamic: boolean;
 
     grid: Grid;
     sanitizer: Sanitizer;
@@ -22,12 +23,13 @@ export class Processor {
     intervalHandle: Timer | undefined = undefined;
     lastProcessTime: number = new Date().getTime();
 
-    constructor(processorConfig: RegionConfiguration, spaceName: string, region: string, grid: Grid, sanitizer: Sanitizer) {
+    constructor(processorConfig: RegionConfiguration, spaceName: string, region: string, grid: Grid, sanitizer: Sanitizer, dynamic: boolean) {
         this.processorConfig = processorConfig;
         this.spaceName = spaceName;
         this.region = region;
         this.grid = grid;
         this.sanitizer = sanitizer;
+        this.dynamic = dynamic;
     }
 
     start() {

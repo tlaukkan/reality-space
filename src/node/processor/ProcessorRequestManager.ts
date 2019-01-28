@@ -46,7 +46,7 @@ export class ProcessorRequestManager {
         for (const spaceName of this.configuration.spaces) {
             if (spaceName.indexOf("*") == -1) { // Do not create wildcard spaces.
                 for (const region of this.processorConfigurations.keys()) {
-                    await this.getProcessor(spaceName, region);
+                    await this.getProcessor(spaceName, region, true);
                 }
             }
         }
@@ -62,7 +62,7 @@ export class ProcessorRequestManager {
         console.log('reality server - closed processor manager.')
     }
 
-    async getProcessor(spaceName: string, region: string): Promise<Processor | undefined> {
+    async getProcessor(spaceName: string, region: string, startup: boolean): Promise<Processor | undefined> {
 
         if (spaceName.match(/[^0-9a-z\\-]/i)) {
             throw new Error("Only small alphanumerics and '-' allowed in space names.");
@@ -78,7 +78,7 @@ export class ProcessorRequestManager {
 
         if (this.processors.has(spaceName) && !this.processors.get(spaceName)!!.has(region)) {
             if (this.processorConfigurations.has(region)) {
-                const processor = this.newProcessor(this.processorConfigurations.get(region)!!, spaceName, region, this.sanitizer);
+                const processor = this.newProcessor(this.processorConfigurations.get(region)!!, spaceName, region, this.sanitizer, !startup);
                 await processor.start();
                 this.processors.get(spaceName)!!.set(region, processor);
                 console.log("reality server - region started: " + spaceName + "/" + region);
@@ -94,7 +94,7 @@ export class ProcessorRequestManager {
 
     }
 
-    newProcessor(processorConfig: RegionConfiguration, spaceName: string, region: string, sanitizer: Sanitizer): Processor {
+    newProcessor(processorConfig: RegionConfiguration, spaceName: string, region: string, sanitizer: Sanitizer, dynamic: boolean): Processor {
         return new Processor(
             processorConfig,
             spaceName,
@@ -106,7 +106,7 @@ export class ProcessorRequestManager {
                 processorConfig.edge,
                 processorConfig.step,
                 processorConfig.range
-            ), sanitizer
+            ), sanitizer, dynamic
         );
     }
 
@@ -134,6 +134,16 @@ export class ProcessorRequestManager {
             console.log('reality server - client disconnected from ' + request.socket.remoteAddress + ':' + request.socket.remotePort);
             if (connection.processor) {
                 connection.processor.remove(connection);
+                if (connection.processor.dynamic) {
+                    if (connection.processor.connections.size == 0) {
+                        console.log('reality server - closing unused dynamic processor: ' + connection.processor.region + "/" + connection.processor.spaceName);
+                        connection.processor.stop();
+                        this.processors.get(connection.processor.spaceName)!!.delete(connection.processor.region);
+                        if (this.processors.get(connection.processor.spaceName)!!.size == 0) {
+                            this.processors.delete(connection.processor.spaceName);
+                        }
+                    }
+                }
             }
         });
     }
@@ -187,7 +197,7 @@ export class ProcessorRequestManager {
             const groups = groupsString ? groupsString.split(",") : undefined;
             const principal = new Principal(issuer, claims.get("jti") as string, loginRequestId, claims.get("id")!! as string, claims.get("name")!! as string, groups);
 
-            const processor = await this.getProcessor(spaceName, region);
+            const processor = await this.getProcessor(spaceName, region, false);
             if (!processor) {
                 await this.processLoginError(ws, loginRequestId, "no such processor: " + spaceName + "/" + region);
                 return;

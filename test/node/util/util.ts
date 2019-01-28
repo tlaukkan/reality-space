@@ -102,6 +102,12 @@ export function newLocalTestRealityClient() {
     return client;
 }
 
+export function newLocalTestRealityClientForGivenSpace(space: string) {
+    const client = new RealityClient(space, "test", "ws://127.0.0.1:8889/", "http://localhost:8889/api/", "http://localhost:8889/api/", createTestIdToken());
+    client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
+    return client;
+}
+
 export function newLocalTestRealityClientWithoutAccessRights() {
     const client = new RealityClient("default", "test", "ws://127.0.0.1:8889/", "http://localhost:8889/api/", "http://localhost:8889/api/", createTestIdTokenWithoutGroups());
     client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};

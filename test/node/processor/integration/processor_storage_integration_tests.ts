@@ -16,9 +16,15 @@ require('isomorphic-fetch');
 
 describe('Test Messaging', () => {
     let client = new RealityClient(DEFAULT_DIMENSION, PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME, PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_URL, PUBLIC_TEST_CLUSTER_STORAGE_URL, PUBLIC_TEST_CLUSTER_CDN_URL, createTestIdToken());
+    let sids = new Array<string>();
 
     before(async () => {
         client.newWebSocket = (url:string, protocol:string) => { return new w3cwebsocket(url, protocol) as any};
+        client.onStoredRootEntityReceived = (sid => {
+            //sids.push(sid);
+            //console.log(sid);
+            //client.storageClient.removeEntity(sid);
+        });
         await client.connect();
     });
 
@@ -47,6 +53,11 @@ describe('Test Messaging', () => {
 */
     /*it('Should save entity.', function (done) {
         client.storeEntities('<a-entities><a-sphere position="-3 0 -3" scale="1 1 1" color="#BF3100"></a-sphere></a-entities>');
+        done();
+    });*/
+
+    /*it('Should remove entity.', function (done) {
+        client.removeStoredEntities(["fdfebaae-3f68-412d-bb8b-6e1cb938d20b"]);
         done();
     });*/
 

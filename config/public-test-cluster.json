@@ -3,7 +3,7 @@
   "description": "This is the public reality space test cluster.",
   "sanitizer": {
     "allowedElements": "a-entities,a-entity,a-box,a-circle,a-collada-model,a-cone,a-curvedimage,a-cylinder,a-dodecahedron,a-gltf-model,a-icosahedron,a-image,a-obj-model,a-octahedron,a-plane,a-ring,a-sound,a-sphere,a-tetrahedron,a-text,a-torus-knot,a-torus,a-triangle",
-    "allowedAttributes": "src,geometry,material,position,rotation,quaternion,scale,sound,text,sid,color,gltf-model,animator,avatar,collidable,oid,type,parameters,set-id",
+    "allowedAttributes": "src,geometry,material,position,rotation,quaternion,scale,sound,text,sid,color,model,gltf-model,animator,avatar,collidable,oid,type,parameters,set-id",
     "attributeValueRegex": "[^\\w\\s\\.:;-#/]"
   },
   "processorUrl": "wss://rs-test-processor.herokuapp.com/",

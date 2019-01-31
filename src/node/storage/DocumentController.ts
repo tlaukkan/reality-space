@@ -7,8 +7,9 @@ import {FragmentElement} from "./model/FragmentElement";
 export class DocumentController {
 
     static FRAGMENT_ROOT_ELEMENT = "a-entities";
-    static EMPTY_FRAGMENT = '<'+ DocumentController.FRAGMENT_ROOT_ELEMENT+'/>';
+    static EMPTY_FRAGMENT = '<'+ DocumentController.FRAGMENT_ROOT_ELEMENT+'></'+ DocumentController.FRAGMENT_ROOT_ELEMENT+'>';
 
+    readonly options = {fullTagEmptyElement: true, spaces: 4};
     sanitizer: Sanitizer;
     document: Fragment;
     elements: Map<string, FragmentElement> = new Map<string, FragmentElement>();
@@ -40,7 +41,7 @@ export class DocumentController {
             this.saveElement(this.document.rootElement, e, true);
         });
 
-        return js2xml(fragment.container);
+        return js2xml(fragment.container, this.options);
     }
 
     putChildElements(parentSid: string, fragmentXml: string): string {
@@ -70,7 +71,7 @@ export class DocumentController {
             this.saveElement(parentElement.element, e, true);
         });
 
-        return js2xml(fragment.container);
+        return js2xml(fragment.container, this.options);
     }
 
     remove(sid: string) {
@@ -86,7 +87,7 @@ export class DocumentController {
     }
 
     getDocument(): string {
-        return js2xml(this.document.container);
+        return js2xml(this.document.container, this.options);
     }
 
     hasElement(sid: string): boolean {
@@ -101,11 +102,11 @@ export class DocumentController {
             throw new Error("Element does not exist.");
         }
         const element = this.elements.get(sid)!!;
-        return js2xml({ elements: [ element.element ] });
+        return js2xml({ elements: [ element.element ] }, this.options);
     }
 
     serialize(): string {
-        return js2xml(this.document.container);
+        return js2xml(this.document.container, this.options);
     }
 
     deserialize(documentXml: string) {

@@ -25,7 +25,7 @@ describe('Storage API / Testing entity resource ...', () => {
     });
 
     it('It should get entity.', async () => {
-        expect(await client.getRootEntities()).eq('<a-entities/>');
+        expect(await client.getRootEntities()).eq(DocumentController.EMPTY_FRAGMENT);
         expect(await client.getEntity('non-existent')).eq('');
     });
 

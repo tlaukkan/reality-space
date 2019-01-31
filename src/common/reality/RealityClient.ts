@@ -14,6 +14,8 @@ interface OnClose { (): void }
 
 export class RealityClient {
 
+    readonly js2xmlOptions = {fullTagEmptyElement: true, spaces: 4};
+
     spaceName: string;
     region: string;
     url: string;
@@ -192,7 +194,7 @@ export class RealityClient {
             const entities = parseFragment(entitiesXml);
             for (let element of entities.elements) {
                 const sid = (element.attributes as any).sid as string;
-                this.onStoredRootEntityReceived(sid, js2xml({elements: [element]}));
+                this.onStoredRootEntityReceived(sid, js2xml({elements: [element]}, this.js2xmlOptions));
             }
         }
     }

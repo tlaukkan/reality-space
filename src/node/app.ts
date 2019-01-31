@@ -10,24 +10,26 @@ start().then().catch(e => console.log('reality server - startup error: ', e));
 
 async function start() {
 
+    console.log("reality server - starting up version='" + config.get('Software.version') + "'");
+
     const clusterConfigurationUrl = config.get('Cluster.configurationUrl') as string;
-    console.log("Cluster configuration URL: " + clusterConfigurationUrl);
+    console.log("reality server - cluster configuration URL: " + clusterConfigurationUrl);
     const processorUrl = config.get('Processor.url');
-    console.log("Processor WS URL: " + processorUrl);
+    console.log("reality server - processor WS URL: " + processorUrl);
     const storageUrl = config.get('Storage.url');
-    console.log("Storage API URL: " + storageUrl);
+    console.log("reality server - storage API URL: " + storageUrl);
     const listenIp: string = '0.0.0.0';
-    console.log("listen IP: " + listenIp);
+    console.log("reality server - listen IP: " + listenIp);
     const listenPort: number = config.get("Server.port");
-    console.log("port: " + listenIp);
+    console.log("reality server - port: " + listenIp);
 
     const storageType = config.get('Storage.type').trim().toLocaleLowerCase();
-    console.log("storage type: " + storageType);
+    console.log("reality server - storage type: " + storageType);
 
 
     // Load configuration.
     const clusterConfiguration = await loadConfiguration(clusterConfigurationUrl);
-    console.log("Loaded configuration: " + JSON.stringify(clusterConfiguration));
+    console.log("reality server - loaded configuration: " + JSON.stringify(clusterConfiguration));
 
     const server = newRealityServer(clusterConfiguration, processorUrl, storageUrl, storageType, listenIp, listenPort);
 
@@ -48,6 +50,7 @@ async function start() {
 
     // Add exit hook
     process.on('exit', async () => {
+        console.log("reality server - exiting version='" + config.get('Software.version') + "'");
         await server.close();
     });
 }

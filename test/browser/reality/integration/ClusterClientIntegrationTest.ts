@@ -44,6 +44,6 @@ describe('Integration Test Cluster Client', () => {
 
         client.close();
         expect(client.clients.size).equals(0);
-    });
+    }).timeout(20000);;
 
 });

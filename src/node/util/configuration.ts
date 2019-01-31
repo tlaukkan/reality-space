@@ -22,9 +22,9 @@ export async function loadConfiguration(clusterConfigurationUrl: string): Promis
 
         const processorConfig = new RegionConfiguration();
         processorConfig.region = "0-0-0";
-        processorConfig.processorUrl = "ws://localhost:8889/";
-        processorConfig.storageUrl = "http://localhost:8889/api/";
-        processorConfig.cdnUrl  = "http://localhost:8889/api/";
+        processorConfig.processorUrl = "ws://localhost:3002/";
+        processorConfig.storageUrl = "http://localhost:3002/api/";
+        processorConfig.cdnUrl  = "http://localhost:3002/api/";
         processorConfig.spaces = ["default"];
         processorConfig.maxSpaces = 10;
         processorConfig.edge = process.env.GRID_EDGE as any || 140;
@@ -42,8 +42,9 @@ export async function loadConfiguration(clusterConfigurationUrl: string): Promis
         clusterConfiguration.range = 200;
         clusterConfiguration.spaces = ["default"];
         clusterConfiguration.maxSpaces = 10;
-        clusterConfiguration.storageUrl = "http://localhost:8889/api/";
-        clusterConfiguration.cdnUrl = "http://localhost:8889/api/";
+        clusterConfiguration.processorUrl = "ws://localhost:3002/";
+        clusterConfiguration.storageUrl = "http://localhost:3002/api/";
+        clusterConfiguration.cdnUrl = "http://localhost:3002/api/";
         clusterConfiguration.sanitizer = sanitizeConfig;
         clusterConfiguration.regions = [processorConfig];
         clusterConfiguration.idTokenIssuers = [

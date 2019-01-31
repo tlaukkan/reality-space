@@ -63,10 +63,13 @@ export class IdTokenIssuer {
 }
 
 export async function getClusterConfiguration(url: string): Promise<ClusterConfiguration> {
-    return await fetchConfiguration(url);
+    return (await fetchConfiguration(url))!!;
 }
 
-export async function fetchConfiguration(url: string): Promise<ClusterConfiguration> {
+export async function fetchConfiguration(url: string): Promise<ClusterConfiguration | undefined> {
+    if (!url || url.length == 0) {
+        return undefined;
+    }
     const response = await fetch(url);
     if (response.status >= 400) {
         throw new Error("Bad response from server");

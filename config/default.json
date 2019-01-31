@@ -22,5 +22,8 @@
   },
   "Cluster": {
     "configurationUrl": ""
+  },
+  "Software" : {
+    "version": ""
   }
 }

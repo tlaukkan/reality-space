@@ -145,7 +145,7 @@ To setup main processor cluster configuration
 To setup 0-0-0 processor cluster configuration 
 
     heroku create --region eu rs-test-processor-0-0-0
-    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.29/config/public-test-cluster.json
+    heroku config:set CLUSTER_CONFIGURATION_URL=https://cdn.jsdelivr.net/gh/tlaukkan/reality-space@0.0.30/config/public-test-cluster.json
     heroku config:set PROCESSOR_URL=wss://rs-test-processor-0-0-0.herokuapp.com/
 
 

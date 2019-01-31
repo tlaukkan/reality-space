@@ -155,7 +155,7 @@ export class StorageRequestManager {
     private async getStorage(spaceName: string, region: string) : Promise<Storage> {
         for (const spaceStorages of this.storages.values()) {
             for (const storage of spaceStorages.values()) {
-                if (storage.lastAccessTimeMillis + StorageRequestManager.DYNAMIC_STRORAGE_INACTIVITY_CLEANUP_TIME_MILLIS < new Date().getTime()) {
+                if (storage.dynamic && storage.lastAccessTimeMillis + StorageRequestManager.DYNAMIC_STRORAGE_INACTIVITY_CLEANUP_TIME_MILLIS < new Date().getTime()) {
                     console.log("reality server - closing inactive dynamic storage: " + storage.spaceName + "/" + storage.region);
                     await storage.close();
                     spaceStorages.delete(storage.region);

@@ -9,7 +9,7 @@ interface OnStoredEntityRemoved { (region: string, sid: string): void }
 interface OnConnect { (region: string): void }
 interface OnDisconnect { (region: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
-
+interface OnLoaded { (region: string): void }
 export class ClusterClient {
 
     clusterConfigurationUrl: string;
@@ -129,6 +129,9 @@ export class ClusterClient {
                 client.onStoredEntityRemoved = (sid: string) => {
                     this.onStoredEntityRemoved(client.region, sid);
                 };
+                client.onLoaded = () => {
+                    this.onLoaded(client.region);
+                };
                 try {
                     await client.connect();
                     this.onConnect(client.region);
@@ -190,6 +193,7 @@ export class ClusterClient {
     onStoredRootEntityReceived: OnStoredRootEntityReceived = (region: string, sid: string, entityXml:string) => {};
     onStoredChildEntityReceived: OnStoredChildEntityReceived = (region: string, parentSid: string, sid: string, entityXml:string) => {};
     onStoredEntityRemoved: OnStoredEntityRemoved = (region: string, sid: string) => {};
+    onLoaded: OnLoaded = (region: string) => {};
 
 
     async add(id: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, description: string) {
@@ -246,6 +250,34 @@ export class ClusterClient {
         }
     }
 
+    public async storeEntity(entityXml: string, x: number, y: number, z: number) {
+        if (!this.isConnected()) {
+            console.warn("No region found at " + x + "," + y + "," + z);
+            return;
+        }
+
+        const region = this.getRegion(x, y, z);
+        if (region) {
+            await this.storeEntities(region, "<a-entities>" + entityXml + "</a-entities>");
+        } else {
+            console.warn("No region found at " + x + "," + y + "," + z);
+        }
+    }
+
+    public async removeStoredEntity(entitySid: string, x: number, y: number, z: number) {
+        if (!this.isConnected()) {
+            console.warn("No region found at " + x + "," + y + "," + z);
+            return;
+        }
+
+        const region = this.getRegion(x, y, z);
+        if (region) {
+            await this.removeStoredEntities(region, [entitySid]);
+        } else {
+            console.warn("not connected.");
+        }
+    }
+
     /**
      * Gets regions with closest region as first.
      * @param x the connection avatar x coordinate
@@ -273,5 +305,37 @@ export class ClusterClient {
         return regions;
     }
 
-
+    /**
+     * Get closest region for coordinate.
+     * @param x
+     * @param y
+     * @param z
+     */
+    public getRegion(x: number, y: number, z: number): string | undefined {
+        if (this.isConnected()) {
+            const regions = Array<string>();
+            let lastD2 = Number.MAX_SAFE_INTEGER;
+            for (let region of this.clusterConfiguration!!.regions) {
+                if (x >= region.x - region.edge / 2 && x <= region.x + region.edge / 2 &&
+                    y >= region.y - region.edge / 2 && y <= region.y + region.edge / 2 &&
+                    z >= region.z - region.edge / 2 && z <= region.z + region.edge / 2) {
+                    const d2 = Math.pow(x - region.x, 2) + Math.pow(y - region.y, 2) + Math.pow(z - region.z, 2);
+                    if (d2 < lastD2) {
+                        regions.unshift(region.region);
+                    } else {
+                        regions.push(region.region);
+                    }
+                    lastD2 = d2;
+                }
+            }
+            if (regions.length > 0) {
+                return regions[0];
+            } else {
+                return undefined;
+            }
+        } else {
+            console.warn("not connected.");
+            return undefined;
+        }
+    }
 }

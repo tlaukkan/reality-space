@@ -129,7 +129,7 @@ export class Storage {
     }
 
     // Document
-
+    // TODO rename this to getElementTree
     async getDocument(principal: Principal): Promise<string> {
         this.provisionUser(principal);
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.VIEW);

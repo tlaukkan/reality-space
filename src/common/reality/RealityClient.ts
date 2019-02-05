@@ -6,6 +6,7 @@ import {Element, js2xml, xml2js} from "xml-js";
 import uuid = require("uuid");
 
 interface OnReceive { (message: string): void }
+interface OnLoaded { (): void }
 interface OnStoredRootEntityReceived { (sid: string, entityXml: string): void }
 interface OnStoredChildEntityReceived { (parentSid: string, sid: string, entityXml: string): void }
 interface OnStoredEntityRemoved { (sids: string): void }
@@ -115,6 +116,7 @@ export class RealityClient {
     onStoredRootEntityReceived: OnStoredRootEntityReceived = (sid: string, entityXml:string) => {};
     onStoredChildEntityReceived: OnStoredChildEntityReceived = (parentSid: string, sid: string, entityXml:string) => {};
     onStoredEntityRemoved: OnStoredEntityRemoved = (sid: string) => {};
+    onLoaded: OnLoaded = () => {};
 
 
     send(message:string) {
@@ -194,8 +196,13 @@ export class RealityClient {
             const entities = parseFragment(entitiesXml);
             for (let element of entities.elements) {
                 const sid = (element.attributes as any).sid as string;
-                this.onStoredRootEntityReceived(sid, js2xml({elements: [element]}, this.js2xmlOptions));
+                if (this.isConnected()) {
+                    this.onStoredRootEntityReceived(sid, js2xml({elements: [element]}, this.js2xmlOptions));
+                }
             }
+        }
+        if (this.isConnected()) {
+            this.onLoaded();
         }
     }
 
@@ -205,7 +212,9 @@ export class RealityClient {
             if (entityXml) {
                 const elements = xml2js(entityXml)!!.elements as Array<Element>;
                 const sid = (elements[0].attributes as any).sid as string;
-                this.onStoredRootEntityReceived(sid, entityXml);
+                if (this.isConnected()) {
+                    this.onStoredRootEntityReceived(sid, entityXml);
+                }
             }
         }
     }
@@ -216,7 +225,9 @@ export class RealityClient {
             if (entityXml) {
                 const elements = xml2js(entityXml)!!.elements as Array<Element>;
                 const sid = (elements[0].attributes as any).sid as string;
-                this.onStoredChildEntityReceived(parentSid, sid, entityXml);
+                if (this.isConnected()) {
+                    this.onStoredChildEntityReceived(parentSid, sid, entityXml);
+                }
             }
         }
     }

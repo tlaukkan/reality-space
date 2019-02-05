@@ -48,6 +48,11 @@ describe('Reality client storage test.', () => {
 
     it('Should save and remove entity.', function (done) {
 
+        let storedEntityLoadDone = false;
+        client.onLoaded = () => {
+            storedEntityLoadDone = true;
+        };
+
         client.onStoredRootEntityReceived = (entitySid: string, entityXml) => {
             sid = entitySid;
             xml = entityXml;
@@ -69,6 +74,7 @@ describe('Reality client storage test.', () => {
                     client.removeStoredEntities([childSid]);
                     client.onStoredEntityRemoved = (childSid2) => {
                         expect(childSid2).eq(childSid);
+                        expect(storedEntityLoadDone).true;
                         done();
                     }
                 };

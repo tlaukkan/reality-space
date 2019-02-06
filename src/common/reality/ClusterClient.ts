@@ -253,7 +253,7 @@ export class ClusterClient {
     public async storeEntity(entityXml: string, x: number, y: number, z: number) {
         if (!this.isConnected()) {
             console.warn("No region found at " + x + "," + y + "," + z);
-            return;
+            throw new Error("Not connected.");
         }
 
         const region = this.getRegion(x, y, z);
@@ -267,14 +267,14 @@ export class ClusterClient {
     public async removeStoredEntity(entitySid: string, x: number, y: number, z: number) {
         if (!this.isConnected()) {
             console.warn("No region found at " + x + "," + y + "," + z);
-            return;
+            throw new Error("Not connected.");
         }
 
         const region = this.getRegion(x, y, z);
         if (region) {
             await this.removeStoredEntities(region, [entitySid]);
         } else {
-            console.warn("not connected.");
+            console.warn("No region found at " + x + "," + y + "," + z);
         }
     }
 
@@ -335,7 +335,22 @@ export class ClusterClient {
             }
         } else {
             console.warn("not connected.");
-            return undefined;
+            throw new Error("Not connected.");
+        }
+    }
+
+    public getRegionConfiguration(region: string): RegionConfiguration {
+        if (this.isConnected()) {
+            const clusterConfiguration = this.clusterConfiguration!!;
+            for (const regionConfiguration of clusterConfiguration.regions) {
+                if (regionConfiguration.region == region) {
+                    return regionConfiguration;
+                }
+            }
+            throw new Error("Region configuration not found: " + region);
+        } else {
+            console.warn("not connected.");
+            throw new Error("Not connected.");
         }
     }
 }

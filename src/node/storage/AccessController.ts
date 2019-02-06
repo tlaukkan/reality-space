@@ -7,6 +7,7 @@ import {UserPrivilege} from "./model/UserPrivilege";
 import {AccessSerializableModel} from "./model/AccessSerializableModel";
 import {SerializableUser} from "./model/SerializableUser";
 import {SerializableGroup} from "./model/SerializableGroup";
+import {Principal} from "../http/Principal";
 
 export class AccessController {
 
@@ -33,15 +34,40 @@ export class AccessController {
         this.setGroupPrivilege("viewers", PrivilegeType.VIEW, "");
     }
 
-    checkPrivilege(userId: string, sid: string, type: PrivilegeType): void {
-        if (!this.hasPrivilege(userId, sid, type)) {
-            throw new Error(userId + " " + type + " access denied to '" + sid + "'");
+    checkPrivilege(principal: Principal, sid: string, type: PrivilegeType): void {
+        if (!this.hasPrivilege(principal, sid, type)) {
+            throw new Error(principal.userId + " (" + principal.userName + ") " + type + " access denied to '" + sid + "'");
         }
     }
 
-    hasPrivilege(userId: string, sid: string, type: PrivilegeType): boolean {
+    hasPrivilege(principal: Principal, sid: string, type: PrivilegeType): boolean {
 
+        let found = false;
+
+        if (principal.groups && principal.groups.length > 0) {
+            principal.groups.forEach((groupName) => {
+                if (this.model.groupPrivileges.has(sid)) {
+                    if (this.model.groupPrivileges.get(sid)!!.has(groupName)) {
+                        let groupPrivilegeType = this.model.groupPrivileges.get(sid)!!.get(groupName)!!.type;
+                        if (this.getPrivilegeLevel(groupPrivilegeType) >= this.getPrivilegeLevel(type)) {
+                            found = true;
+                            return;
+                        }
+                    }
+                }
+            });
+
+            if (found) {
+                return true;
+            }
+        }
+
+        const userId = principal.userId;
         if (!this.model.users.has(userId)) {
+            // Return false if user has principal groups but not known to access control.
+            if (principal.groups && principal.groups.length > 0) {
+                return false;
+            }
             throw new Error(userId + " " + type + " access denied to '" + sid + "' because user does not exist.");
         }
 
@@ -54,8 +80,11 @@ export class AccessController {
             }
         }
 
+        if (found) {
+            return true;
+        }
+
         const user = this.model.users.get(userId)!!;
-        let found = false;
         user.groupNames.forEach((groupName) => {
             if (this.model.groupPrivileges.has(sid)) {
                 if (this.model.groupPrivileges.get(sid)!!.has(groupName)) {

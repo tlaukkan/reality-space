@@ -18,17 +18,22 @@ export class Storage {
 
     private readonly documentFileName: string;
     private readonly accessFileName: string;
+    private readonly assetPath: string;
+    private readonly userPath: string;
 
     accessController: AccessController;
     documentController: DocumentController;
     repository: Repository;
 
-    constructor(spaceName: string, region: string, sceneFileName: string, accessFileName: string, repository: Repository, sanitizer: Sanitizer, dynamic: boolean) {
+    constructor(spaceName: string, region: string, repository: Repository, sanitizer: Sanitizer, dynamic: boolean) {
         this.spaceName = spaceName;
         this.region = region;
         this.dynamic = dynamic;
-        this.documentFileName = sceneFileName;
-        this.accessFileName = accessFileName;
+
+        this.documentFileName = "spaces/" + spaceName + "/regions/" + region + "/entities.xml";
+        this.accessFileName = "spaces/" + spaceName + "/regions/" + region + "/access.json";
+        this.assetPath = "spaces/" + spaceName + "/regions/" + region + "/assets/";
+        this.userPath = "spaces/" + spaceName + "/regions/" + region + "/user/";
         this.repository = repository;
         this.accessController = new AccessController();
         this.documentController = new DocumentController(sanitizer);
@@ -130,14 +135,24 @@ export class Storage {
     }*/
 
     // Files
-    async saveFile(principal: Principal, fileName: string, mimeType: string,  buffer: Buffer) {
+    async saveAsset(principal: Principal, fileName: string, mimeType: string, buffer: Buffer) {
         this.accessController.checkPrivilege(principal, "", PrivilegeType.MODIFY);
-        await this.repository.saveFile(fileName, buffer);
+        await this.repository.saveFile(this.assetPath + "/" + fileName, buffer);
     }
 
-    async loadFile(principal: Principal, fileName: string): Promise<FileContent | undefined> {
+    async loadAsset(principal: Principal, fileName: string): Promise<FileContent | undefined> {
         this.accessController.checkPrivilege(principal, "", PrivilegeType.VIEW);
-        return await this.repository.loadFile(fileName);
+        return await this.repository.loadFile(this.assetPath + "/" + fileName);
+    }
+
+    async saveUserFile(principal: Principal, fileName: string, mimeType: string, buffer: Buffer) {
+        this.accessController.checkPrivilege(principal, "", PrivilegeType.MODIFY);
+        await this.repository.saveFile(this.userPath + "/" +  principal.userId + "/" + fileName, buffer);
+    }
+
+    async loadUserFile(principal: Principal, fileName: string): Promise<FileContent | undefined> {
+        this.accessController.checkPrivilege(principal, "", PrivilegeType.VIEW);
+        return await this.repository.loadFile(this.userPath + "/" +  principal.userId + "/" + fileName);
     }
 
     // Document

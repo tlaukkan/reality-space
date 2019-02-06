@@ -13,14 +13,16 @@ describe('Storage test.', () => {
         const repository = new FileSystemRepository();
         const sanitizer = new Sanitizer('a-entities,a-scene,a-box', 'text,sid,scale', '[^\\w\\s:;-]');
 
-        let sceneFileName = "test/entities.xml";
-        let accessFileName = "test/access.json";
+        const spaceName = "default";
+        const region = "test";
+        let sceneFileName = "spaces/" + spaceName + "/regions/" + region + "/entities.xml";
+        let accessFileName = "spaces/" + spaceName + "/regions/" + region + "/access.json";
 
         await repository.delete(sceneFileName);
         await repository.delete(accessFileName);
 
         const sceneController = new DocumentController(sanitizer);
-        const storage = new Storage("default", "test", sceneFileName, accessFileName, repository, sanitizer, false);
+        const storage = new Storage(spaceName, region, repository, sanitizer, false);
         await storage.startup();
 
         const principal = new Principal("", "", "", "1", "test-user-1", ["administrators", "modifiers"]);

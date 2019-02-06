@@ -14,4 +14,6 @@ export interface Repository {
 
     loadFile(fileName: string): Promise<FileContent | undefined>;
 
+    listFiles(directoryName: string): Promise<Array<string>>;
+
 }

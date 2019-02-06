@@ -124,6 +124,39 @@ export class S3Repository implements Repository {
         });
     }
 
+    listFiles(directoryName: string): Promise<Array<string>> {
+        if (directoryName.indexOf('..') > -1) {
+            throw new Error("Only absolute paths allowed: " + directoryName);
+        }
+        if (!directoryName.endsWith('/')) {
+            throw new Error("Directory name has to end to /.");
+        }
+
+        return new Promise<Array<string>>((resolve, reject) => {
+            this.s3.listObjectsV2({ Bucket: this.bucketName, MaxKeys: 500, Delimiter: '/', Prefix: this.repositoryPath + directoryName },
+                function (err: Error, data: ListObjectsOutput) {
+                    if (err != null) {
+                        if ((err as any).code === 'NoSuchKey') {
+                            resolve([]);
+                        } else {
+                            reject(err);
+                        }
+                    } else {
+                        const directories = new Array<string>();
+                        console.log(JSON.stringify(data, null, 2));
+                        if (data.Contents) {
+                            for (const object of data.Contents) {
+                                if (object.Key) {
+                                    directories.push(object.Key.substring(directoryName.length + 1));
+                                }
+                            }
+                        }
+                        resolve(directories);
+                    }
+                }
+            );
+        });
+    }
 
     async delete(fileName: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {

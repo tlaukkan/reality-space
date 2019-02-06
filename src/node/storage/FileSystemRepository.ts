@@ -14,7 +14,7 @@ export class FileSystemRepository implements Repository {
         return new Promise<void>((resolve, reject) => {
             fs.access(this.repositoryPath, fs.F_OK, (err: Error) => {
                 if (err) {
-                    console.error(err)
+                    console.error(err);
                     reject(err);
                 }
                 resolve();
@@ -94,6 +94,29 @@ export class FileSystemRepository implements Repository {
                     reject(err);
                 } else if (fileContent) {
                     resolve(new FileContent(mimeType, fileContent));
+                } else {
+                    reject("No file content.");
+                }
+            });
+        });
+    }
+
+    listFiles(directoryName: string): Promise<Array<string>> {
+        if (directoryName.indexOf('..') > -1) {
+            throw new Error("Only absolute paths allowed: " + directoryName);
+        }
+        if (!directoryName.endsWith('/')) {
+            throw new Error("Directory name has to end to /.");
+        }
+
+        return new Promise<Array<string>>((resolve, reject) => {
+            fs.readdir(this.repositoryPath + directoryName, function (err: Error, items: Array<string>) {
+                if (err && (err as any).code == 'ENOENT') {
+                    resolve([]);
+                } else if (err) {
+                    reject(err);
+                } else if (items) {
+                    resolve(items);
                 } else {
                     reject("No file content.");
                 }

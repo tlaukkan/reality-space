@@ -191,7 +191,7 @@ export class StorageRequestManager {
             }
             this.storages.set(spaceName, new Map());
         }
-        const storage = new Storage(spaceName, region, "spaces/" + spaceName + "/regions/" + region + "/entities.xml", "spaces/" + spaceName + "/regions/" + region + "/access.json", this.repository, this.sanitizer, dynamic);
+        const storage = new Storage(spaceName, region, this.repository, this.sanitizer, dynamic);
         this.storages.get(spaceName)!!.set(region, storage);
         return storage;
     }

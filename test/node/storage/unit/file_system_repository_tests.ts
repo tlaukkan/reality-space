@@ -6,21 +6,31 @@ describe('File System Repository Test.', () => {
     it('Should test file system repository string save and load', async () => {
         const repository = new FileSystemRepository();
         await repository.startup();
-        await repository.save("0_0_0/test.txt", "test");
-        const loaded = await repository.load("0_0_0/test.txt");
+        await repository.save("tests/test.txt", "test");
+        const loaded = await repository.load("tests/test.txt");
         expect(loaded).eq("test");
-        await repository.delete("0_0_0/test.txt");
-        expect(await repository.load("0_0_0/test.txt")).eq("");
+        await repository.delete("tests/test.txt");
+        expect(await repository.load("tests/test.txt")).eq("");
     });
 
     it('Should test file system repository file save and load', async () => {
         const repository = new FileSystemRepository();
         await repository.startup();
-        await repository.saveFile("0_0_0/test2.txt", Buffer.alloc(5, "test2", "utf-8"));
-        const loaded = await repository.loadFile("0_0_0/test2.txt");
+        await repository.saveFile("tests/test2.txt", Buffer.alloc(5, "test2", "utf-8"));
+        const loaded = await repository.loadFile("tests/test2.txt");
         expect(loaded!!.mimeType).eq("text/plain");
         expect(loaded!!.buffer.toString()).eq("test2");
-        await repository.delete("0_0_0/test2.txt");
-        expect(await repository.loadFile("0_0_0/test2.txt")).eq(undefined);
+
+        const directories = await repository.listFiles("tests/");
+        expect(directories).exist;
+        expect(directories!!.length).eq(1);
+        expect(directories!![0]).eq("test2.txt");
+
+        await repository.delete("tests/test2.txt");
+        expect(await repository.loadFile("tests/test2.txt")).eq(undefined);
+
+        expect((await repository.listFiles("tests/"))!!.length).eq(0);
+
+        expect((await repository.listFiles("non/existing/directory/"))!!.length).eq(0);
     });
 });

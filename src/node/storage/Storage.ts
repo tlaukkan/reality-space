@@ -7,6 +7,7 @@ import {User} from "./model/User";
 import {Group} from "./model/Group";
 import {Principal} from "../http/Principal";
 import {info} from "../util/log";
+import {FileContent} from "./model/FileContent";
 
 export class Storage {
 
@@ -128,16 +129,29 @@ export class Storage {
         }
     }
 
+    // Files
+    async saveFile(principal: Principal, fileName: string, mimeType: string,  buffer: Buffer) {
+        await this.provisionUser(principal);
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.MODIFY);
+        await this.repository.saveFile(fileName, buffer);
+    }
+
+    async loadFile(principal: Principal, fileName: string): Promise<FileContent | undefined> {
+        await this.provisionUser(principal);
+        this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.VIEW);
+        return await this.repository.loadFile(fileName);
+    }
+
     // Document
     // TODO rename this to getElementTree
     async getDocument(principal: Principal): Promise<string> {
-        this.provisionUser(principal);
+        await  this.provisionUser(principal);
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.VIEW);
         return this.documentController.getDocument();
     }
 
     async getElement(principal: Principal, sid: string): Promise<string | undefined> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.VIEW);
         if (this.documentController.hasElement(sid)) {
             return this.documentController.getElement(sid);
@@ -147,7 +161,7 @@ export class Storage {
     }
 
     async saveRootElements(principal: Principal, fragmentXml: string): Promise<string> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.MODIFY);
         const fragment = this.documentController.putRootElements(fragmentXml);
         info(principal, "saved root elements: " + fragment);
@@ -156,7 +170,7 @@ export class Storage {
     }
 
     async saveChildElements(principal: Principal, parentSid: string, fragmentXml: string): Promise<string> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.MODIFY);
         const fragment = this.documentController.putChildElements(parentSid, fragmentXml);
         info(principal, "saved " + parentSid + " child elements: " + fragment);
@@ -165,7 +179,7 @@ export class Storage {
     }
 
     async removeElement(principal: Principal, sid: string): Promise<void> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.MODIFY);
         this.documentController.remove(sid);
         info(principal, "removed element fragment: " + sid);
@@ -175,12 +189,12 @@ export class Storage {
     // Users
 
     async getUsers(principal: Principal) : Promise<Array<User>> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
         return Array.from(this.accessController.model.users.values());
     }
 
     async getUser(principal: Principal, id: string): Promise<User | undefined> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         if (this.accessController.hasUser(id)) {
             return this.accessController.getUser(id);
@@ -190,7 +204,7 @@ export class Storage {
     }
 
     async addUser(principal: Principal, id: string, userName: string): Promise<User> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
 
@@ -206,7 +220,7 @@ export class Storage {
     }
 
     async updateUser(principal: Principal, id: string, userName: string): Promise<User> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.updateUser(id, userName);
@@ -216,7 +230,7 @@ export class Storage {
     }
 
     async removeUser(principal: Principal, userId: string): Promise<void> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeUser(userId);
@@ -227,14 +241,14 @@ export class Storage {
     // Groups
 
     async getGroups(principal: Principal): Promise<Array<Group>> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         return Array.from(this.accessController.model.groups.values());
     }
 
     async getGroup(principal: Principal, name: string): Promise<Group | undefined> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         if (this.accessController.hasGroup(name)) {
@@ -245,7 +259,7 @@ export class Storage {
     }
 
     async addGroup(principal: Principal, groupName: string): Promise<Group> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.addGroup(groupName);
@@ -255,7 +269,7 @@ export class Storage {
     }
 
     async removeGroup(principal: Principal, groupName: string): Promise<void> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroup(groupName);
@@ -266,7 +280,7 @@ export class Storage {
     // Group members
 
     async addGroupMember(principal: Principal, groupName: string, userId: string): Promise<void> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.addGroupMember(groupName, userId);
@@ -275,7 +289,7 @@ export class Storage {
     }
 
     async removeGroupMember(principal: Principal, groupName: string, userId: string): Promise<void> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroupMember(groupName, userId);
@@ -286,21 +300,21 @@ export class Storage {
     // Privileges
 
     async getGroupPrivileges(principal: Principal, groupName: string): Promise<Array<[string, PrivilegeType]>> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getGroupPrivileges(groupName);
     }
 
     async getUserPrivileges(principal: Principal, userId: string): Promise<Array<[string, PrivilegeType]>> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         return this.accessController.getUserPrivileges(userId);
     }
 
     async setGroupPrivilege(principal: Principal, groupName: string, type: PrivilegeType, sid: string): Promise<void> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.setGroupPrivilege(groupName, type, sid);
@@ -309,7 +323,7 @@ export class Storage {
     }
 
     async setUserPrivilege(principal: Principal, userId: string, type: PrivilegeType, sid: string): Promise<void> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.setUserPrivilege(userId, type, sid);
@@ -318,7 +332,7 @@ export class Storage {
     }
 
     async removeGroupPrivilege(principal: Principal, groupName: string, sid: string): Promise<void> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeGroupPrivilege(groupName, sid);
@@ -327,7 +341,7 @@ export class Storage {
     }
 
     async removeUserPrivilege(principal: Principal, userId: string, sid: string): Promise<void> {
-        this.provisionUser(principal);
+        await this.provisionUser(principal);
 
         this.accessController.checkPrivilege(principal.userId, "", PrivilegeType.ADMIN);
         this.accessController.removeUserPrivilege(userId, sid);

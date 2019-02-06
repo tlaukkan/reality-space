@@ -1,7 +1,9 @@
 import {Repository} from "./Repository";
+import {FileContent} from "./model/FileContent";
 
 const fs = require('fs');
 const path = require('path');
+const mime = require('mime-types');
 
 export class FileSystemRepository implements Repository {
     repositoryPath = 'repository/';
@@ -21,6 +23,9 @@ export class FileSystemRepository implements Repository {
     }
 
     async save(fileName: string, fileContent: string): Promise<void> {
+        if (fileName.indexOf('..') > -1) {
+            throw new Error("Only absolute paths allowed: " + fileName);
+        }
         this.ensureDirectoryExists(this.repositoryPath + fileName);
         return new Promise<void>((resolve, reject) => {
 
@@ -35,6 +40,10 @@ export class FileSystemRepository implements Repository {
     }
 
     async load(fileName: string): Promise<string> {
+        if (fileName.indexOf('..') > -1) {
+            throw new Error("Only absolute paths allowed: " + fileName);
+        }
+
         return new Promise<string>((resolve, reject) => {
             fs.readFile(this.repositoryPath + fileName, function (err: Error, fileContent: string) {
                 if(err && (err as any).code == 'ENOENT') {
@@ -45,6 +54,48 @@ export class FileSystemRepository implements Repository {
                     resolve(fileContent.toString());
                 } else {
                     resolve(undefined);
+                }
+            });
+        });
+    }
+
+    async saveFile(fileName: string, buffer: Buffer): Promise<void> {
+        if (fileName.indexOf('..') > -1) {
+            throw new Error("Only absolute paths allowed: " + fileName);
+        }
+        const mimeType = mime.lookup(fileName);
+        this.ensureDirectoryExists(this.repositoryPath + fileName);
+        const fileExtension = mime.extension(mimeType);
+        if (!fileName.endsWith(fileExtension)) {
+            throw new Error("Invalid file extension for mime type: " + mimeType);
+        }
+        return new Promise<void>((resolve, reject) => {
+            fs.writeFile(this.repositoryPath + fileName, buffer, function (err: Error) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+    }
+
+    async loadFile(fileName: string): Promise<FileContent | undefined> {
+        if (fileName.indexOf('..') > -1) {
+            throw new Error("Only absolute paths allowed: " + fileName);
+        }
+
+        const mimeType = mime.lookup(fileName);
+        return new Promise<FileContent | undefined>((resolve, reject) => {
+            fs.readFile(this.repositoryPath + fileName, function (err: Error, fileContent: Buffer) {
+                if(err && (err as any).code == 'ENOENT') {
+                    resolve(undefined);
+                } else if (err) {
+                    reject(err);
+                } else if (fileContent) {
+                    resolve(new FileContent(mimeType, fileContent));
+                } else {
+                    reject("No file content.");
                 }
             });
         });

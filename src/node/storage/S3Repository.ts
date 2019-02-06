@@ -5,6 +5,7 @@ import AWS = require('aws-sdk');
 import {ManagedUpload} from "aws-sdk/lib/s3/managed_upload";
 import SendData = ManagedUpload.SendData;
 import {DeleteObjectOutput, GetObjectOutput, ListObjectsOutput} from "aws-sdk/clients/s3";
+import {FileContent} from "./model/FileContent";
 const Readable = require('stream').Readable;
 const mime = require('mime-types');
 
@@ -37,6 +38,10 @@ export class S3Repository implements Repository {
     }
 
     async save(fileName: string, fileContent: string): Promise<void> {
+        if (fileName.indexOf('..') > -1) {
+            throw new Error("Only absolute paths allowed: " + fileName);
+        }
+
         return new Promise<void>((resolve, reject) => {
             const mimeType = mime.lookup(fileName);
             const readable = new Readable();
@@ -54,6 +59,10 @@ export class S3Repository implements Repository {
     }
 
     async load(fileName: string): Promise<string> {
+        if (fileName.indexOf('..') > -1) {
+            throw new Error("Only absolute paths allowed: " + fileName);
+        }
+
         return new Promise<string>((resolve, reject) => {
             this.s3.getObject({ Bucket: this.bucketName, Key: this.repositoryPath + fileName },
                 function (err: Error, data: GetObjectOutput) {
@@ -70,6 +79,51 @@ export class S3Repository implements Repository {
             );
         });
     }
+
+    async saveFile(fileName: string, buffer: Buffer): Promise<void> {
+        if (fileName.indexOf('..') > -1) {
+            throw new Error("Only absolute paths allowed: " + fileName);
+        }
+
+        return new Promise<void>((resolve, reject) => {
+            const mimeType = mime.lookup(fileName);
+            const readable = new Readable();
+            readable.push(buffer);
+            readable.push(null);
+            this.s3.upload ({Bucket: this.bucketName, Key: this.repositoryPath + fileName, ContentType: mimeType, Body: readable},
+                function (err: Error, data: SendData) {
+                    if (err) {
+                        reject(err);
+                    } if (data) {
+                        resolve();
+                    }
+                });
+        });
+    }
+
+    async loadFile(fileName: string): Promise<FileContent | undefined> {
+        if (fileName.indexOf('..') > -1) {
+            throw new Error("Only absolute paths allowed: " + fileName);
+        }
+
+        return new Promise<FileContent | undefined>((resolve, reject) => {
+            this.s3.getObject({ Bucket: this.bucketName, Key: this.repositoryPath + fileName },
+                function (err: Error, data: GetObjectOutput) {
+                    if (err != null) {
+                        if ((err as any).code === 'NoSuchKey') {
+                            resolve(undefined);
+                        } else {
+                            reject(err);
+                        }
+                    } else {
+                        data.Body
+                        resolve(new FileContent(data.ContentType!!, data.Body as Buffer));
+                    }
+                }
+            );
+        });
+    }
+
 
     async delete(fileName: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {

@@ -1,3 +1,4 @@
+import {FileContent} from "./model/FileContent";
 
 export interface Repository {
 
@@ -9,5 +10,8 @@ export interface Repository {
 
     delete(fileName: string): Promise<string>;
 
+    saveFile(fileName: string, buffer: Buffer): Promise<void>;
+
+    loadFile(fileName: string): Promise<FileContent | undefined>;
 
 }

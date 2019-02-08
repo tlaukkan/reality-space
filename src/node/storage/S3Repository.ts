@@ -115,15 +115,26 @@ export class S3Repository implements Repository {
 
                 const stream = new Readable() as any;
                 stream._read = () => {};
+                let resolved = false;
                 (readableStream as any).on('data', function (chunk: any) {
                     stream.push(chunk);
                     // Resolve only after we get first chunk.
-                    resolve(new FileContent(mimeType, stream));
+                    if (!resolved) {
+                        resolve(new FileContent(mimeType, stream));
+                        resolved = true;
+                    }
                 });
 
                 (readableStream as any).on('end', function (chunk: any) {
-                    stream.push(chunk);
+                    if (chunk) {
+                        stream.push(chunk);
+                    }
                     stream.push(null);
+
+                    if (!resolved) {
+                        resolve(new FileContent(mimeType, stream));
+                        resolved = true;
+                    }
                 });
 
                 (readableStream as any).on('error', function(err: Error) {

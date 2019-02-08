@@ -27,18 +27,14 @@ describe('Storage API / Testing users resource ...', () => {
         expect(users[0].name).eq("anonymous");
         expect(users[1].id).eq("1");
         expect(users[1].name).eq("test");
-        expect(users[1].groupNames.length).eq(2);
-        expect(users[1].groupNames[0]).eq("administrators");
-        expect(users[1].groupNames[1]).eq("viewers");
+        expect(users[1].groupNames.length).eq(0);
     });
 
     it('It should get user.', async () => {
         const user = await client.getUser("1");
         expect(user!!.id).eq("1");
         expect(user!!.name).eq("test");
-        expect(user!!.groupNames.length).eq(2);
-        expect(user!!.groupNames[0]).eq("administrators");
-        expect(user!!.groupNames[1]).eq("viewers");
+        expect(user!!.groupNames.length).eq(0);
     });
 
     it('It should get non existent user.', async () => {

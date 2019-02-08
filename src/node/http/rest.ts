@@ -1,5 +1,7 @@
 import {RestApiContext} from "./RestApiContext";
 import {error, info, warn} from "../util/log";
+import {FileContent} from "../storage/model/FileContent";
+import {Readable} from "stream";
 
 const CACHE_REGEXP = new Map<string, RegExp>();
 const CACHE_REGEXP_WITH_GLOBAL_FLAG = new Map<string, RegExp>();
@@ -70,19 +72,82 @@ export async function match(context: RestApiContext,
 
 export function processRequest(context: RestApiContext, bodyEncoding: BodyEncoding, processor: ((requestContext: RestApiContext) => Promise<any>)) {
     const body = Array<Uint8Array>();
-    context.request.on('data', (chunk) => {
-        body.push(chunk);
-    }).on('end', async () => {
-        await onRequestEnd(body, bodyEncoding, processor, context);
-    }).on('error', (err) => {
-        setResponseWithError(context, err, 500);
-    });
+    if (bodyEncoding === BodyEncoding.BUFFER) {
+
+        const stream = new Readable() as any;
+        stream._read = () => {};
+
+        let processingStarted = false;
+        context.request.on('data', async (chunk: any) => {
+            stream.push(chunk);
+            if (!processingStarted) {
+                processingStarted = true;
+                await processRequestStream(stream, processor, context)
+            }
+        });
+
+        context.request.on('end', async (chunk: any) => {
+            stream.push(chunk);
+            stream.push(null);
+            if (!processingStarted) {
+                processingStarted = true;
+                await processRequestStream(stream, processor, context)
+            }
+        });
+
+    } else {
+        context.request.on('data', (chunk) => {
+            body.push(chunk);
+        }).on('end', async () => {
+            await onRequestEnd(body, bodyEncoding, processor, context);
+        }).on('error', (err) => {
+            setResponseWithError(context, err, 500);
+        });
+    }
+}
+
+async function processRequestStream(readableStream: ReadableStream, processor: (requestContext: RestApiContext) => Promise<any>, context: RestApiContext) {
+    try {
+        const bodyEncoding = BodyEncoding.BUFFER;
+        if (context.request.method === "POST") {
+            await processor({...context, body: readableStream});
+            setResponse(context, 200);
+        } else {
+            const responseBody = await processor(context);
+            if (responseBody) {
+                startResponse(context, 200, bodyEncoding);
+                const readableStream = responseBody as any;
+                readableStream.on('data', async (chunk: any) => {
+                    context.response.write(chunk);
+                });
+
+                readableStream.on('end', async (chunk: any) => {
+                    if (chunk) {
+                        context.response.write(chunk);
+                    }
+                    endResponse(context);
+                });
+            } else {
+                if (context.request.method === "DELETE") {
+                    setResponse(context, 200);
+                } else {
+                    setResponse(context, 404);
+                }
+            }
+        }
+    } catch (err) {
+        if (err.message.indexOf("access denied") != -1) {
+            warn(context.principal, err.message);
+            setResponse(context, 403);
+        } else {
+            setResponseWithError(context, err, 500);
+        }
+    }
 }
 
 async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding, processor: (requestContext: RestApiContext) => Promise<any>, context: RestApiContext) {
     try {
         if (body && body.length > 0) {
-            console.log(body.length);
             const requestBody = bodyEncoding === BodyEncoding.JSON ? JSON.parse(Buffer.concat(body).toString()) : BodyEncoding.XML ? Buffer.concat(body).toString() : body;
             const responseBody = await processor({...context, body: requestBody});
             if (responseBody) {

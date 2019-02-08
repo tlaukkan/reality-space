@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {S3Repository} from "../../../../src/node/storage/S3Repository";
-import {Readable} from "stream";
+import {streamToString, stringToStream} from "../../util/util";
 
 describe('S3 Repository Test.', () => {
 
@@ -42,19 +42,3 @@ describe('S3 Repository Test.', () => {
 
 });
 
-async function streamToString(readableStream: ReadableStream) {
-    let loadedText = '';
-    const decoder = new TextDecoder("utf-8");
-    for await (const chunk of readableStream as any) {
-        loadedText += decoder.decode(chunk);
-    }
-    return loadedText;
-}
-
-function stringToStream(testText: string) {
-    const encoder = new TextEncoder();
-    const stream = new Readable() as any;
-    stream.push(encoder.encode(testText));
-    stream.push(null);
-    return stream;
-}

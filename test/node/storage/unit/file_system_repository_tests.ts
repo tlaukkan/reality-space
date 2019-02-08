@@ -1,6 +1,7 @@
 import {expect} from 'chai';
 import {FileSystemRepository} from "../../../../src/node/storage/FileSystemRepository";
 import {Readable} from "stream";
+import {streamToString, stringToStream} from "../../util/util";
 
 describe('File System Repository Test.', () => {
 
@@ -18,27 +19,18 @@ describe('File System Repository Test.', () => {
         const repository = new FileSystemRepository();
         await repository.startup();
 
-        const encoder = new TextEncoder();
-        const decoder = new TextDecoder("utf-8");
         const testAssetName = "tests/test-asset.txt";
         const testText = "test-data";
 
-        const stream = new Readable() as any;
-        stream._read = () => {}; // redundant? see update below
-        stream.push(encoder.encode(testText));
-        stream.push(null);
 
-        await repository.saveFile(testAssetName, stream);
+        await repository.saveFile(testAssetName, stringToStream(testText));
 
         const loaded = await repository.loadFile(testAssetName);
         expect(loaded).exist;
         expect(loaded!!.mimeType).eq("text/plain");
 
 
-        let loadedText = '';
-        for await (const chunk of loaded!!.readableStream as any) {
-            loadedText += decoder.decode(chunk);
-        }
+        let loadedText = await streamToString(loaded!!.readableStream);
         expect(loadedText).eq(testText);
 
         const directories = await repository.listFiles("tests/");

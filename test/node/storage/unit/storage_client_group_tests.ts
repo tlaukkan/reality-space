@@ -30,8 +30,7 @@ describe('Storage API / Testing groups resource ...', () => {
     it('It should get group.', async () => {
         const group = await client.getGroup("administrators");
         expect(group!!.name).eq("administrators");
-        expect(group!!.userIds.length).eq(1);
-        expect(group!!.userIds[0]).eq("1");
+        expect(group!!.userIds.length).eq(0);
     });
 
     it('It should get non existent group.', async () => {

@@ -154,7 +154,7 @@ export class StorageRequestManager {
                     DELETE: undefined
                 }))
 
-                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/assets/{category}/{assetName}', BodyEncoding.BUFFER, {
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/assets/{category}/{assetName}', BodyEncoding.STREAM, {
                     GET: async c => (await (await this.getStorage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).loadAsset(c.principal, c.pathParams.get('category')!! + "/" + c.pathParams.get('assetName')!!)),
                     POST: async c => await (await this.getStorage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).saveAsset(c.principal, c.pathParams.get('category')!! + "/" + c.pathParams.get('assetName')!!, c.body as ReadableStream),
                     PUT: undefined,

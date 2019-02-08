@@ -2,6 +2,7 @@ import {RestApiContext} from "./RestApiContext";
 import {error, info, warn} from "../util/log";
 import {FileContent} from "../storage/model/FileContent";
 import {Readable} from "stream";
+const mime = require('mime-types');
 
 const CACHE_REGEXP = new Map<string, RegExp>();
 const CACHE_REGEXP_WITH_GLOBAL_FLAG = new Map<string, RegExp>();
@@ -23,7 +24,7 @@ export class Processors {
 export enum BodyEncoding {
     JSON,
     XML,
-    BUFFER
+    STREAM
 }
 
 export async function match(context: RestApiContext,
@@ -72,7 +73,7 @@ export async function match(context: RestApiContext,
 
 export function processRequest(context: RestApiContext, bodyEncoding: BodyEncoding, processor: ((requestContext: RestApiContext) => Promise<any>)) {
     const body = Array<Uint8Array>();
-    if (bodyEncoding === BodyEncoding.BUFFER) {
+    if (bodyEncoding === BodyEncoding.STREAM) {
 
         const stream = new Readable() as any;
         stream._read = () => {};
@@ -108,19 +109,19 @@ export function processRequest(context: RestApiContext, bodyEncoding: BodyEncodi
 
 async function processRequestStream(readableStream: ReadableStream, processor: (requestContext: RestApiContext) => Promise<any>, context: RestApiContext) {
     try {
-        const bodyEncoding = BodyEncoding.BUFFER;
         if (context.request.method === "POST") {
             await processor({...context, body: readableStream});
             setResponse(context, 200);
         } else {
-            const responseBody = await processor(context);
-            if (responseBody) {
-                startResponse(context, 200, bodyEncoding);
-                const readableStream = responseBody as any;
+            const fileContent = await processor(context) as FileContent;
+            if (fileContent) {
+                startResponse(context, 200);
+                context.response.setHeader('Content-Type', fileContent.mimeType);
+
+                const readableStream = fileContent.readableStream as any;
                 readableStream.on('data', async (chunk: any) => {
                     context.response.write(chunk);
                 });
-
                 readableStream.on('end', async (chunk: any) => {
                     if (chunk) {
                         context.response.write(chunk);
@@ -151,7 +152,8 @@ async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding,
             const requestBody = bodyEncoding === BodyEncoding.JSON ? JSON.parse(Buffer.concat(body).toString()) : BodyEncoding.XML ? Buffer.concat(body).toString() : body;
             const responseBody = await processor({...context, body: requestBody});
             if (responseBody) {
-                startResponse(context, 200, bodyEncoding);
+                startResponse(context, 200);
+                setResponseMimeType(bodyEncoding, context);
                 context.response.write(bodyEncoding === BodyEncoding.JSON ? JSON.stringify(responseBody) : responseBody);
                 endResponse(context);
             } else {
@@ -164,7 +166,8 @@ async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding,
         } else {
             const responseBody = await processor(context);
             if (responseBody) {
-                startResponse(context, 200, bodyEncoding);
+                startResponse(context, 200);
+                setResponseMimeType(bodyEncoding, context);
                 context.response.write(bodyEncoding === BodyEncoding.JSON ? JSON.stringify(responseBody) : responseBody);
                 endResponse(context);
             } else {
@@ -185,9 +188,7 @@ async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding,
     }
 }
 
-function startResponse(context: RestApiContext, httpStatusCode: number, bodyEncoding: BodyEncoding) {
-    info(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " ");
-    context.response.statusCode = 200;
+function setResponseMimeType(bodyEncoding: BodyEncoding, context: RestApiContext) {
     if (bodyEncoding == BodyEncoding.JSON) {
         context.response.setHeader('Content-Type', 'application/json');
     } else if (bodyEncoding == BodyEncoding.XML) {
@@ -195,6 +196,11 @@ function startResponse(context: RestApiContext, httpStatusCode: number, bodyEnco
     } else {
         context.response.setHeader('Content-Type', 'text/plain');
     }
+}
+
+function startResponse(context: RestApiContext, httpStatusCode: number) {
+    info(context.principal, httpStatusCode.toString() + " " + context.request.method + ": " + context.request.url + " ");
+    context.response.statusCode = 200;
     context.response.setHeader('Access-Control-Allow-Origin', '*');
     context.response.setHeader('Access-Control-Allow-Methods', 'POST, PUT, GET, DELETE');
 }

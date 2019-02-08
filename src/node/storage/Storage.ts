@@ -8,6 +8,7 @@ import {Group} from "./model/Group";
 import {Principal} from "../http/Principal";
 import {info} from "../util/log";
 import {FileContent} from "./model/FileContent";
+const mime = require('mime-types');
 
 export class Storage {
 
@@ -136,6 +137,12 @@ export class Storage {
 
     // Files
     async saveAsset(principal: Principal, fileName: string, readableStream: ReadableStream) {
+        const mimeType = mime.lookup(fileName);
+        if (mimeType != "text/plain" &&
+            mimeType != "text/json") {
+            throw new Error("Unsupported file type: " + fileName);
+        }
+        console.log("saving: " + mimeType);
         this.accessController.checkPrivilege(principal, "", PrivilegeType.MODIFY);
         await this.repository.saveFile(this.assetPath + "/" + fileName, readableStream);
     }
@@ -145,10 +152,10 @@ export class Storage {
         await this.repository.delete(this.assetPath + "/" + fileName);
     }
 
-    async loadAsset(principal: Principal, fileName: string): Promise<ReadableStream | undefined> {
+    async loadAsset(principal: Principal, fileName: string): Promise<FileContent | undefined> {
         this.accessController.checkPrivilege(principal, "", PrivilegeType.VIEW);
         const fileContent = await this.repository.loadFile(this.assetPath + "/" + fileName);
-        return fileContent ?  fileContent.readableStream : undefined;
+        return fileContent;
     }
 
     async listAssets(principal: Principal, directoryName: string): Promise<Array<string>> {
@@ -157,6 +164,12 @@ export class Storage {
     }
 
     async saveUserFile(principal: Principal, fileName: string, readableStream: ReadableStream) {
+        const mimeType = mime.lookup(fileName);
+        if (mimeType != "text/plain" &&
+            mimeType != "text/json") {
+            throw new Error("Unsupported file type: " + fileName);
+        }
+
         this.accessController.checkPrivilege(principal, "", PrivilegeType.MODIFY);
         await this.repository.saveFile(this.userPath + "/" +  principal.userId + "/" + fileName, readableStream);
     }
@@ -166,10 +179,10 @@ export class Storage {
         await this.repository.delete(this.userPath + "/" +  principal.userId + "/" + fileName);
     }
 
-    async loadUserFile(principal: Principal, fileName: string): Promise<ReadableStream | undefined> {
+    async loadUserFile(principal: Principal, fileName: string): Promise<FileContent | undefined> {
         this.accessController.checkPrivilege(principal, "", PrivilegeType.VIEW);
         const fileContent =  await this.repository.loadFile(this.userPath + "/" +  principal.userId + "/" + fileName);
-        return fileContent ?  fileContent.readableStream : undefined;
+        return fileContent;
     }
 
     async listUserFiles(principal: Principal, directoryName: string): Promise<Array<string>> {

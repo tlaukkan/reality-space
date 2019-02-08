@@ -147,6 +147,20 @@ export class StorageRequestManager {
                     DELETE: async c => await (await this.getStorage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).removeUserPrivilege(c.principal, c.pathParams.get('userId')!!, c.pathParams.get('sid')!!)
                 }))
 
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/assets/{category}', BodyEncoding.JSON, {
+                    GET: async c => (await (await this.getStorage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).listAssets(c.principal, c.pathParams.get('category')!! + "/")),
+                    POST: undefined,
+                    PUT: undefined,
+                    DELETE: undefined
+                }))
+
+                .then(c => match(c, '/api/spaces/{space}/regions/{processor}/assets/{category}/{assetName}', BodyEncoding.BUFFER, {
+                    GET: async c => (await (await this.getStorage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).loadAsset(c.principal, c.pathParams.get('category')!! + "/" + c.pathParams.get('assetName')!!)),
+                    POST: async c => await (await this.getStorage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).saveAsset(c.principal, c.pathParams.get('category')!! + "/" + c.pathParams.get('assetName')!!, c.body as Buffer),
+                    PUT: undefined,
+                    DELETE: async c => await (await this.getStorage(c.pathParams.get('space')!!, c.pathParams.get('processor')!!)).deleteAsset(c.principal, c.pathParams.get('category')!! + "/" + c.pathParams.get('assetName')!!)
+                }))
+
                 .then(c => resolve(c))
                 .catch(error => reject(error))
         });

@@ -20,7 +20,8 @@ export class Processors {
 
 export enum BodyEncoding {
     JSON,
-    XML
+    XML,
+    BUFFER
 }
 
 export async function match(context: RestApiContext,
@@ -33,7 +34,7 @@ export async function match(context: RestApiContext,
 
     const pathParamNames = matchPatternGlobal(urlPattern, '\\{([a-zA-Z]*)\\}');
     const urlRegExpPattern = pathParamNames && pathParamNames.length > 0 ? pathParamNames.reduce(function(u, p) {
-        return u.replace(p, "([a-zA-Z0-9-_]*)");
+        return u.replace(p, "([a-zA-Z0-9-_\\.]*)");
     }, urlPattern) : urlPattern;
 
 
@@ -80,16 +81,16 @@ export function processRequest(context: RestApiContext, bodyEncoding: BodyEncodi
 
 async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding, processor: (requestContext: RestApiContext) => Promise<any>, context: RestApiContext) {
     try {
-        const requestBodyString = Buffer.concat(body).toString();
-        if (requestBodyString) {
-            const requestBody = bodyEncoding === BodyEncoding.JSON ? JSON.parse(requestBodyString) : requestBodyString;
+        if (body && body.length > 0) {
+            console.log(body.length);
+            const requestBody = bodyEncoding === BodyEncoding.JSON ? JSON.parse(Buffer.concat(body).toString()) : BodyEncoding.XML ? Buffer.concat(body).toString() : Buffer.concat(body);
             const responseBody = await processor({...context, body: requestBody});
             if (responseBody) {
                 startResponse(context, 200, bodyEncoding);
                 context.response.write(bodyEncoding === BodyEncoding.JSON ? JSON.stringify(responseBody) : responseBody);
                 endResponse(context);
             } else {
-                if (context.request.method === "DELETE") {
+                if (context.request.method === "DELETE" || context.request.method === "POST") {
                     setResponse(context, 200);
                 } else {
                     setResponse(context, 404);
@@ -102,7 +103,7 @@ async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding,
                 context.response.write(bodyEncoding === BodyEncoding.JSON ? JSON.stringify(responseBody) : responseBody);
                 endResponse(context);
             } else {
-                if (context.request.method === "DELETE") {
+                if (context.request.method === "DELETE" || context.request.method === "POST") {
                     setResponse(context, 200);
                 } else {
                     setResponse(context, 404);

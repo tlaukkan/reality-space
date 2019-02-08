@@ -1,11 +1,12 @@
-import {User} from "./User";
+import {User} from "./api/User";
 import uuid = require("uuid");
-import {Group} from "./Group";
-import {GroupMember} from "./GroupMember";
-import {GroupPrivilege} from "./GroupPrivilege";
-import {UserPrivilege} from "./UserPrivilege";
-import {PrivilegeType} from "./PrivilegeType";
-import {DocumentController} from "../../../node/storage/DocumentController";
+import {Group} from "./api/Group";
+import {GroupMember} from "./api/GroupMember";
+import {GroupPrivilege} from "./api/GroupPrivilege";
+import {UserPrivilege} from "./api/UserPrivilege";
+import {PrivilegeType} from "./api/PrivilegeType";
+import {DocumentController} from "../../node/storage/DocumentController";
+import {Readable} from "stream";
 
 export class StorageClient {
 
@@ -134,6 +135,22 @@ export class StorageClient {
         await this.request("DELETE", "/groups/" + groupName + "/privileges/" + sid, [200]);
     }
 
+    async listAssets(category: string): Promise<Array<string>> {
+        return this.parseOptional(await this.request("GET", "/assets/" + category, [200]));
+    };
+
+    async saveAsset(category: string, fileName: string, readableStream: ReadableStream): Promise<void> {
+        await this.requestWithBufferBody("POST", "/assets/" + category + "/" + fileName , readableStream, [200]);
+    }
+
+    async getAsset(category: string, fileName: string): Promise<ReadableStream | undefined> {
+        const response = await this.request("GET", "/assets/" + category + "/" + fileName, [200, 404]);
+        return await this.readBuffer(response);
+    }
+
+    async removeAsset(category: string, fileName: string): Promise<void> {
+        await this.request("DELETE", "/assets/" + category + "/" + fileName, [200]);
+    }
 
     private async request(method: string, path: string, successStatuses: Array<number>) {
         const response = (await fetch(this.storageUrl + "spaces/" + this.spaceName + "/regions/" + this.region + path, {
@@ -170,6 +187,19 @@ export class StorageClient {
         return response;
     }
 
+    private async requestWithBufferBody(method: string, path: string, readableStream: ReadableStream, successStatuses: Array<number>) {
+        //const blob = new Blob([body], {type : 'application/text'});
+        const response = (await fetch(this.storageUrl + "spaces/" + this.spaceName + "/regions/" + this.region + path, {
+            method: method,
+            headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
+            body: readableStream
+        }));
+        if (successStatuses.indexOf(response.status) == -1) {
+            throw new Error(response.status.toString());
+        }
+        return response;
+    }
+
     private async parse(response: Response): Promise<any> {
         return await response.json();
     }
@@ -179,6 +209,14 @@ export class StorageClient {
             return undefined;
         } else {
             return await response.json();
+        }
+    }
+
+    private async readBuffer(response: Response): Promise<ReadableStream | undefined> {
+        if (response.status == 404) {
+            return undefined;
+        } else {
+            return await response.body!!;
         }
     }
 

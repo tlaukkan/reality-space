@@ -14,7 +14,7 @@ import {info} from "../util/log";
 import uuid = require("uuid");
 import {Sanitizer} from "../../common/reality/Sanitizer";
 import {Grid} from "./Grid";
-import {StorageClient} from "../../common/reality/api/StorageClient";
+import {StorageClient} from "../../common/reality/StorageClient";
 
 export class ProcessorRequestManager {
 

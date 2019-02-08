@@ -11,7 +11,7 @@ import {
 } from "../../../src/common/reality/Configuration";
 import {createIdToken} from "../../../src/common/reality/util/jwt";
 import {Principal} from "../../../src/node/http/Principal";
-import {StorageClient} from "../../../src/common/reality/api/StorageClient";
+import {StorageClient} from "../../../src/common/reality/StorageClient";
 import {w3cwebsocket} from "websocket";
 import {newRealityServer} from "../../../src/node/server/server";
 

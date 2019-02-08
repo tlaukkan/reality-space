@@ -1,5 +1,5 @@
 import {Encode} from "./Encode";
-import {StorageClient} from "./api/StorageClient";
+import {StorageClient} from "./StorageClient";
 import {Decode} from "./Decode";
 import {parseFragment, parseRootSids} from "../../node/util/parser";
 import {Element, js2xml, xml2js} from "xml-js";

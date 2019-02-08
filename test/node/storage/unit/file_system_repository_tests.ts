@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import {FileSystemRepository} from "../../../../src/node/storage/FileSystemRepository";
+import {Readable} from "stream";
 
 describe('File System Repository Test.', () => {
 
@@ -16,18 +17,37 @@ describe('File System Repository Test.', () => {
     it('Should test file system repository file save and load', async () => {
         const repository = new FileSystemRepository();
         await repository.startup();
-        await repository.saveFile("tests/test2.txt", Buffer.alloc(5, "test2", "utf-8"));
-        const loaded = await repository.loadFile("tests/test2.txt");
+
+        const encoder = new TextEncoder();
+        const decoder = new TextDecoder("utf-8");
+        const testAssetName = "tests/test-asset.txt";
+        const testText = "test-data";
+
+        const stream = new Readable() as any;
+        stream._read = () => {}; // redundant? see update below
+        stream.push(encoder.encode(testText));
+        stream.push(null);
+
+        await repository.saveFile(testAssetName, stream);
+
+        const loaded = await repository.loadFile(testAssetName);
+        expect(loaded).exist;
         expect(loaded!!.mimeType).eq("text/plain");
-        expect(loaded!!.buffer.toString()).eq("test2");
+
+
+        let loadedText = '';
+        for await (const chunk of loaded!!.readableStream as any) {
+            loadedText += decoder.decode(chunk);
+        }
+        expect(loadedText).eq(testText);
 
         const directories = await repository.listFiles("tests/");
         expect(directories).exist;
         expect(directories!!.length).eq(1);
-        expect(directories!![0]).eq("test2.txt");
+        expect(directories!![0]).eq("test-asset.txt");
 
-        await repository.delete("tests/test2.txt");
-        expect(await repository.loadFile("tests/test2.txt")).eq(undefined);
+        await repository.delete(testAssetName);
+        expect(await repository.loadFile(testAssetName)).eq(undefined);
 
         expect((await repository.listFiles("tests/"))!!.length).eq(0);
 

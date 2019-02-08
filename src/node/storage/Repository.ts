@@ -10,7 +10,7 @@ export interface Repository {
 
     delete(fileName: string): Promise<string>;
 
-    saveFile(fileName: string, buffer: Buffer): Promise<void>;
+    saveFile(fileName: string, buffer: ReadableStream): Promise<void>;
 
     loadFile(fileName: string): Promise<FileContent | undefined>;
 

@@ -135,9 +135,9 @@ export class Storage {
     }*/
 
     // Files
-    async saveAsset(principal: Principal, fileName: string, buffer: Buffer) {
+    async saveAsset(principal: Principal, fileName: string, readableStream: ReadableStream) {
         this.accessController.checkPrivilege(principal, "", PrivilegeType.MODIFY);
-        await this.repository.saveFile(this.assetPath + "/" + fileName, buffer);
+        await this.repository.saveFile(this.assetPath + "/" + fileName, readableStream);
     }
 
     async deleteAsset(principal: Principal, fileName: string) {
@@ -145,10 +145,10 @@ export class Storage {
         await this.repository.delete(this.assetPath + "/" + fileName);
     }
 
-    async loadAsset(principal: Principal, fileName: string): Promise<Buffer | undefined> {
+    async loadAsset(principal: Principal, fileName: string): Promise<ReadableStream | undefined> {
         this.accessController.checkPrivilege(principal, "", PrivilegeType.VIEW);
         const fileContent = await this.repository.loadFile(this.assetPath + "/" + fileName);
-        return fileContent ?  fileContent.buffer : undefined;
+        return fileContent ?  fileContent.readableStream : undefined;
     }
 
     async listAssets(principal: Principal, directoryName: string): Promise<Array<string>> {
@@ -156,9 +156,9 @@ export class Storage {
         return await this.repository.listFiles(this.assetPath + "/" + directoryName);
     }
 
-    async saveUserFile(principal: Principal, fileName: string, buffer: Buffer) {
+    async saveUserFile(principal: Principal, fileName: string, readableStream: ReadableStream) {
         this.accessController.checkPrivilege(principal, "", PrivilegeType.MODIFY);
-        await this.repository.saveFile(this.userPath + "/" +  principal.userId + "/" + fileName, buffer);
+        await this.repository.saveFile(this.userPath + "/" +  principal.userId + "/" + fileName, readableStream);
     }
 
     async deleteUserFile(principal: Principal, fileName: string) {
@@ -166,10 +166,10 @@ export class Storage {
         await this.repository.delete(this.userPath + "/" +  principal.userId + "/" + fileName);
     }
 
-    async loadUserFile(principal: Principal, fileName: string): Promise<Buffer | undefined> {
+    async loadUserFile(principal: Principal, fileName: string): Promise<ReadableStream | undefined> {
         this.accessController.checkPrivilege(principal, "", PrivilegeType.VIEW);
         const fileContent =  await this.repository.loadFile(this.userPath + "/" +  principal.userId + "/" + fileName);
-        return fileContent ?  fileContent.buffer : undefined;
+        return fileContent ?  fileContent.readableStream : undefined;
     }
 
     async listUserFiles(principal: Principal, directoryName: string): Promise<Array<string>> {

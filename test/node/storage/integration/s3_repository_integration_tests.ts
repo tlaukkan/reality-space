@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import {S3Repository} from "../../../../src/node/storage/S3Repository";
+import {Readable} from "stream";
 
 describe('S3 Repository Test.', () => {
 
@@ -13,13 +14,18 @@ describe('S3 Repository Test.', () => {
         expect(await repository.load("tests/test.txt")).eq("");
     });
 
-    it('Should test file system repository file save and load', async () => {
+    it('Should test file system repository file save and load', async function () {
         const repository = new S3Repository('dataspace-eu');
         await repository.startup();
-        await repository.saveFile("tests/test2.txt", Buffer.alloc(5, "test2", "utf-8"));
+
+        const testText = "test-data";
+        const stream = stringToStream(testText);
+
+        await repository.saveFile("tests/test2.txt", stream);
         const loaded = await repository.loadFile("tests/test2.txt");
+        expect(loaded).exist;
         expect(loaded!!.mimeType).eq("text/plain");
-        expect(loaded!!.buffer.toString()).eq("test2");
+        expect(await streamToString(loaded!!.readableStream)).eq(testText);
 
         const directories = await repository.listFiles("tests/");
         expect(directories).exist;
@@ -27,11 +33,28 @@ describe('S3 Repository Test.', () => {
         expect(directories!![0]).eq("test2.txt");
 
         await repository.delete("tests/test2.txt");
-        expect(await repository.loadFile("tests/test2.txt")).eq(undefined);
-
         expect((await repository.listFiles("tests/"))!!.length).eq(0);
 
+        expect(await repository.loadFile("tests/test2.txt")).undefined;
+
         expect((await repository.listFiles("non/existing/directory/"))!!.length).eq(0);
-    });
+    }).timeout(2000);
 
 });
+
+async function streamToString(readableStream: ReadableStream) {
+    let loadedText = '';
+    const decoder = new TextDecoder("utf-8");
+    for await (const chunk of readableStream as any) {
+        loadedText += decoder.decode(chunk);
+    }
+    return loadedText;
+}
+
+function stringToStream(testText: string) {
+    const encoder = new TextEncoder();
+    const stream = new Readable() as any;
+    stream.push(encoder.encode(testText));
+    stream.push(null);
+    return stream;
+}

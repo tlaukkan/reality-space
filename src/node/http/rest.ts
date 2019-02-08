@@ -83,7 +83,7 @@ async function onRequestEnd(body: Array<Uint8Array>, bodyEncoding: BodyEncoding,
     try {
         if (body && body.length > 0) {
             console.log(body.length);
-            const requestBody = bodyEncoding === BodyEncoding.JSON ? JSON.parse(Buffer.concat(body).toString()) : BodyEncoding.XML ? Buffer.concat(body).toString() : Buffer.concat(body);
+            const requestBody = bodyEncoding === BodyEncoding.JSON ? JSON.parse(Buffer.concat(body).toString()) : BodyEncoding.XML ? Buffer.concat(body).toString() : body;
             const responseBody = await processor({...context, body: requestBody});
             if (responseBody) {
                 startResponse(context, 200, bodyEncoding);

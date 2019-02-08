@@ -1,9 +1,9 @@
 export class FileContent {
     mimeType: string;
-    buffer: Buffer;
+    readableStream: ReadableStream;
 
-    constructor(mimeType: string, buffer: Buffer) {
+    constructor(mimeType: string, readableStream: ReadableStream) {
         this.mimeType = mimeType;
-        this.buffer = buffer;
+        this.readableStream = readableStream;
     }
 }

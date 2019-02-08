@@ -59,7 +59,7 @@ export class FileSystemRepository implements Repository {
         });
     }
 
-    async saveFile(fileName: string, buffer: Buffer): Promise<void> {
+    async saveFile(fileName: string, readableStream: ReadableStream): Promise<void> {
         if (fileName.indexOf('..') > -1) {
             throw new Error("Only absolute paths allowed: " + fileName);
         }
@@ -70,13 +70,24 @@ export class FileSystemRepository implements Repository {
             throw new Error("Invalid file extension for mime type: " + mimeType);
         }
         return new Promise<void>((resolve, reject) => {
-            fs.writeFile(this.repositoryPath + fileName, buffer, function (err: Error) {
-                if (err) {
+            // This line opens the file as a readable stream
+            const writeStream = fs.createWriteStream(this.repositoryPath + fileName);
+
+            writeStream.on('finish', function () {
+                resolve();
+            });
+
+            // This catches any errors that happen while creating the readable stream (usually invalid names)
+            writeStream.on('error', function(err: Error) {
+                if(err && (err as any).code == 'ENOENT') {
                     reject(err);
-                } else {
-                    resolve();
+                } else if (err) {
+                    reject(err);
                 }
             });
+
+            // This will wait until we know the readable stream is actually valid before piping
+            (readableStream as any).pipe(writeStream);
         });
     }
 
@@ -87,17 +98,24 @@ export class FileSystemRepository implements Repository {
 
         const mimeType = mime.lookup(fileName);
         return new Promise<FileContent | undefined>((resolve, reject) => {
-            fs.readFile(this.repositoryPath + fileName, function (err: Error, fileContent: Buffer) {
+            // This line opens the file as a readable stream
+            const readStream = fs.createReadStream(this.repositoryPath + fileName);
+
+            // This will wait until we know the readable stream is actually valid before piping
+            readStream.on('open', function () {
+                // This just pipes the read stream to the response object (which goes to the client)
+                resolve(new FileContent(mimeType, readStream));
+            });
+
+            // This catches any errors that happen while creating the readable stream (usually invalid names)
+            readStream.on('error', function(err: Error) {
                 if(err && (err as any).code == 'ENOENT') {
                     resolve(undefined);
                 } else if (err) {
                     reject(err);
-                } else if (fileContent) {
-                    resolve(new FileContent(mimeType, fileContent));
-                } else {
-                    reject("No file content.");
                 }
             });
+
         });
     }
 

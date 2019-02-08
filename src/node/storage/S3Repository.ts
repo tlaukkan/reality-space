@@ -8,6 +8,7 @@ import {DeleteObjectOutput, GetObjectOutput, ListObjectsOutput} from "aws-sdk/cl
 import {FileContent} from "./model/FileContent";
 const Readable = require('stream').Readable;
 const mime = require('mime-types');
+const zlib = require('zlib');
 
 export class S3Repository implements Repository {
 
@@ -80,17 +81,14 @@ export class S3Repository implements Repository {
         });
     }
 
-    async saveFile(fileName: string, buffer: Buffer): Promise<void> {
+    async saveFile(fileName: string, readableStream: ReadableStream): Promise<void> {
         if (fileName.indexOf('..') > -1) {
             throw new Error("Only absolute paths allowed: " + fileName);
         }
 
         return new Promise<void>((resolve, reject) => {
             const mimeType = mime.lookup(fileName);
-            const readable = new Readable();
-            readable.push(buffer);
-            readable.push(null);
-            this.s3.upload ({Bucket: this.bucketName, Key: this.repositoryPath + fileName, ContentType: mimeType, Body: readable},
+            this.s3.upload ({Bucket: this.bucketName, Key: this.repositoryPath + fileName, ContentType: mimeType, Body: readableStream},
                 function (err: Error, data: SendData) {
                     if (err) {
                         reject(err);
@@ -107,20 +105,38 @@ export class S3Repository implements Repository {
         }
 
         return new Promise<FileContent | undefined>((resolve, reject) => {
-            this.s3.getObject({ Bucket: this.bucketName, Key: this.repositoryPath + fileName },
-                function (err: Error, data: GetObjectOutput) {
-                    if (err != null) {
-                        if ((err as any).code === 'NoSuchKey') {
-                            resolve(undefined);
-                        } else {
-                            reject(err);
-                        }
-                    } else {
-                        data.Body
-                        resolve(new FileContent(data.ContentType!!, data.Body as Buffer));
+            const mimeType = mime.lookup(fileName);
+            try {
+                const readableStream = this.s3.getObject({
+                    Bucket: this.bucketName,
+                    Key: this.repositoryPath + fileName
+                }).createReadStream() as any;
+
+
+                const stream = new Readable() as any;
+                stream._read = () => {};
+                (readableStream as any).on('data', function (chunk: any) {
+                    stream.push(chunk);
+                    // Resolve only after we get first chunk.
+                    resolve(new FileContent(mimeType, stream));
+                });
+
+                (readableStream as any).on('end', function (chunk: any) {
+                    stream.push(chunk);
+                    stream.push(null);
+                });
+
+                (readableStream as any).on('error', function(err: Error) {
+                    if(err && (err as any).code == 'NoSuchKey') {
+                        resolve(undefined);
+                    } else if (err) {
+                        reject(err);
                     }
-                }
-            );
+                });
+
+            } catch (err) {
+                reject(err);
+            }
         });
     }
 
@@ -143,7 +159,6 @@ export class S3Repository implements Repository {
                         }
                     } else {
                         const directories = new Array<string>();
-                        console.log(JSON.stringify(data, null, 2));
                         if (data.Contents) {
                             for (const object of data.Contents) {
                                 if (object.Key) {

@@ -151,12 +151,45 @@ export class StorageClient {
         return await this.getReadableStream(response);
     }
 
-    getAssetBuffer(category: string, fileName: string): Promise<ArrayBuffer | undefined> {
+    async getAssetBuffer(category: string, fileName: string): Promise<ArrayBuffer | undefined> {
+        return await this.getBuffer("/assets/" + category + "/" + fileName);
+    }
+
+    async removeAsset(category: string, fileName: string): Promise<void> {
+        await this.request("DELETE", "/assets/" + category + "/" + fileName, [200]);
+    }
+
+    async listUserFiles(category: string): Promise<Array<string>> {
+        return this.parseOptional(await this.request("GET", "/user-files/" + category, [200]));
+    };
+
+    async saveUserFile(category: string, fileName: string, readableStream: ReadableStream): Promise<void> {
+        await this.requestWithReadableStreamBody("POST", "/user-files/" + category + "/" + fileName , readableStream, [200]);
+    }
+
+    async saveUserFileBuffer(category: string, fileName: string, buffer: ArrayBuffer, mimeType: string): Promise<void> {
+        await this.requestWithBlobBody("POST", "/user-files/" + category + "/" + fileName , buffer, mimeType, [200]);
+    }
+
+    async getUserFile(category: string, fileName: string): Promise<ReadableStream | undefined> {
+        const response = await this.request("GET", "/user-files/" + category + "/" + fileName, [200, 404]);
+        return await this.getReadableStream(response);
+    }
+
+    async getUserFileBuffer(category: string, fileName: string): Promise<ArrayBuffer | undefined> {
+        return await this.getBuffer("/user-files/" + category + "/" + fileName);
+    }
+
+    async removeUserFile(category: string, fileName: string): Promise<void> {
+        await this.request("DELETE", "/user-files/" + category + "/" + fileName, [200]);
+    }
+
+    private getBuffer(url: string): Promise<ArrayBuffer | undefined> {
         return new Promise((resolve, reject) => {
-            this.request("GET", "/assets/" + category + "/" + fileName, [200, 404]).then((response) => {
+            this.request("GET", url, [200, 404]).then((response) => {
                 response.blob().then((blob: Blob) => {
                     const reader = new FileReader();
-                    reader.addEventListener("loadend", function() {
+                    reader.addEventListener("loadend", function () {
                     });
                     reader.onloadend = () => {
                         resolve(reader.result as ArrayBuffer);
@@ -172,28 +205,6 @@ export class StorageClient {
                 reject(err);
             });
         });
-    }
-
-
-    async removeAsset(category: string, fileName: string): Promise<void> {
-        await this.request("DELETE", "/assets/" + category + "/" + fileName, [200]);
-    }
-
-    async listUserFiles(category: string): Promise<Array<string>> {
-        return this.parseOptional(await this.request("GET", "/user-files/" + category, [200]));
-    };
-
-    async saveUserFile(category: string, fileName: string, readableStream: ReadableStream): Promise<void> {
-        await this.requestWithReadableStreamBody("POST", "/user-files/" + category + "/" + fileName , readableStream, [200]);
-    }
-
-    async getUserFile(category: string, fileName: string): Promise<ReadableStream | undefined> {
-        const response = await this.request("GET", "/user-files/" + category + "/" + fileName, [200, 404]);
-        return await this.getReadableStream(response);
-    }
-
-    async removeUserFile(category: string, fileName: string): Promise<void> {
-        await this.request("DELETE", "/user-files/" + category + "/" + fileName, [200]);
     }
 
     private async request(method: string, path: string, successStatuses: Array<number>) {

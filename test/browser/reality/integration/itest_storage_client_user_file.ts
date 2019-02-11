@@ -5,6 +5,8 @@ import {createTestIdToken} from "../../browser-test-util";
 
 describe('Storage API / Integration testing user file API ...', () => {
     let client: ClusterClient;
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
 
     before(async () => {
         console.log("\ntesting 0 0 0 in range.\n");
@@ -18,28 +20,28 @@ describe('Storage API / Integration testing user file API ...', () => {
     });
 
     it('It should add and remove test text user file.', async () => {
-
-        /*const testUserFileName = "test-user-text-file.txt";
+        const category = "integration-test-user-file-text";
+        const testUserFileName = "test-user-text-file.txt";
         const testText = "test-user-file-content";
 
-        await client.defaultStorageClient!!.removeUserFile("tests", testUserFileName);
-        expect((await client.defaultStorageClient!!.listUserFiles("tests")).length).eq(0);
+        await client.defaultStorageClient!!.removeUserFile(category, testUserFileName);
+        expect((await client.defaultStorageClient!!.listUserFiles(category)).length).eq(0);
 
-        await client.defaultStorageClient!!.saveUserFile("tests", testUserFileName, stringToStream(testText));
-        const readStream = await client.defaultStorageClient!!.getUserFile("tests", testUserFileName);
-        expect(readStream).exist;
+        await client.defaultStorageClient!!.saveUserFileBuffer(category, testUserFileName, encoder.encode(testText).buffer, "");
+        let loadedTestBuffer = await client.defaultStorageClient!!.getUserFileBuffer(category, testUserFileName);
 
-        let loadedText = await streamToString(readStream!!);
+        const loadedText= decoder.decode(loadedTestBuffer);
+        expect(loadedText).eq(testText);
         expect(loadedText).eq(testText);
 
-        const userFileNames = await client.defaultStorageClient!!.listUserFiles("tests");
+        const userFileNames = await client.defaultStorageClient!!.listUserFiles(category);
         expect(userFileNames.length).eq(1);
         expect(userFileNames[0]).eq(testUserFileName);
 
-        await client.defaultStorageClient!!.removeUserFile("tests", testUserFileName);
+        await client.defaultStorageClient!!.removeUserFile(category, testUserFileName);
 
-        expect((await client.defaultStorageClient!!.listUserFiles("tests")).length).eq(0);*/
+        expect((await client.defaultStorageClient!!.listUserFiles(category)).length).eq(0);
 
-    });
+    }).timeout(5000);
 
 });

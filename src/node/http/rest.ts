@@ -91,6 +91,10 @@ export function processRequest(context: RestApiContext, bodyEncoding: BodyEncodi
                 stream.push(chunk);
             }
             stream.push(null);
+            if (!processingStarted) {
+                processingStarted = true;
+                await processRequestStream(stream, processor, context)
+            }
         });
 
     } else {

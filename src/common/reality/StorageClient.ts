@@ -139,13 +139,41 @@ export class StorageClient {
     };
 
     async saveAsset(category: string, fileName: string, readableStream: ReadableStream): Promise<void> {
-        await this.requestWithBufferBody("POST", "/assets/" + category + "/" + fileName , readableStream, [200]);
+        await this.requestWithReadableStreamBody("POST", "/assets/" + category + "/" + fileName , readableStream, [200]);
+    }
+
+    async saveAssetBuffer(category: string, fileName: string, buffer: ArrayBuffer, mimeType: string): Promise<void> {
+        await this.requestWithBlobBody("POST", "/assets/" + category + "/" + fileName , buffer, mimeType, [200]);
     }
 
     async getAsset(category: string, fileName: string): Promise<ReadableStream | undefined> {
         const response = await this.request("GET", "/assets/" + category + "/" + fileName, [200, 404]);
-        return await this.readBuffer(response);
+        return await this.getReadableStream(response);
     }
+
+    getAssetBuffer(category: string, fileName: string): Promise<ArrayBuffer | undefined> {
+        return new Promise((resolve, reject) => {
+            this.request("GET", "/assets/" + category + "/" + fileName, [200, 404]).then((response) => {
+                response.blob().then((blob: Blob) => {
+                    const reader = new FileReader();
+                    reader.addEventListener("loadend", function() {
+                    });
+                    reader.onloadend = () => {
+                        resolve(reader.result as ArrayBuffer);
+                    };
+                    reader.onerror = () => {
+                        reject(new Error("Failed to read blob from result."));
+                    };
+                    reader.readAsArrayBuffer(blob);
+                }).catch((err: Error) => {
+                    reject(err);
+                });
+            }).catch((err: Error) => {
+                reject(err);
+            });
+        });
+    }
+
 
     async removeAsset(category: string, fileName: string): Promise<void> {
         await this.request("DELETE", "/assets/" + category + "/" + fileName, [200]);
@@ -156,12 +184,12 @@ export class StorageClient {
     };
 
     async saveUserFile(category: string, fileName: string, readableStream: ReadableStream): Promise<void> {
-        await this.requestWithBufferBody("POST", "/user-files/" + category + "/" + fileName , readableStream, [200]);
+        await this.requestWithReadableStreamBody("POST", "/user-files/" + category + "/" + fileName , readableStream, [200]);
     }
 
     async getUserFile(category: string, fileName: string): Promise<ReadableStream | undefined> {
         const response = await this.request("GET", "/user-files/" + category + "/" + fileName, [200, 404]);
-        return await this.readBuffer(response);
+        return await this.getReadableStream(response);
     }
 
     async removeUserFile(category: string, fileName: string): Promise<void> {
@@ -203,7 +231,7 @@ export class StorageClient {
         return response;
     }
 
-    private async requestWithBufferBody(method: string, path: string, readableStream: ReadableStream, successStatuses: Array<number>) {
+    private async requestWithReadableStreamBody(method: string, path: string, readableStream: ReadableStream, successStatuses: Array<number>) {
         //const blob = new Blob([body], {type : 'application/text'});
         const response = (await fetch(this.storageUrl + "spaces/" + this.spaceName + "/regions/" + this.region + path, {
             method: method,
@@ -215,6 +243,21 @@ export class StorageClient {
         }
         return response;
     }
+
+
+    private async requestWithBlobBody(method: string, path: string, buffer: ArrayBuffer, mimeType: string, successStatuses: Array<number>) {
+        const blob = new Blob([buffer], {type : 'application/json'});
+        const response = (await fetch(this.storageUrl + "spaces/" + this.spaceName + "/regions/" + this.region + path, {
+            method: method,
+            headers: {"Authorization": "Bearer " + this.idToken, "Request-ID": uuid.v4()},
+            body: blob
+        }));
+        if (successStatuses.indexOf(response.status) == -1) {
+            throw new Error(response.status.toString());
+        }
+        return response;
+    }
+
 
     private async parse(response: Response): Promise<any> {
         return await response.json();
@@ -228,7 +271,7 @@ export class StorageClient {
         }
     }
 
-    private async readBuffer(response: Response): Promise<ReadableStream | undefined> {
+    private async getReadableStream(response: Response): Promise<ReadableStream | undefined> {
         if (response.status == 404) {
             return undefined;
         } else {

@@ -17,28 +17,29 @@ describe('Storage API / Integration testing asset API...', () => {
     });
 
     it('It should add and remove plain text asset.', async function () {
+        const category = "integration-test-text";
         const testAssetName = "test-text.txt";
         const testText = "test-data";
 
-        await client.defaultStorageClient!!.removeAsset("tests", testAssetName);
-        expect((await client.defaultStorageClient!!.listAssets("tests")).length).eq(0);
+        await client.defaultStorageClient!!.removeAsset(category, testAssetName);
+        expect((await client.defaultStorageClient!!.listAssets(category)).length).eq(0);
 
-        await client.defaultStorageClient!!.saveAsset("tests", testAssetName, stringToStream(testText));
-        const readStream = await client.defaultStorageClient!!.getAsset("tests", testAssetName);
-        expect(readStream).exist;
-        console.log("RECEIVED STREAM.");
+        const encoder = new TextEncoder();
+        await client.defaultStorageClient!!.saveAssetBuffer(category, testAssetName, encoder.encode(testText).buffer, "");
 
-        let loadedText = await streamToString(readStream!!);
+        let loadedTestBuffer = await client.defaultStorageClient!!.getAssetBuffer(category, testAssetName);
+
+        const decoder = new TextDecoder();
+        const loadedText= decoder.decode(loadedTestBuffer);
         expect(loadedText).eq(testText);
-        console.log("RECEIVED CORRECT.");
 
-        const assetNames = await client.defaultStorageClient!!.listAssets("tests");
+        const assetNames = await client.defaultStorageClient!!.listAssets(category);
         expect(assetNames.length).eq(1);
         expect(assetNames[0]).eq(testAssetName);
 
-        await client.defaultStorageClient!!.removeAsset("tests", testAssetName);
+        await client.defaultStorageClient!!.removeAsset(category, testAssetName);
 
-        expect((await client.defaultStorageClient!!.listAssets("tests")).length).eq(0);
+        expect((await client.defaultStorageClient!!.listAssets(category)).length).eq(0);
     }).timeout(5000);
 
 

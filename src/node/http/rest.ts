@@ -87,12 +87,10 @@ export function processRequest(context: RestApiContext, bodyEncoding: BodyEncodi
         });
 
         context.request.on('end', async (chunk: any) => {
-            stream.push(chunk);
-            stream.push(null);
-            if (!processingStarted) {
-                processingStarted = true;
-                await processRequestStream(stream, processor, context)
+            if (chunk) {
+                stream.push(chunk);
             }
+            stream.push(null);
         });
 
     } else {

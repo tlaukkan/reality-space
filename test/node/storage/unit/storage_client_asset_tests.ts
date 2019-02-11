@@ -23,9 +23,8 @@ describe('Storage API / Testing assets ...', () => {
         await server.close();
     });
 
-    it('It should add and remove asset.', async () => {
-
-        const testAssetName = "test-asset.txt";
+    it('It should add and remove plain text asset.', async () => {
+        const testAssetName = "test-text.txt";
         const testText = "test-data";
 
         await client.removeAsset("tests", testAssetName);
@@ -45,9 +44,53 @@ describe('Storage API / Testing assets ...', () => {
         await client.removeAsset("tests", testAssetName);
 
         expect((await client.listAssets("tests")).length).eq(0);
-
     });
 
+    it('It should add and remove JSON asset.', async () => {
+        const testAssetName = "test-json.json";
+        const testText = "test-data";
+
+        await client.removeAsset("tests", testAssetName);
+        expect((await client.listAssets("tests")).length).eq(0);
+
+        await client.saveAsset("tests", testAssetName, stringToStream(testText));
+        const readStream = await client.getAsset("tests", testAssetName);
+        expect(readStream).exist;
+
+        let loadedText = await streamToString(readStream!!);
+        expect(loadedText).eq(testText);
+
+        const assetNames = await client.listAssets("tests");
+        expect(assetNames.length).eq(1);
+        expect(assetNames[0]).eq(testAssetName);
+
+        await client.removeAsset("tests", testAssetName);
+
+        expect((await client.listAssets("tests")).length).eq(0);
+    });
+
+    it('It should add and remove GLB asset.', async () => {
+        const testAssetName = "test-glb.glb";
+        const testText = "test-data";
+
+        await client.removeAsset("tests", testAssetName);
+        expect((await client.listAssets("tests")).length).eq(0);
+
+        await client.saveAsset("tests", testAssetName, stringToStream(testText));
+        const readStream = await client.getAsset("tests", testAssetName);
+        expect(readStream).exist;
+
+        let loadedText = await streamToString(readStream!!);
+        expect(loadedText).eq(testText);
+
+        const assetNames = await client.listAssets("tests");
+        expect(assetNames.length).eq(1);
+        expect(assetNames[0]).eq(testAssetName);
+
+        await client.removeAsset("tests", testAssetName);
+
+        expect((await client.listAssets("tests")).length).eq(0);
+    });
 
 
 });

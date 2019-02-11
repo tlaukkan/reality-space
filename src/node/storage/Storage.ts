@@ -139,7 +139,8 @@ export class Storage {
     async saveAsset(principal: Principal, fileName: string, readableStream: ReadableStream) {
         const mimeType = mime.lookup(fileName);
         if (mimeType != "text/plain" &&
-            mimeType != "text/json") {
+            mimeType != "application/json" &&
+            mimeType != "model/gltf-binary") {
             throw new Error("Unsupported file type: " + fileName);
         }
         console.log("saving: " + mimeType);
@@ -167,7 +168,8 @@ export class Storage {
     async saveUserFile(principal: Principal, fileName: string, readableStream: ReadableStream) {
         const mimeType = mime.lookup(fileName);
         if (mimeType != "text/plain" &&
-            mimeType != "text/json") {
+            mimeType != "application/json" &&
+            mimeType != "model/gltf-binary") {
             throw new Error("Unsupported file type: " + fileName);
         }
 

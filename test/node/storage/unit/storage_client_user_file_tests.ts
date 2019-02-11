@@ -5,7 +5,7 @@ import {DocumentController} from "../../../../src/node/storage/DocumentControlle
 import {newLocalTestStorageClient, resetStorage, startLocalTestServer} from "../../util/util";
 import {streamToString, stringToStream} from "../../util/util";
 
-describe('Storage API / Testing assets ...', () => {
+describe('Storage API / Testing user files ...', () => {
     const client = newLocalTestStorageClient();
     let server: RealityServer;
     let parser: DocumentController;
@@ -23,28 +23,28 @@ describe('Storage API / Testing assets ...', () => {
         await server.close();
     });
 
-    it('It should add and remove asset.', async () => {
+    it('It should add and remove test user file.', async () => {
 
-        const testAssetName = "test-asset.txt";
-        const testText = "test-data";
+        const testUserFileName = "test-user-file.txt";
+        const testText = "test-user-file-content";
 
-        await client.removeAsset("tests", testAssetName);
-        expect((await client.listAssets("tests")).length).eq(0);
+        await client.removeUserFile("tests", testUserFileName);
+        expect((await client.listUserFiles("tests")).length).eq(0);
 
-        await client.saveAsset("tests", testAssetName, stringToStream(testText));
-        const readStream = await client.getAsset("tests", testAssetName);
+        await client.saveUserFile("tests", testUserFileName, stringToStream(testText));
+        const readStream = await client.getUserFile("tests", testUserFileName);
         expect(readStream).exist;
 
         let loadedText = await streamToString(readStream!!);
         expect(loadedText).eq(testText);
 
-        const assetNames = await client.listAssets("tests");
-        expect(assetNames.length).eq(1);
-        expect(assetNames[0]).eq(testAssetName);
+        const userFileNames = await client.listUserFiles("tests");
+        expect(userFileNames.length).eq(1);
+        expect(userFileNames[0]).eq(testUserFileName);
 
-        await client.removeAsset("tests", testAssetName);
+        await client.removeUserFile("tests", testUserFileName);
 
-        expect((await client.listAssets("tests")).length).eq(0);
+        expect((await client.listUserFiles("tests")).length).eq(0);
 
     });
 

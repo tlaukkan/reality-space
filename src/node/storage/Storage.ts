@@ -33,8 +33,8 @@ export class Storage {
 
         this.documentFileName = "spaces/" + spaceName + "/regions/" + region + "/entities.xml";
         this.accessFileName = "spaces/" + spaceName + "/regions/" + region + "/access.json";
-        this.assetPath = "spaces/" + spaceName + "/regions/" + region + "/assets/";
-        this.userPath = "spaces/" + spaceName + "/regions/" + region + "/user/";
+        this.assetPath = "spaces/" + spaceName + "/regions/" + region + "/assets";
+        this.userPath = "spaces/" + spaceName + "/regions/" + region + "/users";
         this.repository = repository;
         this.accessController = new AccessController();
         this.documentController = new DocumentController(sanitizer);
@@ -160,7 +160,8 @@ export class Storage {
 
     async listAssets(principal: Principal, directoryName: string): Promise<Array<string>> {
         this.accessController.checkPrivilege(principal, "", PrivilegeType.VIEW);
-        return await this.repository.listFiles(this.assetPath + "/" + directoryName);
+        const fileNames = await this.repository.listFiles(this.assetPath + "/" + directoryName);
+        return fileNames;
     }
 
     async saveUserFile(principal: Principal, fileName: string, readableStream: ReadableStream) {
@@ -187,7 +188,8 @@ export class Storage {
 
     async listUserFiles(principal: Principal, directoryName: string): Promise<Array<string>> {
         this.accessController.checkPrivilege(principal, "", PrivilegeType.VIEW);
-        return await this.repository.listFiles(this.userPath + "/" + directoryName);
+        const fileNames = await this.repository.listFiles(this.userPath + "/" + principal.userId + "/" + directoryName);
+        return fileNames;
     }
 
     // Document

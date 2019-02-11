@@ -152,6 +152,23 @@ export class StorageClient {
         await this.request("DELETE", "/assets/" + category + "/" + fileName, [200]);
     }
 
+    async listUserFiles(category: string): Promise<Array<string>> {
+        return this.parseOptional(await this.request("GET", "/user-files/" + category, [200]));
+    };
+
+    async saveUserFile(category: string, fileName: string, readableStream: ReadableStream): Promise<void> {
+        await this.requestWithBufferBody("POST", "/user-files/" + category + "/" + fileName , readableStream, [200]);
+    }
+
+    async getUserFile(category: string, fileName: string): Promise<ReadableStream | undefined> {
+        const response = await this.request("GET", "/user-files/" + category + "/" + fileName, [200, 404]);
+        return await this.readBuffer(response);
+    }
+
+    async removeUserFile(category: string, fileName: string): Promise<void> {
+        await this.request("DELETE", "/user-files/" + category + "/" + fileName, [200]);
+    }
+
     private async request(method: string, path: string, successStatuses: Array<number>) {
         const response = (await fetch(this.storageUrl + "spaces/" + this.spaceName + "/regions/" + this.region + path, {
             method: method,

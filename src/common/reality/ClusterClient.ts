@@ -1,6 +1,7 @@
 import {ClusterConfiguration, getClusterConfiguration, RegionConfiguration} from "./Configuration";
 import {RealityClient} from "./RealityClient";
 import {Encode} from "./Encode";
+import {StorageClient} from "./StorageClient";
 
 interface OnReceive { (region: string, type: string, message: string[]): void }
 interface OnStoredRootEntityReceived { (region: string, sid: string, entityXml: string): void }
@@ -31,6 +32,8 @@ export class ClusterClient {
 
     clients: Map<String, RealityClient> = new Map();
 
+    defaultStorageClient: StorageClient | undefined = undefined;
+
     constructor(clusterConfigurationUrl: string, spaceName: string, avatarId: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, avatarDescription: string, idToken: string) {
         this.clusterConfigurationUrl = clusterConfigurationUrl;
         this.spaceName = spaceName;
@@ -57,6 +60,12 @@ export class ClusterClient {
 
         this.clusterConfiguration = await getClusterConfiguration(this.clusterConfigurationUrl);
         console.log("cluster client - connect: " + this.clusterConfigurationUrl);
+
+        const defaultSpace = "default";
+        const defaultRegion = this.getRegion(0, 0, 0)!!;
+        const defaultRegionConfiguration = this.getRegionConfiguration(defaultRegion);
+
+        this.defaultStorageClient = new StorageClient(defaultSpace, defaultRegion, defaultRegionConfiguration.storageUrl, defaultRegionConfiguration.cdnUrl, this.idToken);
 
         await this.refresh(this.x, this.y, this.z, this.rx, this.ry, this.rz, this.rw);
     }
@@ -286,23 +295,28 @@ export class ClusterClient {
      * @return array of RegionConfigurations with closest region as first.
      */
     getRegions(x: number, y: number, z: number): Array<RegionConfiguration> {
-        const regions = Array<RegionConfiguration>();
-        let lastD2 = Number.MAX_SAFE_INTEGER;
-        for (let region of this.clusterConfiguration!!.regions) {
+        if (this.clusterConfiguration) {
+            const regions = Array<RegionConfiguration>();
+            let lastD2 = Number.MAX_SAFE_INTEGER;
+            for (let region of this.clusterConfiguration!!.regions) {
 
-            if (x >= region.x - region.edge / 2 && x <= region.x + region.edge / 2 &&
-                y >= region.y - region.edge / 2 && y <= region.y + region.edge / 2 &&
-                z >= region.z - region.edge / 2 && z <= region.z + region.edge / 2) {
-                const d2 = Math.pow(x - region.x,2) + Math.pow(y - region.y, 2) + Math.pow(z - region.z, 2);
-                if (d2 < lastD2) {
-                    regions.unshift(region);
-                } else {
-                    regions.push(region);
+                if (x >= region.x - region.edge / 2 && x <= region.x + region.edge / 2 &&
+                    y >= region.y - region.edge / 2 && y <= region.y + region.edge / 2 &&
+                    z >= region.z - region.edge / 2 && z <= region.z + region.edge / 2) {
+                    const d2 = Math.pow(x - region.x, 2) + Math.pow(y - region.y, 2) + Math.pow(z - region.z, 2);
+                    if (d2 < lastD2) {
+                        regions.unshift(region);
+                    } else {
+                        regions.push(region);
+                    }
+                    lastD2 = d2;
                 }
-                lastD2 = d2;
             }
+            return regions;
+        } else {
+            console.warn("no cluster configuration defined.");
+            throw new Error("No cluster configuration defined.");
         }
-        return regions;
     }
 
     /**
@@ -312,7 +326,7 @@ export class ClusterClient {
      * @param z
      */
     public getRegion(x: number, y: number, z: number): string | undefined {
-        if (this.isConnected()) {
+        if (this.clusterConfiguration) {
             const regions = Array<string>();
             let lastD2 = Number.MAX_SAFE_INTEGER;
             for (let region of this.clusterConfiguration!!.regions) {
@@ -334,13 +348,13 @@ export class ClusterClient {
                 return undefined;
             }
         } else {
-            console.warn("not connected.");
-            throw new Error("Not connected.");
+            console.warn("no cluster configuration defined.");
+            throw new Error("No cluster configuration defined.");
         }
     }
 
     public getRegionConfiguration(region: string): RegionConfiguration {
-        if (this.isConnected()) {
+        if (this.clusterConfiguration) {
             const clusterConfiguration = this.clusterConfiguration!!;
             for (const regionConfiguration of clusterConfiguration.regions) {
                 if (regionConfiguration.region == region) {
@@ -349,8 +363,8 @@ export class ClusterClient {
             }
             throw new Error("Region configuration not found: " + region);
         } else {
-            console.warn("not connected.");
-            throw new Error("Not connected.");
+            console.warn("no cluster configuration defined.");
+            throw new Error("No cluster configuration defined.");
         }
     }
 }

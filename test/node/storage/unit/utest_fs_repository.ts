@@ -4,16 +4,25 @@ import {Readable} from "stream";
 import {streamToString, stringToStream} from "../../util/util";
 
 describe('File System Repository Test.', () => {
+    const repository = new FileSystemRepository();
 
-    it('Should test file system repository string save and load', async () => {
-        const repository = new FileSystemRepository();
+    before(async () => {
         await repository.startup();
-        await repository.save("tests/test.txt", "test");
-        const loaded = await repository.load("tests/test.txt");
-        expect(loaded).eq("test");
+    });
+
+    beforeEach(async () => {
+        // Cleanup
+        await repository.delete("tests/test.txt");
         await repository.delete("tests/test-asset.txt");
         await repository.delete("tests/test-json.json");
         await repository.delete("tests/test-glb.glb");
+    });
+
+    it('Should test file system repository string save and load', async () => {
+        await repository.save("tests/test.txt", "test");
+        const loaded = await repository.load("tests/test.txt");
+        expect(loaded).eq("test");
+        await repository.delete("tests/test.txt");
         expect(await repository.load("tests/test.txt")).eq("");
     });
 

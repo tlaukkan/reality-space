@@ -6,7 +6,6 @@ import {GroupPrivilege} from "./api/GroupPrivilege";
 import {UserPrivilege} from "./api/UserPrivilege";
 import {PrivilegeType} from "./api/PrivilegeType";
 import {DocumentController} from "../../node/storage/DocumentController";
-import {Readable} from "stream";
 
 export class StorageClient {
 

@@ -24,78 +24,78 @@ describe('Storage API / Testing user files ...', () => {
     });
 
     it('It should add and remove test text user file.', async () => {
-
+        const category = "test-user-text";
         const testUserFileName = "test-user-text-file.txt";
         const testText = "test-user-file-content";
 
-        await client.removeUserFile("tests", testUserFileName);
-        expect((await client.listUserFiles("tests")).length).eq(0);
+        await client.removeUserFile(category, testUserFileName);
+        expect((await client.listUserFiles(category)).length).eq(0);
 
-        await client.saveUserFile("tests", testUserFileName, stringToStream(testText));
-        const readStream = await client.getUserFile("tests", testUserFileName);
+        await client.saveUserFile(category, testUserFileName, stringToStream(testText));
+        const readStream = await client.getUserFile(category, testUserFileName);
         expect(readStream).exist;
 
         let loadedText = await streamToString(readStream!!);
         expect(loadedText).eq(testText);
 
-        const userFileNames = await client.listUserFiles("tests");
+        const userFileNames = await client.listUserFiles(category);
         expect(userFileNames.length).eq(1);
         expect(userFileNames[0]).eq(testUserFileName);
 
-        await client.removeUserFile("tests", testUserFileName);
+        await client.removeUserFile(category, testUserFileName);
 
-        expect((await client.listUserFiles("tests")).length).eq(0);
+        expect((await client.listUserFiles(category)).length).eq(0);
 
     });
 
     it('It should add and remove test JSON user file.', async () => {
-
+        const category = "test-user-json";
         const testUserFileName = "test-user-json-file.json";
         const testText = "test-user-file-content";
 
-        await client.removeUserFile("tests", testUserFileName);
-        expect((await client.listUserFiles("tests")).length).eq(0);
+        await client.removeUserFile(category, testUserFileName);
+        expect((await client.listUserFiles(category)).length).eq(0);
 
-        await client.saveUserFile("tests", testUserFileName, stringToStream(testText));
-        const readStream = await client.getUserFile("tests", testUserFileName);
+        await client.saveUserFile(category, testUserFileName, stringToStream(testText));
+        const readStream = await client.getUserFile(category, testUserFileName);
         expect(readStream).exist;
 
         let loadedText = await streamToString(readStream!!);
         expect(loadedText).eq(testText);
 
-        const userFileNames = await client.listUserFiles("tests");
+        const userFileNames = await client.listUserFiles(category);
         expect(userFileNames.length).eq(1);
         expect(userFileNames[0]).eq(testUserFileName);
 
-        await client.removeUserFile("tests", testUserFileName);
+        await client.removeUserFile(category, testUserFileName);
 
-        expect((await client.listUserFiles("tests")).length).eq(0);
+        expect((await client.listUserFiles(category)).length).eq(0);
 
     });
 
 
     it('It should add and remove test GLB user file.', async () => {
-
+        const category = "test-user-glb";
         const testUserFileName = "test-user-glb-file.glb";
         const testText = "test-user-file-content";
 
-        await client.removeUserFile("tests", testUserFileName);
-        expect((await client.listUserFiles("tests")).length).eq(0);
+        await client.removeUserFile(category, testUserFileName);
+        expect((await client.listUserFiles(category)).length).eq(0);
 
-        await client.saveUserFile("tests", testUserFileName, stringToStream(testText));
-        const readStream = await client.getUserFile("tests", testUserFileName);
+        await client.saveUserFile(category, testUserFileName, stringToStream(testText));
+        const readStream = await client.getUserFile(category, testUserFileName);
         expect(readStream).exist;
 
         let loadedText = await streamToString(readStream!!);
         expect(loadedText).eq(testText);
 
-        const userFileNames = await client.listUserFiles("tests");
+        const userFileNames = await client.listUserFiles(category);
         expect(userFileNames.length).eq(1);
         expect(userFileNames[0]).eq(testUserFileName);
 
-        await client.removeUserFile("tests", testUserFileName);
+        await client.removeUserFile(category, testUserFileName);
 
-        expect((await client.listUserFiles("tests")).length).eq(0);
+        expect((await client.listUserFiles(category)).length).eq(0);
 
     });
 

@@ -4,7 +4,7 @@ import {
     PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME,
     PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_URL, PUBLIC_TEST_CLUSTER_STORAGE_URL
 } from "../../../test";
-import {createTestIdToken} from "../../browser";
+import {createTestIdToken} from "../../browser-test-util";
 
 describe('Integration Test Single Client', () => {
 

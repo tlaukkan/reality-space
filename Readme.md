@@ -104,7 +104,7 @@ karma start karma.config.js  --browsers ChromeHeadless
 ---
     npm version patch
     npm publish
----
+---hewr
 
 # Deployment
 

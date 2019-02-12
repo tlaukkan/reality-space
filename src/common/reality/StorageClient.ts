@@ -293,4 +293,6 @@ export class StorageClient {
     private async getText(response: Response): Promise<any> {
         return await response.text();
     }
+
+
 }

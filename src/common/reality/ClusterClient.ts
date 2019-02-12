@@ -8,7 +8,7 @@ interface OnStoredRootEntityReceived { (region: string, sid: string, entityXml: 
 interface OnStoredChildEntityReceived { (region: string, parentSid: string, sid: string, entityXml: string): void }
 interface OnStoredEntityRemoved { (region: string, sid: string): void }
 interface OnConnect { (region: string): void }
-interface OnConnectError { (error: Error): void }
+interface OnConnectError { (region: string, error: Error): void }
 interface OnDisconnect { (region: string): void }
 interface WebSocketConstruct { (url: string, protocol:string): WebSocket }
 interface OnLoaded { (region: string): void }
@@ -172,7 +172,7 @@ export class ClusterClient {
                     this.onConnect(client.region);
                 } catch (error) {
                     console.warn("cluster client - error connecting to region.", error);
-                    this.onConnectError(error);
+                    this.onConnectError(client.region, error);
                     continue;
                 }
                 // Add clients for regions which are in range and not connected yet.
@@ -224,7 +224,7 @@ export class ClusterClient {
     }
 
     onConnect: OnConnect = (region: string) => {};
-    onConnectError: OnConnectError = (error: Error) => {};
+    onConnectError: OnConnectError = (region: string, error: Error) => {};
     onDisconnect: OnDisconnect = (region: string) => {};
     onReceive: OnReceive = (region: string, type: string, message: string[]) => {};
     onStoredRootEntityReceived: OnStoredRootEntityReceived = (region: string, sid: string, entityXml:string) => {};

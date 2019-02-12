@@ -1,6 +1,6 @@
 {
   "name": "reality-space",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Reality Space",
   "main": "lib/src/index.js",
   "types": "lib/src/index.d.ts",

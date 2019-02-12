@@ -2,7 +2,6 @@ import {ClusterConfiguration, getClusterConfiguration, RegionConfiguration} from
 import {RealityClient} from "./RealityClient";
 import {Encode} from "./Encode";
 import {StorageClient} from "./StorageClient";
-import undefinedError = Mocha.utils.undefinedError;
 
 interface OnReceive { (region: string, type: string, message: string[]): void }
 interface OnStoredRootEntityReceived { (region: string, sid: string, entityXml: string): void }

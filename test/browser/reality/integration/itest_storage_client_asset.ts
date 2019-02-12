@@ -23,23 +23,23 @@ describe('Storage API / Integration testing asset API...', () => {
         const testAssetName = "test-text.txt";
         const testText = "test-data";
 
-        await client.defaultStorageClient!!.removeAsset(category, testAssetName);
-        expect((await client.defaultStorageClient!!.listAssets(category)).length).eq(0);
+        await client.getHomeStorage().removeAsset(category, testAssetName);
+        expect((await client.getHomeStorage().listAssets(category)).length).eq(0);
 
-        await client.defaultStorageClient!!.saveAssetBuffer(category, testAssetName, encoder.encode(testText).buffer, "");
+        await client.getHomeStorage().saveAssetBuffer(category, testAssetName, encoder.encode(testText).buffer, "");
 
-        let loadedTestBuffer = await client.defaultStorageClient!!.getAssetBuffer(category, testAssetName);
+        let loadedTestBuffer = await client.getHomeStorage().getAssetBuffer(category, testAssetName);
 
         const loadedText= decoder.decode(loadedTestBuffer);
         expect(loadedText).eq(testText);
 
-        const assetNames = await client.defaultStorageClient!!.listAssets(category);
+        const assetNames = await client.getHomeStorage().listAssets(category);
         expect(assetNames.length).eq(1);
         expect(assetNames[0]).eq(testAssetName);
 
-        await client.defaultStorageClient!!.removeAsset(category, testAssetName);
+        await client.getHomeStorage().removeAsset(category, testAssetName);
 
-        expect((await client.defaultStorageClient!!.listAssets(category)).length).eq(0);
+        expect((await client.getHomeStorage().listAssets(category)).length).eq(0);
     }).timeout(5000);
 
 

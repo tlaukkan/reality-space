@@ -24,23 +24,23 @@ describe('Storage API / Integration testing user file API ...', () => {
         const testUserFileName = "test-user-text-file.txt";
         const testText = "test-user-file-content";
 
-        await client.defaultStorageClient!!.removeUserFile(category, testUserFileName);
-        expect((await client.defaultStorageClient!!.listUserFiles(category)).length).eq(0);
+        await client.getHomeStorage().removeUserFile(category, testUserFileName);
+        expect((await client.getHomeStorage().listUserFiles(category)).length).eq(0);
 
-        await client.defaultStorageClient!!.saveUserFileBuffer(category, testUserFileName, encoder.encode(testText).buffer, "");
-        let loadedTestBuffer = await client.defaultStorageClient!!.getUserFileBuffer(category, testUserFileName);
+        await client.getHomeStorage().saveUserFileBuffer(category, testUserFileName, encoder.encode(testText).buffer, "");
+        let loadedTestBuffer = await client.getHomeStorage().getUserFileBuffer(category, testUserFileName);
 
         const loadedText= decoder.decode(loadedTestBuffer);
         expect(loadedText).eq(testText);
         expect(loadedText).eq(testText);
 
-        const userFileNames = await client.defaultStorageClient!!.listUserFiles(category);
+        const userFileNames = await client.getHomeStorage().listUserFiles(category);
         expect(userFileNames.length).eq(1);
         expect(userFileNames[0]).eq(testUserFileName);
 
-        await client.defaultStorageClient!!.removeUserFile(category, testUserFileName);
+        await client.getHomeStorage().removeUserFile(category, testUserFileName);
 
-        expect((await client.defaultStorageClient!!.listUserFiles(category)).length).eq(0);
+        expect((await client.getHomeStorage().listUserFiles(category)).length).eq(0);
 
     }).timeout(5000);
 

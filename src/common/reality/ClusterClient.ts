@@ -2,6 +2,7 @@ import {ClusterConfiguration, getClusterConfiguration, RegionConfiguration} from
 import {RealityClient} from "./RealityClient";
 import {Encode} from "./Encode";
 import {StorageClient} from "./StorageClient";
+import undefinedError = Mocha.utils.undefinedError;
 
 interface OnReceive { (region: string, type: string, message: string[]): void }
 interface OnStoredRootEntityReceived { (region: string, sid: string, entityXml: string): void }
@@ -32,7 +33,7 @@ export class ClusterClient {
 
     clients: Map<String, RealityClient> = new Map();
 
-    defaultStorageClient: StorageClient | undefined = undefined;
+    private homeStorageClient: StorageClient | undefined = undefined;
 
     constructor(clusterConfigurationUrl: string, spaceName: string, avatarId: string, x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number, avatarDescription: string, idToken: string) {
         this.clusterConfigurationUrl = clusterConfigurationUrl;
@@ -65,7 +66,7 @@ export class ClusterClient {
         const defaultRegion = this.getRegion(0, 0, 0)!!;
         const defaultRegionConfiguration = this.getRegionConfiguration(defaultRegion);
 
-        this.defaultStorageClient = new StorageClient(defaultSpace, defaultRegion, defaultRegionConfiguration.storageUrl, defaultRegionConfiguration.cdnUrl, this.idToken);
+        this.homeStorageClient = new StorageClient(defaultSpace, defaultRegion, defaultRegionConfiguration.storageUrl, defaultRegionConfiguration.cdnUrl, this.idToken);
 
         await this.refresh(this.x, this.y, this.z, this.rx, this.ry, this.rz, this.rw);
     }
@@ -76,6 +77,30 @@ export class ClusterClient {
            this.closeClient(client);
         });
         this.clients.clear();
+    }
+
+    getHomeStorage(): StorageClient {
+        if (this.homeStorageClient) {
+            return this.homeStorageClient;
+        }
+        throw new Error("Home storage client not instantiated. Connect() not invoked or error occurred.");
+    }
+
+    getRegionStorageByCoordinate(x: number, y: number, z: number): StorageClient | undefined {
+        const region = this.getRegion(x, y, z);
+        if (region) {
+            return this.getRegionStorage(region);
+        } else {
+            return undefined;
+        }
+    }
+
+    getRegionStorage(region: string): StorageClient | undefined {
+        if (this.clients.has(region)) {
+            return this.clients.get(region)!!.storageClient;
+        } else {
+            return undefined;
+        }
     }
 
     async refresh(x: number, y: number, z: number, rx: number, ry: number, rz: number, rw: number) {

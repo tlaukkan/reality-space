@@ -51,6 +51,7 @@ export class Sanitizer {
             if (this.allowedAttributes.has(key)) {
                 if (typeof attributes[key] === 'string') {
                     attributes[key] = (attributes[key] as string).replace(this.attributeValueRegex, '')
+                    attributes[key] = attributes[key].replace("javascript", "");
                 }
             } else {
                 delete attributes[key];

@@ -75,7 +75,7 @@ export class Processor {
                 const type = parts[0];
                 if (type === Encode.ADD) {
                     const decoded = Decode.add(parts);
-                    const entityId = decoded[0];
+                    const entityId = connection.principal!!.userId + ":" + decoded[0];
                     const x: number = decoded[1];
                     const y: number = decoded[2];
                     const z: number = decoded[3];
@@ -83,7 +83,8 @@ export class Processor {
                     const ry: number = decoded[5];
                     const rz: number = decoded[6];
                     const rw: number = decoded[7];
-                    const description = this.sanitizer.sanitize(decoded[8]);
+
+                    const description = this.sanitizer.sanitize(decoded[8], this.getUserIdentificationAttributes(connection));
                     const type = decoded[9];
 
                     if (connection.entityIds.has(entityId)) {
@@ -102,7 +103,7 @@ export class Processor {
                 }
                 if (type === Encode.UPDATE) {
                     const decoded = Decode.update(parts);
-                    const entityId = decoded[0];
+                    const entityId = connection.principal!!.userId + ":" + decoded[0];
                     const x: number = decoded[1];
                     const y: number = decoded[2];
                     const z: number = decoded[3];
@@ -121,7 +122,7 @@ export class Processor {
                 }
                 if (type === Encode.REMOVE) {
                     const decoded = Decode.remove(parts);
-                    const entityId = decoded[0];
+                    const entityId = connection.principal!!.userId + ":" + decoded[0];
 
                     if (!connection.entityIds.has(entityId)) {
                         throw new Error("Connection does not own: " + entityId);
@@ -135,8 +136,8 @@ export class Processor {
                 }
                 if (type === Encode.DESCRIBE) {
                     const decoded = Decode.describe(parts);
-                    const entityId = decoded[0];
-                    const description = this.sanitizer.sanitize(decoded[1]);
+                    const entityId = connection.principal!!.userId + ":" + decoded[0];
+                    const description = this.sanitizer.sanitize(decoded[1], this.getUserIdentificationAttributes(connection));
 
                     if (!connection.entityIds.has(entityId)) {
                         throw new Error("Connection does not own: " + entityId);
@@ -148,7 +149,7 @@ export class Processor {
                 }
                 if (type === Encode.ACT) {
                     const decoded = Decode.act(parts);
-                    const entityId = decoded[0];
+                    const entityId = connection.principal!!.userId + ":" + decoded[0];
                     const action = decoded[1];
                     const description = decoded[2];
 
@@ -172,6 +173,14 @@ export class Processor {
 
         }
 
+    }
+
+    private getUserIdentificationAttributes(connection: Connection) {
+        const attributesToInject: Map<string, string> = new Map([
+            ["user-id", connection.principal!!.userId],
+            ["user-name", connection.principal!!.userName]
+        ]);
+        return attributesToInject;
     }
 
     remove(connection: Connection) {

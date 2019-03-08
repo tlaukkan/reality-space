@@ -14,7 +14,7 @@ export class Sanitizer {
         this.attributeValueRegex = new RegExp(attributeValueRegex, 'g');
     }
 
-    sanitize(description: string) : string {
+    sanitize(description: string, attributesToInject?: Map<string, string>) : string {
         if (!this.enabled) {
             return description;
         }
@@ -22,15 +22,23 @@ export class Sanitizer {
             return description;
         }
         const element = xml2js(description);
-        this.sanitizeElements(element.elements);
+        this.sanitizeElements(element.elements, attributesToInject);
         return js2xml(element, {spaces: 4});
     }
 
-    sanitizeElements(elements: Array<Element>) {
+    sanitizeElements(elements: Array<Element>, attributesToInject?: Map<string, string>) {
         for (var i = elements.length - 1; i >= 0; --i) {
            const element = elements[i];
            if (element.type == "element" && this.allowedElements.has(element.name!!)) {
                this.sanitizeElement(element);
+               if (attributesToInject) {
+                   if (!element.attributes) {
+                       element.attributes =  {};
+                   }
+                   for(let key of Array.from(attributesToInject.keys()) ) {
+                       element.attributes[key] = attributesToInject.get(key);
+                   }
+               }
            } else {
                elements.splice(i, 1);
            }

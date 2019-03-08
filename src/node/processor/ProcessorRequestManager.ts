@@ -204,6 +204,7 @@ export class ProcessorRequestManager {
             }
 
             processor!!.add(connection);
+            connection.principal = principal;
             connection.processor = processor;
 
             const processorConfig = processor.processorConfig;

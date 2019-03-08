@@ -60,7 +60,7 @@ describe('Reality client storage test.', () => {
             client.add("1", 1, 2, 3, 4, 5, 6, 7, '<a-image src="dog.img"/>', Encode.AVATAR);
 
             client.onReceive = async function (message) {
-                expect(message).equals('a|0|1|1.00|2.00|3.00|4.00|5.00|6.00|7.00|<a-image src="dog.img"/>|a|');
+                expect(message).equals('a|0|1:1|1.00|2.00|3.00|4.00|5.00|6.00|7.00|<a-image src="dog.img" user-id="1" user-name="test"/>|a|');
 
                 expect(sid).eq(((xml2js(xml).elements[0].attributes as any).sid as string));
 

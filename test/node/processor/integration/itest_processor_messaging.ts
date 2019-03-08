@@ -28,7 +28,7 @@ describe('Integration Test Messaging', () => {
         client.add("1", 1, 2, 3, 4, 5, 6, 7, "<a-box/>", Encode.AVATAR);
         client.onReceive = async function (message) {
             const id = message.split(Encode.SEPARATOR)[2];
-            if (id!="1") {
+            if (id!="1:1") {
                 return;
             }
 

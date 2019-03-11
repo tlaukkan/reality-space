@@ -125,12 +125,20 @@ export class ClusterClient {
             if (this.primaryRegion!==regions[0].region) {
                 if (this.primaryRegion && this.clients.has(this.primaryRegion)) {
                     console.log("cluster client - switching primary region...");
-                    this.closeClient(this.clients.get(this.primaryRegion)!!)
-                    console.log("cluster client - disconnected old primary region: " + this.primaryRegion);
+                    //this.closeClient(this.clients.get(this.primaryRegion)!!)
+
+                    await this.clients.get(this.primaryRegion)!!.remove(this.avatarId);
+                    await this.clients.get(this.primaryRegion)!!.add(this.avatarId, x, y, z, rx, ry, rz, rw, this.avatarDescription, Encode.PROBE);
+
+                    console.log("cluster client - switched old primary region avatar to probe: " + this.primaryRegion);
                 }
                 if (this.clients.has(regions[0].region)) {
-                    this.closeClient(this.clients.get(regions[0].region)!!)
-                    console.log("cluster client - disconnected secondary region as it is promoted to primary region: " + regions[0].region);
+                    //this.closeClient(this.clients.get(regions[0].region)!!)
+
+                    await this.clients.get(regions[0].region)!!.remove(this.avatarId);
+                    await this.clients.get(regions[0].region)!!.add(this.avatarId, x, y, z, rx, ry, rz, rw, this.avatarDescription, Encode.AVATAR);
+
+                    console.log("cluster client - switched new primary region avatar from probe to avatar: " + regions[0].region);
                 }
                 this.primaryRegion = regions[0].region;
                 console.log("cluster client - new primary region set to: " + regions[0].region);

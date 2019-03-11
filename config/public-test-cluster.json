@@ -11,8 +11,8 @@
   "cdnUrl":       "https://rs-test-storage.herokuapp.com/api/",
   "edge": 140,
   "step": 10,
-  "range": 20,
-  "spaces": ["default", "private-*"],
+  "range": 18,
+  "spaces": ["default", "private-*", "dynamic-*"],
   "maxSpaces": 20,
   "regions": [
     { "x":    0, "y":   0, "z":    0, "processorUrl": "wss://rs-test-processor-0-0-0.herokuapp.com/"},

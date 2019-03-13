@@ -9,21 +9,21 @@
   "processorUrl": "wss://rs-test-processor.herokuapp.com/",
   "storageUrl":   "https://rs-test-storage.herokuapp.com/api/",
   "cdnUrl":       "https://rs-test-storage.herokuapp.com/api/",
-  "edge": 150,
+  "edge": 300,
   "step": 50,
   "range": 90,
   "spaces": ["default", "*"],
   "maxSpaces": 100,
   "regions": [
     { "x":    0, "y":   0, "z":    0, "processorUrl": "wss://rs-test-processor-0-0-0.herokuapp.com/"},
-    { "x":  100, "y":   0, "z":    0},
-    { "x":    0, "y":   0, "z":  100},
-    { "x":  100, "y":   0, "z":  100},
-    { "x":  100, "y":   0, "z":  -100},
-    { "x": -100, "y":   0, "z":  100},
-    { "x": -100, "y":   0, "z":    0},
-    { "x":    0, "y":   0, "z": -100},
-    { "x": -100, "y":   0, "z": -100}
+    { "x":  200, "y":   0, "z":    0},
+    { "x":    0, "y":   0, "z":  200},
+    { "x":  200, "y":   0, "z":  200},
+    { "x":  200, "y":   0, "z":  -200},
+    { "x": -200, "y":   0, "z":  200},
+    { "x": -200, "y":   0, "z":    0},
+    { "x":    0, "y":   0, "z": -200},
+    { "x": -200, "y":   0, "z": -200}
   ],
   "idTokenIssuers": [
     {

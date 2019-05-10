@@ -12,7 +12,7 @@ import {
     PUBLIC_TEST_CLUSTER_CDN_URL,
     PUBLIC_TEST_CLUSTER_CONFIG_URL,
     PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME, PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_URL,
-    PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME,
+    PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME,
     PUBLIC_TEST_CLUSTER_PROCESSOR_URL,
     PUBLIC_TEST_CLUSTER_STORAGE_URL
 } from "../../test";
@@ -49,33 +49,33 @@ describe('Test Configuration', () => {
         expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.region).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME);
         expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.spaces.length).equals(2);
         expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.spaces[0]).equals("default");
-        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.spaces[1]).equals("private-*");
-        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.maxSpaces).equals(20);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.spaces[1]).equals("*");
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.maxSpaces).equals(100);
         expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.x).equals(0);
         expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.y).equals(0);
         expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.z).equals(0);
-        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.edge).equals(140);
-        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.step).equals(10);
-        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.range).equals(20);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.edge).equals(300);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.step).equals(50);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.range).equals(90);
 
         const processorConfiguration = getRegionConfigurations(configuration,  PUBLIC_TEST_CLUSTER_PROCESSOR_URL);
         expect(processorConfiguration.size).equals(8);
 
-        expect(processorConfiguration.has(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)).true;
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.processorUrl).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_URL);
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.storageUrl).equals(PUBLIC_TEST_CLUSTER_STORAGE_URL);
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.cdnUrl).equals(PUBLIC_TEST_CLUSTER_CDN_URL);
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.region).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME);
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.spaces.length).equals(2);
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.spaces[0]).equals("default");
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.spaces[1]).equals("private-*");
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.maxSpaces).equals(20);
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.x).equals(0);
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.y).equals(0);
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.z).equals(100);
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.edge).equals(140);
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.step).equals(10);
-        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_100_NAME)!!.range).equals(20);
+        expect(processorConfiguration.has(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)).true;
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)!!.processorUrl).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_URL);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)!!.storageUrl).equals(PUBLIC_TEST_CLUSTER_STORAGE_URL);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)!!.cdnUrl).equals(PUBLIC_TEST_CLUSTER_CDN_URL);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)!!.region).equals(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)!!.spaces.length).equals(2);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)!!.spaces[0]).equals("default");
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)!!.spaces[1]).equals("*");
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)!!.maxSpaces).equals(100);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)!!.x).equals(0);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)!!.y).equals(0);
+        expect(processorConfiguration.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_200_NAME)!!.z).equals(200);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.edge).equals(300);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.step).equals(50);
+        expect(processorConfiguration000.get(PUBLIC_TEST_CLUSTER_PROCESSOR_0_0_0_NAME)!!.range).equals(90);
 
         const storageApiConfiguration = getStorageConfiguration(configuration, PUBLIC_TEST_CLUSTER_STORAGE_URL);
 

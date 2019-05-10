@@ -43,39 +43,37 @@ describe('Integration Test Cluster Client', () => {
 
 
     it('Should connect client to cluster.', async () => {
-
-
         await client.refresh(0, 0, 0, 0, 0, 0, 1);
         expect(client.clients.size).equals(1);
         console.log(connectedRegions);
         console.log(loadedRegions);
 
-        console.log("\ntesting 0 0 0 and 0 0 100 in range.\n");
-        await client.refresh(0, 0, 45, 0, 0, 0, 1);
+        console.log("\ntesting 0 0 0 and 0 0 200 in range.\n");
+        await client.refresh(0, 0, 95, 0, 0, 0, 1);
         expect(client.clients.size).equals(2);
         console.log(connectedRegions);
         console.log(loadedRegions);
 
-        console.log("\ntesting 0 0 0 and 0 0 100 in range switching primary server.\n");
-        await client.refresh(0, 0, 55, 0, 0, 0, 1);
+        console.log("\ntesting 0 0 0 and 0 0 200 in range switching primary server.\n");
+        await client.refresh(0, 0, 105, 0, 0, 0, 1);
         expect(client.clients.size).equals(2);
         console.log(connectedRegions);
         console.log(loadedRegions);
 
         console.log("\ntesting 0 0 100 in range.\n");
-        await client.refresh(0, 0, 100, 0, 0, 0, 1);
+        await client.refresh(0, 0, 200, 0, 0, 0, 1);
         expect(client.clients.size).equals(1);
         console.log(connectedRegions);
         console.log(loadedRegions);
 
         console.log("\ntesting none in range.\n");
-        await client.refresh(0, 0, 200, 0, 0, 0, 1);
+        await client.refresh(0, 0, 400, 0, 0, 0, 1);
         expect(client.clients.size).equals(0);
         console.log(connectedRegions);
         console.log(loadedRegions);
 
         console.log("\ntesting 0 0 100 in range.\n");
-        await client.refresh(0, 0, 100, 0, 0, 0, 1);
+        await client.refresh(0, 0, 200, 0, 0, 0, 1);
         expect(client.clients.size).equals(1);
         console.log(connectedRegions);
         console.log(loadedRegions);
